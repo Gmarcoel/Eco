@@ -1,14 +1,17 @@
 from trade import Trade
+from job import Job
 
 class Entity():
     money = 0
     items = {}
     items_price = {}
+    contracts_price = {}
 
     def __init__(self, money=0):
         self.money = money
         self.items = {}
         self.items_price = {}
+        self.contracts_price = {}
     
     def __str__(self):
         return f"{self.money} {self.items}"
@@ -30,13 +33,20 @@ class Entity():
 
             return None
     
+    def job(self, job, salary):
+        self.money = round(self.money - salary,2)
+        self.contracts_price[job] = salary
+        return Job(self, job, salary)
+    
     def pay_taxes(self, taxes):
         self.money = round(self.money - taxes,2)
     
-    def get_expected_price(self, item, market):
+    def get_expected_price(self, item):
         if not item in self.items_price:
             self.items_price[item] = 1 # ESTA FUNCION ENTERA ES BASURA
         return self.items_price[item]
+    
+
 
     def add_money(self, money):
         self.money = round(self.money +money,2)

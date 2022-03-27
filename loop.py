@@ -8,6 +8,7 @@ import city
 import market
 import state
 import os
+import job_market
 
 
 import random
@@ -23,11 +24,11 @@ def demo():
         people.append(person.Person("Person " + str(i),
                       random.randint(0, 100), random.randint(0, 10)))
     # Create a farm
-    f = farm.Farm("Farm", people[0], random.randint(100, 1000), 5)
+    f = farm.Farm("Farm", people[0], random.randint(1000, 2000), 5)
     businesses.append(f)
 
     # Create a mine
-    mi = mine.Mine("Mine", people[1], random.randint(100, 1000), 5)
+    mi = mine.Mine("Mine", people[1], random.randint(3000, 5000), 5)
     businesses.append(mi)
     # Create a city
     c = city.City("City", [f,mi], people, 0.1, 1000)
@@ -35,21 +36,21 @@ def demo():
     # Create a market
     m = market.Market("Market", people[1], random.randint(0, 100), 0.1)
     # Create contracts for the farm
-    f.contract(people[2], 2, time=10000)
-    f.contract(people[3], 2, time=10000)
-    f.contract(people[4], 2, time=10000)
-    f.contract(people[5], 2, time=10000)
+    f.contract(people[2], 0.8, time=10000)
+    f.contract(people[3], 0.8, time=10000)
+    f.contract(people[4], 1, time=10000)
+    f.contract(people[5], 1, time=10000)
     mi.contract(people[6], 2, time=10000)
     mi.contract(people[7], 2, time=10000)
     mi.contract(people[8], 2, time=10000)
 
-    g = person.Person("Guille", 20, 5000)
-    k = person.Person("Kelia", 20, 5000)
+    g = person.Person("Guille", 20, 50)
+    k = person.Person("Kelia", 20, 50)
     people.append(g)
     people.append(k)
 
     # Create a second farm 
-    f2 = farm.Farm("Granja k", k, random.randint(100, 1000), 5)
+    f2 = farm.Farm("Granja k", k, random.randint(1000, 2000), 5)
     businesses.append(f2)
 
 
@@ -60,7 +61,14 @@ def demo():
 
     f2.contract(g, 2, time=400)
     f2.contract(k, 2, time=400)
-    f.set_owner(people[9])
+    
+    # f.set_owner(people[9])
+    f.set_owner(s)
+    mi.set_owner(s)
+
+    # Create job market
+    jm = job_market.job_market("Job Market", s, 1000, 0.1)
+
 
     turn = 0
     while True:
@@ -133,7 +141,7 @@ def demo():
         
         # Persons
         for p in people:
-            p.work()
+            p.work(jm)
             p.eat("food")
             p.create_trades(m)
         
@@ -145,7 +153,7 @@ def demo():
                 if new_c is not None:
                     new_cs.append(contract)
             business.work_contracts = new_cs
-            business.produce()
+            business.produce(job_market)
             business.sell(m)
             business.create_trades(m)
         # Give money to the busssinesses

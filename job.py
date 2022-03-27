@@ -1,24 +1,17 @@
 
-from business import Business
-
-
-from business import Business
-from contract import Contract
-from person import Person
 
 class Job:
-    business = None
-    contract = None
-    money = 0
+    entity = None
+    money = 1
+    time = 1
+    contractor = False
+    specialization = "None"
 
-    def __init__(self, business, contract, money):
-        self.business = business
-        self.contract = contract
-        self.person = person
+    def __init__(self, entity, money, time, specialization, contractor):
+        self.entity = entity
         self.money = money
+        self.time = time
+        self.specialization = specialization
+        self.contractor = contractor
     
-    def __str__(self):
-        return f"{self.business.name} has {self.contract.name} contract with {self.person.name}"
-    
-    def work(self):
-        self.contract.fullfill()
+

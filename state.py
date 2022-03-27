@@ -91,7 +91,7 @@ class State(Entity):
         # create trades for all needed resources
         for key in self.needed_resources:
             t = self.trade(key, self.get_expected_price(
-                key, market), False, self.needed_resources[key])
+                key), False, self.needed_resources[key])
             market.add_trade(t)
 
     def work(self):

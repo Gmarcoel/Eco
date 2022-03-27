@@ -53,7 +53,6 @@ class Market():
     products = {}
     database = MarketDatabase()
 
-
     def __init__(self, name, owner, money, tax_rate):
         self.name = name
         self.owner = owner
@@ -61,28 +60,30 @@ class Market():
         self.tax_rate = tax_rate
         self.trades = {}
         self.products = {}
-    
+
     def __str__(self):
         return f"{self.name} has {len(self.business)} businesses and {len(self.people)} people"
-    
+
     def add_business(self, business):
         self.business.append(business)
-    
+
     def add_person(self, person):
         self.people.append(person)
-    
-    def add_product(self, product, initial_price): # Se puede añadir trade sin product aqui entonces feo pero weno
+
+    # Se puede añadir trade sin product aqui entonces feo pero weno
+    def add_product(self, product, initial_price):
         self.products[product.name] = product.value
 
     def add_trade(self, trade):
-        if not trade: return 0
+        if not trade:
+            return 0
         if not trade.product in self.trades:
             self.trades[trade.product] = []
         self.trades[trade.product].append(trade)
-    
+
     def sort_trade(self, trade):
         return trade.price
-    
+
     def clean_market(self):
         for product in self.trades:
             for trade in self.trades[product]:

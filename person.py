@@ -6,6 +6,7 @@ class Person(Entity):
     age = 0
     money = 0
     job = "Farmer"
+    contract = None
     traits = []
     education = 0
 
@@ -71,12 +72,16 @@ class Person(Entity):
             self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.5,2)
 
     # El trabajar da 1 de trabajo a cada individuo si éste tiene trabajo
-    def work(self):
+    def work(self, job_market):
         if self.job:
             self.add_item("work", 1)
             # self.job.fullfill()
         else:
             print("No tiene trabajo")
+            j = self.job(self, self.specialization, self.contracts_price[self.specialization])
+            job_market.add_job(j)
+
+            
     
 
 
@@ -98,4 +103,4 @@ class Person(Entity):
         return price
     
 
-        
+    

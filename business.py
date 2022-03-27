@@ -1,6 +1,7 @@
 # Business class
 from numpy import product
 from entity import Entity
+from job_market import job_market
 
 
 class Business(Entity):
@@ -19,6 +20,12 @@ class Business(Entity):
 
     negative = 0
     dividend = 0.2
+
+    # Balance of the last 3 turns
+    balance = [0,0,0]
+    earnings = [0,0,0]
+    specialization = "None"
+
 
 
     def __init__(self, name = "", employees = [], tech_level = 0, owner = None, product = None, money = 0):
@@ -82,7 +89,7 @@ class Business(Entity):
     def delete_needed_good(self, item):
         del self.needed_goods[item]
     
-    def produce(self):
+    def produce(self, job_market):
         """
         if self.product == None:
             return
@@ -135,8 +142,28 @@ class Business(Entity):
 
         self.items["work"] = 0
 
+        # Calcular el balance del negocio
+        self.earnings[2] = self.earnings[1]
+        self.earnings[1] = self.earnings[0]
+        self.earnings[0] = self.money
+
+        self.balance[2] = self.balance[1]
+        self.balance[1] = self.balance[0]
+        self.balance[0] = self.earnings[0] - self.earnings[1]
+
+        # Si el balamce es positivo se intenta contratar
+        if self.balance[0] > 0:
+            # Si los contratos son más caros que la ganancia del negocio se reduce el precio de los contratos
+            if self.specialization not in self.contracts_price:
+                self.contracts_price[self.specialization] = 1
+            if self.balance[0] > self.contracts_price[self.specialization]:
+                self.contracts_price[self.specialization] = round(self.contracts_price[self.specialization] * 0.9, 2)
+            else:
+                self.hire(job_market)
+                
+
         # Dar al dueño una parte de la ganancia
-        if self.owner != None:
+        if self.owner != None and self.balance[0] > 0:
             slice = round(self.money * self.dividend,2)
             self.owner.add_money(slice)
             self.money = round(self.money - slice,2)
@@ -174,7 +201,7 @@ class Business(Entity):
             self.items_price[self.product] = round(self.needed_goods_price * 0.8,2)
 
 
-        t = self.trade(self.product, self.get_expected_price(self.product, market), True, self.items[self.product])
+        t = self.trade(self.product, self.get_expected_price(self.product), True, self.items[self.product])
         market.add_trade(t)
 
 
@@ -196,3 +223,8 @@ class Business(Entity):
     
     def remove_owner(self):
         self.owner = None
+    
+
+    def hire(self, job_market):
+        j = self.job(self, self.specialization, self.contracts_price[self.specialization])
+        job_market.add_job(j)

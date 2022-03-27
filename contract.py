@@ -59,6 +59,11 @@ class Contract():
             self.entity2.add_item(self.item1, self.item1_quantity)
             self.time -= 1
             if self.time <= 0:
+                # if entity1 is person
+                if isinstance(self.entity1, Person):
+                    self.contract = None
+                if isinstance(self.entity2, Person):
+                    self.contract = None
                 return None
             return self
             
