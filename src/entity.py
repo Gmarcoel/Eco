@@ -1,17 +1,24 @@
-from trade import Trade
-from job import Job
+from  src.trade import Trade
+from  src.job import Job
 
 class Entity():
     money = 0
     items = {}
     items_price = {}
     contracts_price = {}
+    # Balance of the last 3 turns
+    balance = [0,0,0]
+    earnings = [0,0,0]
+    
+
 
     def __init__(self, money=0):
         self.money = money
         self.items = {}
         self.items_price = {}
         self.contracts_price = {}
+        self.balance = [0,0,0]
+        self.earnings = [0,0,0]
     
     def __str__(self):
         return f"{self.money} {self.items}"
@@ -25,6 +32,13 @@ class Entity():
         elif not sell and self.money >= price * quantity:
             self.money = round(self.money - (price * quantity),2)
             return Trade(self, price, sell, quantity, product)
+        elif not sell and self.money >= price:
+            buyable_ammount = 1
+            while self.money >= price * (buyable_ammount + 1):
+                buyable_ammount += 1
+            self.money = round(self.money - (price * buyable_ammount),2)
+            return Trade(self, price, sell, buyable_ammount, product)
+
         else:
             print("Trade went wrong")
             print("************************")
@@ -33,10 +47,8 @@ class Entity():
 
             return None
     
-    def job(self, job, salary):
-        self.money = round(self.money - salary,2)
-        self.contracts_price[job] = salary
-        return Job(self, job, salary)
+    def create_job(self, salary, time, specialization, contractor):
+        return Job(self, salary, time, specialization, contractor)
     
     def pay_taxes(self, taxes):
         self.money = round(self.money - taxes,2)
@@ -71,3 +83,9 @@ class Entity():
         self.money = round(self.money - money,2)
         entity.money = round(entity.money + money,2)
         return True
+    
+    def check_balance(self):
+        if self.balance[0] >= 0 and self.balance[1] >= 0 and self.balance[2] >= 0:
+            return True
+        return False
+

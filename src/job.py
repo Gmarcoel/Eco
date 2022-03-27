@@ -14,4 +14,7 @@ class Job:
         self.specialization = specialization
         self.contractor = contractor
     
+    def __str__(self):
+        return f"{self.entity.name} is a {self.specialization} job with {self.money} money and {self.time} time"
+    
 

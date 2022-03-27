@@ -1,5 +1,5 @@
-from entity import Entity
-from person import Person
+from  src.entity import Entity
+from  src.person import Person
 
 class Contract():
     entity1 = None
@@ -61,9 +61,9 @@ class Contract():
             if self.time <= 0:
                 # if entity1 is person
                 if isinstance(self.entity1, Person):
-                    self.contract = None
+                    self.entity1.contract = None
                 if isinstance(self.entity2, Person):
-                    self.contract = None
+                    self.entity2.contract = None
                 return None
             return self
             

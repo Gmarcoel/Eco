@@ -2,8 +2,8 @@ from math import prod
 import random
 
 
-from entity import Entity
-from trade import Trade
+from  src.entity import Entity
+from  src.trade import Trade
 
 class MarketDatabase():
 
@@ -86,11 +86,20 @@ class Market():
 
     def clean_market(self):
         for product in self.trades:
+            b = 0
+            s = 0
+            for t in self.trades[product]:
+                if t.quantity >0 and t.sell:
+                    s += 1
+                if t.quantity >0 and not t.sell:
+                    b += 1
             for trade in self.trades[product]:
                 if trade.quantity > 0:
-                    if trade.sell:
+                    if trade.sell and b != 0: # Solo baja si había más compradores
                         trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.05),2)
-                    else:
+                    elif trade.sell and s == 1: # Si es el único vendedor sube
+                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.05),2)
+                    elif not trade.sell: # Solo sube si había más vendedores
                         trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.05),2)
 
                 trade.cancel()

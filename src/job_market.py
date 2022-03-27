@@ -1,7 +1,7 @@
-from entity import Entity
-from job import Job
+from  src.entity import Entity
+from  src.job import Job
 import random
-from contract import Contract
+from  src.contract import Contract
 
 class job_market(Entity):
     name = "Job Market"
@@ -56,20 +56,20 @@ class job_market(Entity):
             # Get all buy jobs on market
             contractor_jobs = []
             for job in self.jobs[specialization]:
-                if not job.sell:
+                if job.contractor:
                     contractor_jobs.append(job)
-            # Get all sell jobs on market
+            # Get all contractor jobs on market
             contractee_jobs = []
             for job in self.jobs[specialization]:
-                if job.sell:
+                if not job.contractor:
                     contractee_jobs.append(job)
-            print("RECURSO ", specialization)
-            print("===========================")
-            print("COMPRAS")
+            print("ESPECIALIZACION ", specialization)
+            print("============================================================================================================")
+            print("OFERTA")
             print("-------")
             for t in contractor_jobs:
                 print(t)
-            print("VENTAS")
+            print("DEMANDA")
             print("------")
             for t in contractee_jobs:
                 print(t)
@@ -80,17 +80,31 @@ class job_market(Entity):
             random.shuffle(contractee_jobs)
             # Loop trough all the buy jobs
             for job in contractor_jobs:
-                # Loop through all the sell jobs
+                # Loop through all the contractor jobs
                 for contractee_job in contractee_jobs:
-                    # If the buy money is higher or equal than the sell money
-                    if job.money >= contractee_job.money and job.time >= contractee_job.time:
+                    found = False
+
+                    # If the buy money is higher or equal than the contractor money
+                    if job.money >= contractee_job.money and job.time >= contractee_job.time and contractee_job.money != 0:
                         # Create a contract
                         contract = job.entity.contract(contractee_job.entity, job.money, job.time)
                         # Add contract to the contratee
                         contractee_job.entity.contract = contract
+                        # Set contract to 0 so it doesn't show again
+                        job.money = 0
+                        contractee_job.money = 0
                         # Remove the job from the market
                         self.jobs[specialization].remove(job)
+                        self.jobs[specialization].remove(contractee_job)
                         # Change contract price 
+                        job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] - job.entity.contracts_price[specialization]* 0.05,2)
+                        contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] + contractee_job.entity.contracts_price[specialization]* 0.05,2)
+                        found = True
+                        break
+                    if not found:
+                        contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] - contractee_job.entity.contracts_price[specialization]* 0.05,2)
+
+
                         
  
         self.clean_market()

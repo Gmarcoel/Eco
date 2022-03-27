@@ -1,8 +1,8 @@
-from business import Business
-from person import Person
-from contract import Contract
+from  src.business import Business
+from  src.person import Person
+from  src.contract import Contract
 
-class Constructor(Business):
+class Farm(Business):
     land = 0
 
     def __init__(self, name, owner, money, land=100):
@@ -15,7 +15,7 @@ class Constructor(Business):
 
     
     def __str__(self):
-        return f"{self.name} has {self.land} acres of land and {self.money} money"
+        return f"{self.name} has {self.land} acres of land and {self.money} money and a balance of {self.balance}"
     
     def add_land(self, land):
         self.land += land
@@ -31,7 +31,7 @@ class Constructor(Business):
     def contract(self, person, money, time= 10 ):
         contract = Contract(self,person, money,0,None,"work",0,1, time=time)
         self.work_contracts.append(contract)
-        person.job = contract
+        person.contract = contract
         return contract
     
 

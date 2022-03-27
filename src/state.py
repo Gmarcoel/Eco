@@ -1,45 +1,9 @@
-from entity import Entity
+from  src.entity import Entity
+from src.project import Project
+
+import json
 
 
-class Proyect():
-    entity = None
-    name = ""
-    money = 0
-    resources = {}
-    time = 1
-
-    def __init__(self, name="", entity=None, money=0, resources={}, time=1):
-        self.name = name
-        self.entity = entity
-        self.money = money
-        self.resources = resources
-        self.time = time
-
-    def __str__(self):
-        return f"Proyecto {self.name} Falta: Dinero {self.money}, recursos {self.resources}"
-
-    def accomplish(self, entity):
-        if entity.money >= self.money:
-            entity.money = round(entity.money - self.money,2)
-            self.money = 0
-        completed = []
-        for key in self.resources:
-            if key not in entity.items:
-                entity.items[key] = 0
-            if entity.items[key] >= self.resources[key]:
-                entity.items[key] -= self.resources[key]
-                self.resources[key] = 0
-                completed.append(key)
-
-            else:
-                self.resources[key] -= entity.items[key]
-                entity.items[key] = 0
-        # remove completed resources from the project
-        for key in completed:
-            del self.resources[key]
-        if not self.resources and self.money == 0:
-            return True
-        return False
     
 
 
@@ -49,7 +13,7 @@ class State(Entity):
     cities = []
     population = []
     owned_bussiness = []
-    proyects = []
+    projects = []
     in_construction = []
     needed_resources = {}
 
@@ -60,7 +24,7 @@ class State(Entity):
         self.cities = []
         self.population = []
         self.owned_bussiness = []
-        self.proyects = []
+        self.projects = []
         self.in_construction = []
         self.needed_resources = {}
 
@@ -74,19 +38,28 @@ class State(Entity):
         self.cities.remove(city)
 
     def add_infrastructure(self, city):
-        inf = Proyect("infrastructure", city, 100, {'stone': 50}, 5)
-        self.proyects.append(inf)
+        with open("data/projects.json", "r") as f:
+                        data = json.load(f)
+                        # Get the resources needed for the project
+                        resources = data["projects"]["infrastructure"]["resources"]
+                        # Get the time needed for the project
+                        time = int(data["projects"]["infrastructure"]["time"])
+                        # Create the project
+                        p = Project("infrastructure", city, self, 0, resources, time)
+                        # Add the project to the list of projects
+                        self.projects.append(p)
+        # inf = Project("infrastructure", city, self, 100, {'stone': 50}, 5)
+        # self.projects.append(inf)
 
     def process_needed_resourcess(self, market):
-        self.needed_resources = {}
-        # add all resources from proyects to needed resources
+        # add all resources from projects to needed resources
         for res in self.needed_resources:
             res = 0
-        for proyect in self.proyects:
-            for key in proyect.resources:
+        for project in self.projects:
+            for key in project.resources:
                 if not key in self.needed_resources:
                     self.needed_resources[key] = 0
-                self.needed_resources[key] += proyect.resources[key]
+                self.needed_resources[key] += project.resources[key]
 
         # create trades for all needed resources
         for key in self.needed_resources:
@@ -95,9 +68,9 @@ class State(Entity):
             market.add_trade(t)
 
     def work(self):
-        for p in self.proyects:
+        for p in self.projects:
             if p.accomplish(self):
-                self.proyects.remove(p)
+                self.projects.remove(p)
                 self.in_construction.append(p)
         done = []
         for p in self.in_construction:
@@ -107,7 +80,7 @@ class State(Entity):
                     p.entity.add_infrastructure(1)
             else:
                 p.time -= 1
-        # remove completed proyects from the project
+        # remove completed projects from the project
         for p in done:
             self.in_construction.remove(p)
     

@@ -1,6 +1,6 @@
-from business import Business
-from person import Person
-from contract import Contract
+from  src.business import Business
+from  src.person import Person
+from  src.contract import Contract
 
 class Mine(Business):
     space = 5
@@ -16,7 +16,7 @@ class Mine(Business):
 
     
     def __str__(self):
-        return f"{self.name} has a size of {self.space} and {self.money} money"
+        return f"{self.name} has a size of {self.space} and {self.money} money and a balance of {self.balance}"
     
     def add_space(self, space):
         self.space += space
@@ -32,7 +32,7 @@ class Mine(Business):
     def contract(self, person, money, time= 10 ):
         contract = Contract(self,person, money,0,None,"work",0,1, time=time)
         self.work_contracts.append(contract)
-        person.job = contract
+        person.contract = contract
         return contract
     
 

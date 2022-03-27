@@ -1,0 +1,49 @@
+{
+    "projects" : {
+        "farm" :{
+            "description" : "A farm industry",
+            "time" : "3",
+            "resources" : {
+                "wood" : 10,
+                "stone" : 10,
+                "build" : 10
+
+            }
+        },
+        "mine" :{
+            "description" : "A mine industry",
+            "time" : "3",
+            "resources" : {
+                "wood" : 10,
+                "stone" : 10,
+                "build" : 10
+            }
+        },
+        "sawmill" :{
+            "description" : "A sawmill industry",
+            "time" : "3",
+            "resources" : {
+                "wood" : 10,
+                "stone" : 10,
+                "build" : 10
+            }
+        },
+        "constructor": {
+            "description" : "A construction industry",
+            "time" : "3",
+            "resources" : {
+                "wood" : 20
+            }
+        },
+        "infrastructure": {
+            "description" : "A infrastructure",
+            "time" : "3",
+            "resources" : {
+                "stone" : 50,
+                "build" : 50
+            }
+        }
+
+            
+    }
+}

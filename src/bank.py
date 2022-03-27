@@ -1,4 +1,4 @@
-from business import Business
+from  src.business import Business
 
 class Bank(Business):
     interest_rate = 0.01

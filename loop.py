@@ -1,14 +1,19 @@
 import imp
 from json.tool import main
-import entity
-import person
-import farm
-import mine
-import city
-import market
-import state
+from src import entity
+from src import person
+from src import farm
+from src import mine
+from src import city
+from src import market
+from src import state
+from src import job_market
+from src import sawmill
+from src import constructor
+
+from managers import person_manager
+
 import os
-import job_market
 
 
 import random
@@ -22,7 +27,7 @@ def demo():
 
     for i in range(10):
         people.append(person.Person("Person " + str(i),
-                      random.randint(0, 100), random.randint(0, 10)))
+                      random.randint(18, 80), random.randint(80, 800)))
     # Create a farm
     f = farm.Farm("Farm", people[0], random.randint(1000, 2000), 5)
     businesses.append(f)
@@ -31,27 +36,42 @@ def demo():
     mi = mine.Mine("Mine", people[1], random.randint(3000, 5000), 5)
     businesses.append(mi)
     # Create a city
-    c = city.City("City", [f,mi], people, 0.1, 1000)
+    c = city.City("City", [], people, 0.1, 1000)
 
     # Create a market
     m = market.Market("Market", people[1], random.randint(0, 100), 0.1)
     # Create contracts for the farm
     f.contract(people[2], 0.8, time=10000)
-    f.contract(people[3], 0.8, time=10000)
-    f.contract(people[4], 1, time=10000)
-    f.contract(people[5], 1, time=10000)
+    # f.contract(people[3], 0.8, time=10000)
+    # f.contract(people[4], 1, time=10000)
+    # f.contract(people[5], 1, time=10000)
     mi.contract(people[6], 2, time=10000)
-    mi.contract(people[7], 2, time=10000)
-    mi.contract(people[8], 2, time=10000)
+    # mi.contract(people[7], 2, time=10000)
+    # mi.contract(people[8], 2, time=10000)
 
     g = person.Person("Guille", 20, 50)
-    k = person.Person("Kelia", 20, 50)
+    k = person.Person("Kelia", 20, 500000)
     people.append(g)
     people.append(k)
 
     # Create a second farm 
     f2 = farm.Farm("Granja k", k, random.randint(1000, 2000), 5)
     businesses.append(f2)
+
+    # Create a sawmill
+    saw = sawmill.Sawmill("Sawmill", g, random.randint(1000, 2000), 5)
+    businesses.append(saw)
+
+    # Create a constructor
+    cons = constructor.Constructor("Constructor", g, random.randint(1000, 2000), 5)
+    businesses.append(cons)
+
+    # Contract more people to the sawmill
+    saw.contract(people[7], 0.8, time=10000)
+    
+    # Contract more people to the constructor
+    cons.contract(people[8], 0.8, time=10000)
+
 
 
     # Create a state
@@ -65,9 +85,24 @@ def demo():
     # f.set_owner(people[9])
     f.set_owner(s)
     mi.set_owner(s)
+    saw.set_owner(s)
+    cons.set_owner(s)
 
     # Create job market
     jm = job_market.job_market("Job Market", s, 1000, 0.1)
+
+    # Add business to the city
+    for b in businesses:
+        c.add_business(b)
+
+
+    # Managers
+    pm = []
+    for p in people:
+        pm.append(person_manager.PersonManager(p,jm,m,c))
+
+    
+
 
 
     turn = 0
@@ -86,7 +121,7 @@ def demo():
         
         print("Business:")
         print("===========================")
-        for b in businesses:
+        for b in c.businesses:
             print(b)
         print("===========================")
         
@@ -117,10 +152,10 @@ def demo():
         print("State:")
         print("===========================")
         print(s)
-        print("Proyects:")
-        for pro in s.proyects:
+        print("projects:")
+        for pro in s.projects:
             print(pro)
-        print("Future proyects:")
+        print("Future projects:")
         print(s.in_construction)
         # Print the turn
         print("===========================")
@@ -140,20 +175,22 @@ def demo():
         # Do the turn
         
         # Persons
-        for p in people:
-            p.work(jm)
-            p.eat("food")
-            p.create_trades(m)
+        for perm in pm:
+            perm.do()
+        # for p in people:
+        #     p.work(jm)
+        #     p.eat("food")
+        #     p.create_trades(m)
         
         # Businesses
-        for business in businesses:
+        for business in c.businesses:
             new_cs = []
             for contract in business.work_contracts:
                 new_c = contract.fullfill()
                 if new_c is not None:
                     new_cs.append(contract)
             business.work_contracts = new_cs
-            business.produce(job_market)
+            business.produce(jm)
             business.sell(m)
             business.create_trades(m)
         # Give money to the busssinesses
@@ -166,16 +203,14 @@ def demo():
                 business.negative = 0
 
         # State
-        print("PRE TAXES ", s.money)
-        s.tax()
-        print("POST TAXES ", s.money)
         s.work()
         s.process_needed_resourcess(m)
-        if s.money > 50 and len(s.proyects) < 3:
+        if s.money > 50 and len(s.projects) < 3:
             s.add_infrastructure(c)
         
         # Market
         m.free_commerce()
+        jm.free_commerce()
 
 
 

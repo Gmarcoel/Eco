@@ -1,6 +1,6 @@
 from html import entities
-from business import Business
-from person import Person
+from  src.business import Business
+from  src.person import Person
 
 class City:
     name = ""
@@ -10,6 +10,7 @@ class City:
     tax_rate = 0.1
     money = 0
     infrastructure = 10
+    infrastructure_price = 10
     markets = []
 
     def __init__(self, name = "", businesses = [], people = [], tax_rate = 0.1, money = 1000):
@@ -64,6 +65,20 @@ class City:
         for entity in self.entities:
             taxes = round(taxes + entity.tax(self.tax_rate), 2)
         return taxes
+    
+    def buy_terrain(self, entity):
+        if self.infrastructure > 0 and entity.money > self.infrastructure_price:
+            entity.subtract_money(self.infrastructure_price)
+            self.add_money(self.infrastructure_price)
+            self.infrastructure -= 1
+            return True
+        return False
+    
+    def add_money(self, money):
+        self.money = round(money + self.money, 2)
+    
+    def subtract_money(self, money):
+        self.money = round(self.money - money, 2)
 
     # Functio to do a turn of all the people and businesses
 

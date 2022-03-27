@@ -1,20 +1,24 @@
-from entity import Entity
+from  src.entity import Entity
 
 
 class Person(Entity):
     name = ""
     age = 0
     money = 0
-    job = "Farmer"
+    job = "None"
     contract = None
     traits = []
     education = 0
+    specialization = "None"
+    partner = None
 
     hungry = 0
     dead = False
     basic_needs = {
         "food": 1
     }
+
+    businesses = []
 
 
     def __init__(self, name="", age=0, money=0, job=None):
@@ -25,6 +29,7 @@ class Person(Entity):
         self.job = "Farmer"
         self.items_price["food"] = 1.5
         self.traits = []
+        self.businesses = []
     
     def __str__(self):
         if self.dead:
@@ -73,12 +78,15 @@ class Person(Entity):
 
     # El trabajar da 1 de trabajo a cada individuo si éste tiene trabajo
     def work(self, job_market):
-        if self.job:
+        if self.contract:
             self.add_item("work", 1)
             # self.job.fullfill()
         else:
             print("No tiene trabajo")
-            j = self.job(self, self.specialization, self.contracts_price[self.specialization])
+            if not self.specialization in self.contracts_price:
+                self.contracts_price[self.specialization] = 1
+            j = self.create_job(self.contracts_price[self.specialization], 1, self.specialization, False)
+            
             job_market.add_job(j)
 
             
@@ -96,6 +104,8 @@ class Person(Entity):
 
 
     def get_expected_price(self, item):
+        if not item in self.items_price:
+            self.items_price[item] = 1
         price = self.items_price[item]
         if price > self.money:
             price = self.money

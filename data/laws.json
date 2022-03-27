@@ -1,0 +1,11 @@
+{
+    "laws" : [
+        {
+            "name" : "Law 1",
+            "description" : "Law 1 description",
+            "id" : "law1",
+            "type" : "law"
+            
+        }
+    ]
+}

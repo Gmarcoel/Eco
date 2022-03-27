@@ -1,7 +1,7 @@
 # Business class
-from numpy import product
-from entity import Entity
-from job_market import job_market
+from  numpy import product
+from  src.entity import Entity
+from  src.job_market import job_market
 
 
 class Business(Entity):
@@ -21,9 +21,8 @@ class Business(Entity):
     negative = 0
     dividend = 0.2
 
-    # Balance of the last 3 turns
-    balance = [0,0,0]
-    earnings = [0,0,0]
+
+
     specialization = "None"
 
 
@@ -40,14 +39,15 @@ class Business(Entity):
         self.work_contracts = []
         self.employees = []
         self.jobs = [] # No se usa
-        status = "open"
-        negative = 0
+        self.status = "open"
+        self.negative = 0
+
 
 
     def __str__(self):
         if self.status == "closed":
             return "closed"
-        return f"{self.name} has {len(self.employees)} employees and {len(self.jobs)} jobs"
+        return f"{self.name} has {len(self.employees)} employees and {len(self.jobs)} jobs with  balance of {self.balance}"
     
     def add_job(self, job): # No se usa
         self.jobs.append(job)
@@ -156,7 +156,7 @@ class Business(Entity):
             # Si los contratos son más caros que la ganancia del negocio se reduce el precio de los contratos
             if self.specialization not in self.contracts_price:
                 self.contracts_price[self.specialization] = 1
-            if self.balance[0] > self.contracts_price[self.specialization]:
+            if self.balance[0] < self.contracts_price[self.specialization]:
                 self.contracts_price[self.specialization] = round(self.contracts_price[self.specialization] * 0.9, 2)
             else:
                 self.hire(job_market)
@@ -226,5 +226,6 @@ class Business(Entity):
     
 
     def hire(self, job_market):
-        j = self.job(self, self.specialization, self.contracts_price[self.specialization])
+        # salary, time, specialization, contractor
+        j = self.create_job(self.contracts_price[self.specialization], 10, self.specialization, True)
         job_market.add_job(j)
