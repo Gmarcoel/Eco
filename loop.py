@@ -25,7 +25,7 @@ def demo():
     people = []
     businesses = []
 
-    for i in range(10):
+    for i in range(30):
         people.append(person.Person("Person " + str(i),
                       random.randint(18, 80), random.randint(80, 800)))
     # Create a farm
@@ -49,8 +49,8 @@ def demo():
     # mi.contract(people[7], 2, time=10000)
     # mi.contract(people[8], 2, time=10000)
 
-    g = person.Person("Guille", 20, 50)
-    k = person.Person("Kelia", 20, 500000)
+    g = person.Person("Guille", 20, 500)
+    k = person.Person("Kelia", 20, 500)
     people.append(g)
     people.append(k)
 
@@ -79,8 +79,13 @@ def demo():
     s.add_city(c)
     
 
-    f2.contract(g, 2, time=400)
+    f2.contract(g, 1, time=400)
     f2.contract(k, 2, time=400)
+    f.contract(people[11], 2, time=40)
+    f.contract(people[12], 2, time=40)
+    f.contract(people[13], 2, time=40)
+    f.contract(people[14], 2, time=40)
+
     
     # f.set_owner(people[9])
     f.set_owner(s)
@@ -113,7 +118,7 @@ def demo():
         print("===========================")
         print("Contracts:")
         print("===========================")
-        for b in businesses:
+        for b in c.businesses:
             for contract in b.work_contracts:
                 print(contract)
         print("===========================")
@@ -122,14 +127,16 @@ def demo():
         print("Business:")
         print("===========================")
         for b in c.businesses:
-            print(b)
+            if (b.status!="closed"):
+                print(b)
         print("===========================")
         
         print("===========================")
         print("People:")
         print("===========================")
         for p in people:
-            print(p)
+            if not p.dead:
+                print(p)
         # Print the city
         print("===========================")
         print("===========================")
@@ -190,11 +197,12 @@ def demo():
                 if new_c is not None:
                     new_cs.append(contract)
             business.work_contracts = new_cs
-            business.produce(jm)
+            if not business.produce(jm):
+                c.infrastructure += 1
             business.sell(m)
             business.create_trades(m)
         # Give money to the busssinesses
-        for business in businesses:
+        for business in c.businesses:
             debt_money = 0
             for contract in business.work_contracts:
                 debt_money += contract.money1
@@ -203,10 +211,15 @@ def demo():
                 business.negative = 0
 
         # State
+        s.tax()
         s.work()
-        s.process_needed_resourcess(m)
+
         if s.money > 50 and len(s.projects) < 3:
-            s.add_infrastructure(c)
+            if c.infrastructure < 5:
+                s.add_infrastructure(c)
+            else:
+                s.add_project(c)
+        s.process_needed_resourcess(m)
         
         # Market
         m.free_commerce()

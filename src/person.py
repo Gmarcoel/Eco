@@ -88,19 +88,33 @@ class Person(Entity):
             j = self.create_job(self.contracts_price[self.specialization], 1, self.specialization, False)
             
             job_market.add_job(j)
+        
+        self.earnings[2] = self.earnings[1]
+        self.earnings[1] = self.earnings[0]
+        self.earnings[0] = self.money
+
+        self.balance[2] = self.balance[1]
+        self.balance[1] = self.balance[0]
+        self.balance[0] = round(self.earnings[0] - self.earnings[1],2)
+        
 
             
     
 
 
     # create trades for all needed goods
+
     def create_trades(self, market):
         
         if self.dead:
             return
         for item in self.basic_needs:
-            t = self.trade(item, self.get_expected_price(item), False, self.basic_needs[item])
+            exp_price = self.get_expected_price(item)
+            if exp_price == 0:
+                return
+            t = self.trade(item, exp_price, False, self.basic_needs[item])
             market.add_trade(t)
+
 
 
     def get_expected_price(self, item):

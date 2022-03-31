@@ -92,10 +92,11 @@ class Market():
                 if t.quantity >0 and t.sell:
                     s += 1
                 if t.quantity >0 and not t.sell:
+                    
                     b += 1
             for trade in self.trades[product]:
                 if trade.quantity > 0:
-                    if trade.sell and b != 0: # Solo baja si había más compradores
+                    if trade.sell: # and b != 0 and round(trade.price - (trade.price * 0.05))!=0: # Solo baja si había más compradores
                         trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.05),2)
                     elif trade.sell and s == 1: # Si es el único vendedor sube
                         trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.05),2)
@@ -137,6 +138,8 @@ class Market():
             random.shuffle(sell_trades)
             # Loop trough all the buy trades
             for trade in buy_trades:
+                # Variable to check if the price has gone up
+                price_up = False
                 # Loop through all the sell trades
                 for sell_trade in sell_trades:
                     # If the buy price is higher or equal than the sell price
@@ -144,6 +147,8 @@ class Market():
                         # If the buy quantity is higher than the sell quantity
                         if trade.quantity > sell_trade.quantity:
                             # Buy the quantity of the sell trade
+                            if not product in trade.entity.items:
+                                trade.entity.items[product] = 0
                             trade.entity.items[product] = round(trade.entity.items[product] + sell_trade.quantity,2)
                             # Add transaction to the database
                             self.database.add_transaction(product, sell_trade.price, sell_trade.quantity)
@@ -170,7 +175,12 @@ class Market():
                             # Fullfill the buy trade
                             sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * trade.quantity),2) 
                             # Change the buy trade future price
-                            trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.05),2)
+                            if not price_up:
+                                if round(trade.price - (trade.price * 0.05)) != 0:
+                                    # print("Precio antes era ", trade.entity.items_price[trade.product])
+                                    trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.05),2)
+                                    # print("Pecio ahora es ", trade.entity.items_price[trade.product])
+                                price_up = True
                             # Remove the buy trade
                             trade.quantity = 0
                             # If the sell trade quantity left is 0 change the sell trade price
@@ -194,6 +204,7 @@ class Market():
                             # Go to next buy trade (break)
                     # If the sell price is higher than the buy price
                         # Check next sell trade
+                
         self.clean_market()
                         
                 

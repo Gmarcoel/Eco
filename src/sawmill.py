@@ -15,7 +15,9 @@ class Sawmill(Business):
 
     
     def __str__(self):
-        return f"{self.name} has {self.land} acres of land and {self.money} money and a balance of {self.balance}"
+        if self.status == "closed":
+            return "closed"
+        return f"{self.name} has {self.land} acres of land and {self.money} money and a balance of {self.balance}, and owned by {self.owner.name}"
     
     def add_land(self, land):
         self.land += land
@@ -28,10 +30,3 @@ class Sawmill(Business):
             return False
         return True
     
-    def contract(self, person, money, time= 10 ):
-        contract = Contract(self,person, money,0,None,"work",0,1, time=time)
-        self.work_contracts.append(contract)
-        person.contract = contract
-        return contract
-    
-

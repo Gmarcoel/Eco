@@ -58,7 +58,21 @@ class Entity():
             self.items_price[item] = 1 # ESTA FUNCION ENTERA ES BASURA
         return self.items_price[item]
     
-
+    def add_item(self, item, quantity):
+        if not item in self.items:
+            self.items[item] = 0
+        self.items[item] += quantity
+    
+    def subtract_item(self, item, quantity):
+        print("item: ", item, "quantity: ", quantity, "items: ", self.items)
+        if item == None:
+            return True
+        if self.items[item] >= quantity:
+            self.items[item] -= quantity
+        else:
+            print("No hay suficiente producto")
+            return False
+        return True
 
     def add_money(self, money):
         self.money = round(self.money +money,2)
@@ -72,8 +86,14 @@ class Entity():
         return True
     
     def tax(self, tax_rate):
-        tax = round(self.money * tax_rate,2)
-        self.money = round(self.money - tax,2)
+        tax = round(self.balance[0] * tax_rate,2)
+        if tax <= 0:
+            return 0
+        if self.money >= tax:
+            self.money = round(self.money - tax,2)
+        else:
+            tax = self.money
+            self.money = 0
         return tax
     
     def subsidize(self, entity, money):

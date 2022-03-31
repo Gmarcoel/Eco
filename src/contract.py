@@ -87,7 +87,7 @@ class Contract():
                 return Contract(self.entity1, self.entity2, 0, self.fine, None, None, 0, 0, 1, self.fine + self.fine/20)
         self.time -= 1
         
-        return False
+        return None
     
     def check_if_done(self):
         if self.time <= 0:

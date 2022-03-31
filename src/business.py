@@ -2,7 +2,7 @@
 from  numpy import product
 from  src.entity import Entity
 from  src.job_market import job_market
-
+from  src.contract import Contract
 
 class Business(Entity):
     name = ""
@@ -47,7 +47,7 @@ class Business(Entity):
     def __str__(self):
         if self.status == "closed":
             return "closed"
-        return f"{self.name} has {len(self.employees)} employees and {len(self.jobs)} jobs with  balance of {self.balance}"
+        return f"{self.name} has {len(self.employees)} employees and {len(self.jobs)} jobs with  balance of {self.balance}, owned by {self.owner.name}"
     
     def add_job(self, job): # No se usa
         self.jobs.append(job)
@@ -55,19 +55,7 @@ class Business(Entity):
     def add_employee(self, employee, job): # Tampoco se usa creo no se no me acuerdo
         self.employees.append(employee)
     
-    def add_item(self, item, quantity):
-        self.items[item] = quantity
-    
-    def subtract_item(self, item, quantity):
-        print("item: ", item, "quantity: ", quantity, "items: ", self.items)
-        if item == None:
-            return True
-        if self.items[item] >= quantity:
-            self.items[item] -= quantity
-        else:
-            print("No hay suficiente producto")
-            return False
-        return True
+
     
         
     def add_needed_goods(self, item, quantity):
@@ -104,6 +92,8 @@ class Business(Entity):
 
         # Parte bancarrota
         if self.status == "closed":
+            self.owner.add_money(self.money)
+            self.money = 0
             return
         if self.items["work"] == 0:
             self.negative += 1
@@ -114,7 +104,12 @@ class Business(Entity):
         if self.negative > 5:
             # self.bankrupt()
             self.status = "closed"
-            self.items_price[self.product] = round(self.needed_goods_price * 0.2, 2) # Una chapuza para quitar luego hace que al quebrar venda más barato
+            if round(self.needed_goods_price * 0.8, 2) != 0:
+                self.items_price[self.product] = round(self.needed_goods_price * 0.8, 2) # Una chapuza para quitar luego hace que al quebrar venda más barato
+            for contract in self.work_contracts:
+                contract.entity2.contract = None
+            self.work_contracts = []
+            return False
 
 
 
@@ -149,10 +144,18 @@ class Business(Entity):
 
         self.balance[2] = self.balance[1]
         self.balance[1] = self.balance[0]
-        self.balance[0] = self.earnings[0] - self.earnings[1]
+        self.balance[0] = round(self.earnings[0] - self.earnings[1],2)
+
+        # if balance is negative increase price NO SIRVE DE NADA
+        # if not self.check_balance():
+        #     if not self.product in self.items_price:
+        #         self.items_price[self.product] = 1
+        #     self.items_price[self.product] = round(self.items_price[self.product] * 1.05, 2)
+        
+
 
         # Si el balamce es positivo se intenta contratar
-        if self.balance[0] > 0:
+        if self.check_balance():
             # Si los contratos son más caros que la ganancia del negocio se reduce el precio de los contratos
             if self.specialization not in self.contracts_price:
                 self.contracts_price[self.specialization] = 1
@@ -160,6 +163,8 @@ class Business(Entity):
                 self.contracts_price[self.specialization] = round(self.contracts_price[self.specialization] * 0.9, 2)
             else:
                 self.hire(job_market)
+
+
                 
 
         # Dar al dueño una parte de la ganancia
@@ -196,6 +201,8 @@ class Business(Entity):
     def sell(self, market):
         if not self.product in self.items:
             self.items[self.product]
+        if self.items[self.product] == 0:
+            return
         # If bussiness is close to bankrupt item at a lower cost
         if self.money < self.needed_goods_price * 1.5:
             self.items_price[self.product] = round(self.needed_goods_price * 0.8,2)
@@ -229,3 +236,32 @@ class Business(Entity):
         # salary, time, specialization, contractor
         j = self.create_job(self.contracts_price[self.specialization], 10, self.specialization, True)
         job_market.add_job(j)
+
+    def contract(self, person, money, time= 10 ):
+        con = Contract(self,person, money,0,None,"work",0,1, time=time, fine = round(money * 3,2))
+        self.work_contracts.append(con)
+        person.contract = con
+        return con
+    
+    def fire(self, person):
+        for c in self.work_contracts:
+            if c.entity2.name == person:
+                c = Contract(self,person,c.fine,0,None,None,0,0, time=0, fine = c.fine)
+
+        
+
+    
+    def fire(self, specialization):
+        if not self.work_contracts:
+            return
+        min = None
+        for c in self.work_contracts:
+            if c.entity2.specialization == specialization:
+                if min == None:
+                    min = c
+                elif c.time < min.time:
+                    min = c
+        if min != None:
+            min.entity2.contract = None
+            min = Contract(self,min.entity2,c.fine,0,None,None,0,0, time=0, fine = c.fine)
+        

@@ -46,6 +46,16 @@ class job_market(Entity):
         return job.money
 
     def clean_market(self):
+        for j in self.jobs:
+            for specialization in self.jobs:
+                for job in self.jobs[specialization]:
+                    if job.contractor:
+                        job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] + job.entity.contracts_price[specialization]* 0.05,2)
+                    else:
+                        if not "food" in job.entity.items_price:
+                            job.entity.items_price["food"] = 1
+                        if job.entity.contracts_price[specialization] >= 2 * job.entity.items_price["food"]:
+                            job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] - job.entity.contracts_price[specialization]* 0.02,2)
         self.jobs = {}
 
 

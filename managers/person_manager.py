@@ -26,6 +26,9 @@ class PersonManager(Manager):
     
     def do(self):
 
+        if self.person.dead:
+            return
+
         # Basic needs
         self.person.work(self.job_market)
         self.person.eat("food")
@@ -57,9 +60,9 @@ class PersonManager(Manager):
         # If already inversion return
         if self.inversion:
             return
-        """
+        
         # if balance negative return
-        if self.person.check_balance() < 0:
+        if self.person.check_balance() == False:
             return
         # If is entrepeneur increase chance
         if "entrepeneur" in self.person.traits:
@@ -68,9 +71,7 @@ class PersonManager(Manager):
         # Random chance to become an entrepeneur
         if random.random() < entrepeneurship:
             return
-        """
-        if self.person.money < 100000:
-            return
+        
 
         
         # Buy terrain in city
@@ -82,7 +83,7 @@ class PersonManager(Manager):
 
             # Choose random project from list
             # l = ["farm", "mine", "infrastructure"]
-            l = ["farm"]
+            l = ["farm", "mine", "constructor", "sawmill"]
             project = random.choice(l)
             # Open the projects json file
             with open("data/projects.json", "r") as f:
@@ -119,9 +120,6 @@ class PersonManager(Manager):
             # Add business to city
             self.city.add_business(b)
             
-            print("HE LLEGADO AQUI ESTO ES BASTANTE")
-            print("[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]")
-            print(b)
             return
 
         """
@@ -130,22 +128,42 @@ class PersonManager(Manager):
             return
         """
         # Invest in project
-        for res in self.project_resources:
-            res = 0
+        self.project_resources = {}
         for key in self.project.resources:
             if not key in self.project_resources:
                 self.project_resources[key] = 0
             self.project_resources[key] += self.project.resources[key]
         # Create trades for all needed resources
         for key in self.project_resources:
-            t = self.person.trade(key, self.person.get_expected_price(
-                key), False, self.project_resources[key])
-            self.market.add_trade(t)
+            # Get the amount of resources the person is able to buy
+            if not key in self.person.items_price:
+                self.person.items_price[key] = 1
+            price = self.person.items_price[key]
+            ammount = self.project_resources[key]
+            money = self.person.money
+            # If not enough money return
+            if money < self.person.items_price[key] * 30:
+                return
+            if money > ammount * price:
+                self.person.money = round(self.person.money - ammount * price,2)
+                t = self.person.trade(key, price, False, ammount)
+                self.market.add_trade(t)
+            elif money == 0:
+                return
+            else:
+                while ammount != 0:
+                    if money > price * ammount:
+                        self.person.money = round(self.person.money - ammount * price,2)
+                        t = self.person.trade(key, price, False, ammount)
+                        self.market.add_trade(t)
+                        break
+                    else: ammount -= 1
+        
+
                 
 
         
     # Manage current businesses
-
     def manage(self):
         pass
 
