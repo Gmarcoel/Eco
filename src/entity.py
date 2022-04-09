@@ -9,6 +9,10 @@ class Entity():
     # Balance of the last 3 turns
     balance = [0,0,0]
     earnings = [0,0,0]
+    businesses = []
+
+    # Manager
+    manager = None
     
 
 
@@ -24,6 +28,9 @@ class Entity():
         return f"{self.money} {self.items}"
     
     def trade(self, product, price, sell, quantity):
+        if not product in self.items:
+            self.items[product] = 0
+            self.items_price[product] = 1
         # Sell a product
         if sell and self.items[product] >= quantity:
             self.items[product] = round(self.items[product]-quantity,2)
@@ -64,7 +71,7 @@ class Entity():
         self.items[item] += quantity
     
     def subtract_item(self, item, quantity):
-        print("item: ", item, "quantity: ", quantity, "items: ", self.items)
+        # print("item: ", item, "quantity: ", quantity, "items: ", self.items)
         if item == None:
             return True
         if self.items[item] >= quantity:
@@ -86,6 +93,9 @@ class Entity():
         return True
     
     def tax(self, tax_rate):
+        if self.balance[0] < 0:
+            return 0
+        # tax = round(self.balance[0] * tax_rate,2)
         tax = round(self.balance[0] * tax_rate,2)
         if tax <= 0:
             return 0

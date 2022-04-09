@@ -50,14 +50,17 @@ class job_market(Entity):
             for specialization in self.jobs:
                 for job in self.jobs[specialization]:
                     if job.contractor:
-                        job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] + job.entity.contracts_price[specialization]* 0.05,2)
+                        job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] + job.entity.contracts_price[specialization]* 0.1,2)
                     else:
                         if not "food" in job.entity.items_price:
                             job.entity.items_price["food"] = 1
                         if job.entity.contracts_price[specialization] >= 2 * job.entity.items_price["food"]:
-                            job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] - job.entity.contracts_price[specialization]* 0.02,2)
+                            job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] - job.entity.contracts_price[specialization]* 0.1,2)
         self.jobs = {}
 
+
+    def sort_job(self, job):
+        return job.money
 
     # Function to make all jobs on a free market
     def free_commerce(self):
@@ -84,10 +87,21 @@ class job_market(Entity):
             for t in contractee_jobs:
                 print(t)
             
-
-            # Shuffle order of jobs
-            random.shuffle(contractor_jobs)
-            random.shuffle(contractee_jobs)
+            # If more contractors than contractees contractees decide the price
+            if len(contractor_jobs) > len(contractee_jobs):
+                contractor_jobs.sort(key=self.sort_job, reverse=True)
+                random.shuffle(contractee_jobs)
+            # If more contractees than contractors contractors decide the price
+            elif len(contractee_jobs) > len(contractor_jobs):
+                # Shuffle order of jobs
+                random.shuffle(contractor_jobs)
+                # random.shuffle(contractee_jobs)
+                contractee_jobs.sort(key=self.sort_job)
+            # If same number of contractors and contractees
+            else:
+                # Shuffle order of jobs
+                random.shuffle(contractor_jobs)
+                random.shuffle(contractee_jobs)
             # Loop trough all the buy jobs
             for job in contractor_jobs:
                 # Loop through all the contractor jobs
@@ -111,8 +125,8 @@ class job_market(Entity):
                         contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] + contractee_job.entity.contracts_price[specialization]* 0.05,2)
                         found = True
                         break
-                    if not found:
-                        contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] - contractee_job.entity.contracts_price[specialization]* 0.05,2)
+                    # if not found:
+                    #     contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] - contractee_job.entity.contracts_price[specialization]* 0.05,2)
 
 
                         

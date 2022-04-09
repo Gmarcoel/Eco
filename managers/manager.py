@@ -1,7 +1,8 @@
 
 class Manager():
-    def __init__(self):
-        pass
+    entity = None
+    def __init__(self, entity):
+        self.entity = entity
 
     def do(self):
         pass

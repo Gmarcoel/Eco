@@ -7,13 +7,20 @@ class City:
     entities = []
     businesses = []
     people = []
-    tax_rate = 0.1
+    people_tax_rate = 0.2
+    businesses_tax_rate = 0.2
     money = 0
     infrastructure = 10
     infrastructure_price = 10
     markets = []
+    state = None
 
-    def __init__(self, name = "", businesses = [], people = [], tax_rate = 0.1, money = 1000):
+    # Law related attributes
+    minimum_wage = 0
+    maximum_price = {}
+    minimum_price = {}
+
+    def __init__(self, name = "", businesses = [], people = [], tax_rate = 0.1, money = 1000, state = None):
         self.entities = []
         self.businesses = []
         self.people = []
@@ -23,7 +30,11 @@ class City:
         self.people = people
         self.tax_rate = tax_rate
         self.money = money
+        self.state = state
         self.entities = self.businesses + self.people
+
+        self.maximum_price = {}
+        self.minimum_price = {}
 
     
     def __str__(self):
@@ -62,8 +73,10 @@ class City:
 
     def tax(self):
         taxes = 0
-        for entity in self.entities:
-            taxes = round(taxes + entity.tax(self.tax_rate), 2)
+        for person in self.people:
+            taxes = round(taxes + person.tax(self.people_tax_rate), 2)
+        for business in self.businesses:
+            taxes = round(taxes + business.tax(self.businesses_tax_rate), 2)
         return taxes
     
     def buy_terrain(self, entity):
@@ -80,6 +93,31 @@ class City:
     def subtract_money(self, money):
         self.money = round(self.money - money, 2)
 
-    # Functio to do a turn of all the people and businesses
+    
+
+
+    # Law related methods
+    def set_people_tax(self, tax):
+        self.people_tax_rate = tax
+    
+    def set_businesses_tax(self, tax):
+        self.businesses_tax_rate = tax
+    
+    def set_minimum_wage(self, wage):
+        self.minimum_wage = wage
+    
+    def set_maximum_price(self, price, resource):
+        self.maximum_price[resource] = price
+    
+    def set_minimum_price(self, price, resource):
+        self.minimum_price[resource] = price
+    
+    def remove_maximum_price(self, resource):
+        del self.maximum_price[resource]
+    
+    def remove_minimum_price(self, resource):
+        del self.minimum_price[resource]
+    
+
 
 

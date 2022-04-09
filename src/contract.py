@@ -30,7 +30,7 @@ class Contract():
         self.fine = fine
     
     def __str__(self):
-        return f"{self.entity2.name} in {self.entity1.name} for {self.money1}"
+        return f"{self.entity2.name} in {self.entity1.name} for {self.money1} time {self.time} years"
         # return f"Entity: {self.entity1.name} Money: {self.money1} Item: {self.item1} Quantity: {self.item1_quantity} \n     Entity: {self.entity2.name} Money: {self.money2} Item: {self.item2} Quantity: {self.item2_quantity} \n      Time: {self.time}"
     
     def fullfill(self):

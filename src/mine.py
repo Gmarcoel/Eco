@@ -12,7 +12,7 @@ class Mine(Business):
         self.product = "stone"
         self.add_needed_goods("work",1,1)
         self.add_item("stone",0)
-        self.production = 5
+        self.production = 2
 
     
     def __str__(self):

@@ -11,6 +11,9 @@ class Person(Entity):
     education = 0
     specialization = "None"
     partner = None
+    family = []
+
+    inmortal = False
 
     hungry = 0
     dead = False
@@ -30,6 +33,7 @@ class Person(Entity):
         self.items_price["food"] = 1.5
         self.traits = []
         self.businesses = []
+        self.family = []
     
     def __str__(self):
         if self.dead:
@@ -40,6 +44,8 @@ class Person(Entity):
         self.items[item] = quantity
     
     def subtract_item(self, item, quantity):
+        if not item in self.items:
+            self.items[item] = 0
         if self.items[item] >= quantity:
             self.items[item] -= quantity
         else:
@@ -59,10 +65,10 @@ class Person(Entity):
         if not food in self.items:
             self.items[food] = 0
         if self.dead == True:
-            return
+            return True
         if self.hungry > 10:
             self.dead = True
-            return
+            return False
 
         if self.items[food] > 0:
             self.items[food] -= 1
@@ -72,9 +78,12 @@ class Person(Entity):
         else:
             self.hungry += 1
         if self.hungry > 0:
-            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.1,2)
+            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.2,2)
         elif self.hungry > 2:
-            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.5,2)
+            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.8,2)
+        elif self.hungry >= 10:
+            self.items_price[food] = self.money
+        return True
 
     # El trabajar da 1 de trabajo a cada individuo si éste tiene trabajo
     def work(self, job_market):
@@ -82,7 +91,7 @@ class Person(Entity):
             self.add_item("work", 1)
             # self.job.fullfill()
         else:
-            print("No tiene trabajo")
+            # print("No tiene trabajo")
             if not self.specialization in self.contracts_price:
                 self.contracts_price[self.specialization] = 1
             j = self.create_job(self.contracts_price[self.specialization], 1, self.specialization, False)
@@ -115,6 +124,13 @@ class Person(Entity):
             t = self.trade(item, exp_price, False, self.basic_needs[item])
             market.add_trade(t)
 
+            # If extra money buy more
+            if self.money > self.items_price[item] * 5:
+                t = self.trade(item, self.items_price[item], False, 1)
+                market.add_trade(t)
+                
+
+
 
 
     def get_expected_price(self, item):
@@ -122,8 +138,11 @@ class Person(Entity):
             self.items_price[item] = 1
         price = self.items_price[item]
         if price > self.money:
+            if self.businesses:
+                for b in self.businesses:
+                    b.extra_dividend()
+        if price > self.money:
             price = self.money
-            self.money = 0
         return price
     
 

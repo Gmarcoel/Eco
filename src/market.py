@@ -106,36 +106,56 @@ class Market():
                 trade.cancel()
             self.trades[product] = []
 
+    def sort_trade(self, trade):
+        return trade.price
 
     # Function to make all trades on a free market
     def free_commerce(self):
+        free_comerce_data = ""
         # For each product on market
         for product in self.trades:
             # Get all buy trades on market
             buy_trades = []
+            buy_amount = 0
             for trade in self.trades[product]:
                 if not trade.sell:
                     buy_trades.append(trade)
+                    buy_amount += trade.quantity
             # Get all sell trades on market
             sell_trades = []
+            sell_amount = 0
             for trade in self.trades[product]:
                 if trade.sell:
                     sell_trades.append(trade)
-            print("RECURSO ", product)
-            print("===========================")
-            print("COMPRAS")
-            print("-------")
+                    sell_amount += trade.quantity
+            ("RECURSO ", product)
+            free_comerce_data = free_comerce_data + "===========================" + "\n"
+            free_comerce_data = free_comerce_data + "COMPRAS" + "\n"
+            free_comerce_data = free_comerce_data + "-------" + "\n"
             for t in buy_trades:
-                print(t)
-            print("VENTAS")
-            print("------")
+                free_comerce_data = free_comerce_data + str(t) + "\n"
+            free_comerce_data = free_comerce_data + "VENTAS" + "\n"
+            free_comerce_data = free_comerce_data + "-------" + "\n"
             for t in sell_trades:
-                print(t)
+                free_comerce_data = free_comerce_data + str(t) + "\n"
             
-
-            # Shuffle order of trades
-            random.shuffle(buy_trades)
-            random.shuffle(sell_trades)
+            # If more sells than buys buyer decide price
+            if sell_amount > buy_amount:
+                # Shuffle order of trades
+                random.shuffle(buy_trades)
+                # random.shuffle(sell_trades)
+                sell_trades.sort(key=self.sort_trade)
+            # If more buys than sells seller decide price
+            elif buy_amount > sell_amount:
+                # Shuffle order of trades
+                random.shuffle(sell_trades)
+                # random.shuffle(buy_trades)
+                buy_trades.sort(key=self.sort_trade, reverse=True)
+            # If equal amount of buys and sells
+            else:
+                # Shuffle order of trades
+                random.shuffle(buy_trades)
+                random.shuffle(sell_trades)
             # Loop trough all the buy trades
             for trade in buy_trades:
                 # Variable to check if the price has gone up
@@ -160,11 +180,13 @@ class Market():
                             sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * sell_trade.quantity),2)
                             # Change the sell trade future price
                             sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.05),2)
+
                             # Remove the sell trade
                             sell_trade.quantity = 0
                         # If the sell quantity is higher than the buy quantity
                         elif sell_trade.quantity > 0:
                             # Sell the quantity of the buy trade
+                            
                             trade.entity.items[product] = round(trade.entity.items[product] + trade.quantity,2)
                             # Add transaction to the database
                             self.database.add_transaction(product, sell_trade.price, trade.quantity)
@@ -206,6 +228,7 @@ class Market():
                         # Check next sell trade
                 
         self.clean_market()
+        return free_comerce_data
                         
                 
 

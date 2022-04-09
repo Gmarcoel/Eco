@@ -1,3 +1,4 @@
+from numpy import minimum
 from  src.entity import Entity
 from src.project import Project
 
@@ -15,10 +16,17 @@ class State(Entity):
     governor = None
     cities = []
     population = []
-    owned_bussiness = []
     projects = []
     in_construction = []
     needed_resources = {}
+
+    # Law related attributes
+    minimum_wage = 0
+    maximum_price = {}
+    minimum_price = {}
+    people_tax_rate = 0.2
+    business_tax_rate = 0.2
+
 
     def __init__(self, name, governor, money):
         super().__init__(money=money)
@@ -30,6 +38,9 @@ class State(Entity):
         self.projects = []
         self.in_construction = []
         self.needed_resources = {}
+
+        self.maximum_price = {}
+        self.minimum_price = {}
 
     def __str__(self):
         return f"{self.name} has {self.money} money"
@@ -56,7 +67,7 @@ class State(Entity):
         # self.projects.append(inf)
     
     def add_project(self, city):
-        if city.infrastructure < 0: return
+        if city.infrastructure <= 0: return
         city.infrastructure -= 1
         with open("data/projects.json", "r") as f:
             data = json.load(f)
@@ -85,11 +96,17 @@ class State(Entity):
 
         # create trades for all needed resources
         for key in self.needed_resources:
-            t = self.trade(key, self.get_expected_price(
-                key), False, self.needed_resources[key])
-            market.add_trade(t)
+            if self.get_expected_price(key) <= self.money:
+                # self.subtract_money(self.get_expected_price(key))
+                t = self.trade(key, self.get_expected_price(
+                    key), False, self.needed_resources[key])
+                market.add_trade(t)
 
-    def work(self):
+    def work(self, city):
+        if self.governor:
+            if self.governor.dead:
+                self.governor = None
+
         for p in self.projects:
             if p.accomplish(self):
                 self.projects.remove(p)
@@ -104,10 +121,12 @@ class State(Entity):
                     b = create_business(p.name, self, p.entity.money)
                     self.owned_bussiness.append(b)
                     # Add business to the city
+                    city.businesses.append(b)
                     p.entity.add_business(b)
                     # Add .05 percent of state money to the business
-                    self.subtract_money(round(self.money * .05, 2))
-                    b.add_money(round(self.money * .05, 2))
+                    amm = round(self.money * .05, 2)
+                    self.subtract_money(amm)
+                    b.add_money(amm)
 
             else:
                 p.time -= 1
@@ -126,3 +145,53 @@ class State(Entity):
         if self.money >= amount:
             self.subtract_money(amount)
             entity.add_money(amount)
+
+    def set_governor(self, new_governor):
+        self.governor = new_governor
+
+
+    def set_people_tax(self, tax):
+        self.people_tax_rate = tax
+        for c in self.cities:
+            c.set_people_tax(tax)
+    
+    def set_businesses_tax(self, tax):
+        self.business_tax_rate = tax
+        for b in self.owned_bussiness:
+            b.set_businesses_tax(tax)
+    
+    def nationalize_business(self, business):
+        owner = business.owner
+        owner.businesses.remove(business)
+        self.businesses.append(business)
+        business.owner = self
+    
+    def set_minimun_wage(self, wage):
+        self.minimum_wage = wage
+        for c in self.cities:
+            c.set_minimun_wage(wage)
+    
+    def set_maximum_price(self, price, resource):
+        self.maximum_price[resource] = price
+        for c in self.cities:
+            c.set_maximum_price(price, resource)
+    
+    def set_minimum_price(self, price, resource):
+        self.minimum_price[resource] = price
+        for c in self.cities:
+            c.set_minimum_price(price, resource)
+    
+    def remove_maximum_price(self, resource):
+        del self.maximum_price[resource]
+        for c in self.cities:
+            c.remove_maximum_price(resource)
+    
+    def remove_minimum_price(self, resource):
+        del self.minimum_price[resource]
+        for c in self.cities:
+            c.remove_minimum_price(resource)
+
+    
+
+
+

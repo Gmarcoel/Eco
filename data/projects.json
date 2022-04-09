@@ -4,43 +4,59 @@
             "description" : "A farm industry",
             "time" : "3",
             "resources" : {
-                "wood" : 30,
-                "stone" : 30,
-                "build" : 30
+                "wood" : 100,
+                "stone" : 70,
+                "build" : 70
 
+            },
+            "maintenance" : {
+                "wood" : 1,
+                "build" : 1
             }
+            
         },
         "mine" :{
             "description" : "A mine industry",
             "time" : "3",
             "resources" : {
-                "wood" : 30,
-                "stone" : 30,
-                "build" : 30
+                "wood" : 80,
+                "stone" : 80,
+                "build" : 80
+            },
+            "maintenance" : {
+                "wood" : 1,
+                "stone" : 1
             }
         },
         "sawmill" :{
             "description" : "A sawmill industry",
             "time" : "3",
             "resources" : {
-                "wood" : 30,
-                "stone" : 30,
-                "build" : 30
+                "wood" : 60,
+                "stone" : 60,
+                "build" : 60
+            },
+            "maintenance" : {
+                "stone" : 1
             }
         },
         "constructor": {
             "description" : "A construction industry",
             "time" : "3",
             "resources" : {
-                "wood" : 20
+                "wood" : 80
+            },
+            "maintenance" : {
             }
         },
         "infrastructure": {
             "description" : "A infrastructure",
             "time" : "3",
             "resources" : {
-                "stone" : 10,
-                "build" : 10
+                "stone" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
             }
         }
 

@@ -20,10 +20,23 @@ class Business(Entity):
 
     negative = 0
     dividend = 0.2
+    last_divident = 0
 
+    after_close = 0
 
 
     specialization = "None"
+
+    maintenance = {}
+
+    condition = 10
+
+    # Law related attributes
+    minimum_wage = 0
+    maximum_price = 0
+    minimum_price = 0
+
+
 
 
 
@@ -41,6 +54,8 @@ class Business(Entity):
         self.jobs = [] # No se usa
         self.status = "open"
         self.negative = 0
+
+        self.maintenance = {}
 
 
 
@@ -90,18 +105,27 @@ class Business(Entity):
         return True
         """
 
+        # if not employees hire
+        if len(self.work_contracts) == 0:
+            self.hire(job_market)
+
+        # Destroy some of the existing stock
+        self.items[self.product] = round(self.items[self.product]* 0.8,0)
+
         # Parte bancarrota
         if self.status == "closed":
             self.owner.add_money(self.money)
             self.money = 0
-            return
-        if self.items["work"] == 0:
+            return True
+        # Check if there is enough money to pay the employees
+        contracts_money = 0
+        for contract in self.work_contracts:
+            contracts_money += contract.money1
+        if self.money < contracts_money:
             self.negative += 1
         else:
-            self.negative -= 1
-            if self.negative < 0:
-                self.negative = 0
-        if self.negative > 5:
+            self.negative = 0
+        if self.negative > 5 or self.condition <= 0:
             # self.bankrupt()
             self.status = "closed"
             if round(self.needed_goods_price * 0.8, 2) != 0:
@@ -144,7 +168,7 @@ class Business(Entity):
 
         self.balance[2] = self.balance[1]
         self.balance[1] = self.balance[0]
-        self.balance[0] = round(self.earnings[0] - self.earnings[1],2)
+        self.balance[0] = round(self.earnings[0] + self.last_divident - self.earnings[1],2)
 
         # if balance is negative increase price NO SIRVE DE NADA
         # if not self.check_balance():
@@ -168,10 +192,14 @@ class Business(Entity):
                 
 
         # Dar al dueño una parte de la ganancia
-        if self.owner != None and self.balance[0] > 0:
-            slice = round(self.money * self.dividend,2)
+        if self.owner != None and self.check_balance():
+            slice = round(self.balance[0] * self.dividend,2)
             self.owner.add_money(slice)
             self.money = round(self.money - slice,2)
+            self.last_divident = slice
+        else:
+            self.last_divident = 0
+
         return True
         
     
@@ -199,6 +227,10 @@ class Business(Entity):
     """
     
     def sell(self, market):
+        if self.status == "closed":
+            self.after_close += 1
+        if self.after_close > 3:
+            return
         if not self.product in self.items:
             self.items[self.product]
         if self.items[self.product] == 0:
@@ -234,7 +266,15 @@ class Business(Entity):
 
     def hire(self, job_market):
         # salary, time, specialization, contractor
-        j = self.create_job(self.contracts_price[self.specialization], 10, self.specialization, True)
+        if self.specialization not in self.contracts_price:
+            self.contracts_price[self.specialization] = 1
+        # if self.balance[0] < self.contracts_price[self.specialization]:
+        #     self.contracts_price[self.specialization] = round(self.contracts_price[self.specialization] * 0.9, 2)
+        # else:
+        if self.minimum_wage > self.contracts_price[self.specialization]:
+            j = self.create_job(self.minimum_wage, 10, self.specialization, True)
+        else:
+            j = self.create_job(self.contracts_price[self.specialization], 10, self.specialization, True)
         job_market.add_job(j)
 
     def contract(self, person, money, time= 10 ):
@@ -265,3 +305,18 @@ class Business(Entity):
             min.entity2.contract = None
             min = Contract(self,min.entity2,c.fine,0,None,None,0,0, time=0, fine = c.fine)
         
+    def extra_dividend(self):
+        if self.owner != None:
+            div = round(self.money * self.dividend,2)
+            self.owner.add_money(div)
+            self.money = round(self.money - div,2)
+
+
+    def trade(self, product, price, sell, quantity):
+        if self.maximum_price != 0:
+            if price > self.maximum_price:
+                price = self.maximum_price
+        if self.minimum_price != 0:
+            if price < self.minimum_price:
+                price = self.minimum_price
+        return super().trade(product, price, sell, quantity)
