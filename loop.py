@@ -346,7 +346,7 @@ def generate_world():
     # Contract more people to the constructor
     cons.contract(people[8], 0.8, time=10000)
 
-
+    c.markets.append(m)
 
     # Create a state
     s = state.State("Townhall", k, 500)
@@ -399,7 +399,11 @@ def generate_world():
         w.new_people.append(New(p, c, m, jm))
     for st in states:
         w.new_states.append(New(st, c, m, jm))
+
     w.new_cities.append(New(c, c, m, jm))
+
+    w.new_markets.append(New(m, c, m, jm))
+    w.new_job_markets.append(New(jm, c, m, jm))
 
     w.update()
 
@@ -459,5 +463,8 @@ def get_public_private_ratio(businesses):
             private += 1
     return public / (public + private)
 
+
+def is_public(business):
+    return business.owner == None or isinstance(business.owner, state.State)
 # if __name__ == "__main__":
 #     demo()

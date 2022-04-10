@@ -9,3 +9,6 @@ class CityManager(Manager):
         super().__init__(city)
         self.city = city
         self.world = world
+    
+    def do(self):
+        pass

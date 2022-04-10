@@ -11,13 +11,20 @@ class MarketDatabase():
 
     # For each good, the ammount of money spent on buying and selling
     total_value = {}
+    previous_value = {}
+
     
 
     # For each good, the average price of buying and selling
     average_price = {}
+    previous_average_price = {}
 
     # For each good, the ammount of goods bought and sold
     ammount = {}
+    previous_ammount = {}
+
+    # Data for the last 100 average price
+    last_average_price = {}
 
     def __init__(self):
         pass
@@ -39,10 +46,38 @@ class MarketDatabase():
     
     def print_database(self):
         print(f"{self.traded_goods} value: {self.total_value} price: {self.average_price} ammount: {self.ammount}")
+    
+    def add_last_average_price(self):
+        # If no sell or buy, the price the same as last
+        for good in self.previous_ammount:
+            if not good in self.ammount:
+                self.total_value[good] = 0
+                self.ammount[good] = 0
+                self.average_price[good] = self.previous_average_price[good]
 
 
 
-class Market():
+        for good in self.average_price:
+            if good not in self.last_average_price:
+                self.last_average_price[good] = []
+            self.last_average_price[good].append(self.average_price[good])
+            if len(self.last_average_price[good]) > 100:
+                self.last_average_price[good].pop(0)
+        
+        self.previous_value = self.total_value.copy()
+        self.previous_ammount = self.ammount.copy()
+        self.previous_average_price = self.average_price.copy()
+
+        self.total_value = {}
+        self.ammount = {}
+        self.traded_goods = []
+        
+        
+
+
+
+
+class Market(Entity):
     name = "Market"
     business = []
     people = []
@@ -173,11 +208,13 @@ class Market():
                             # Add transaction to the database
                             self.database.add_transaction(product, sell_trade.price, sell_trade.quantity)
                             # Return the excess money to the buyer
-                            trade.entity.money = round(trade.entity.money + (trade.price * sell_trade.quantity) - (sell_trade.price * sell_trade.quantity),2)
+                            ## trade.entity.money = round(trade.entity.money + (trade.price * sell_trade.quantity) - (sell_trade.price * sell_trade.quantity),2)
+                            trade.entity.add_money((trade.price * sell_trade.quantity) - (sell_trade.price * sell_trade.quantity))
                             # Rest the quantity of the sell trade
                             trade.quantity = round(trade.quantity - sell_trade.quantity,2)
                             # Fullfill the sell trade
-                            sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * sell_trade.quantity),2)
+                            ## sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * sell_trade.quantity),2)
+                            sell_trade.entity.add_money(sell_trade.price * sell_trade.quantity)
                             # Change the sell trade future price
                             sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.05),2)
 
@@ -191,11 +228,13 @@ class Market():
                             # Add transaction to the database
                             self.database.add_transaction(product, sell_trade.price, trade.quantity)
                             # Return the excess money to the buyer
-                            trade.entity.money = round(trade.entity.money + (trade.price * trade.quantity) - (sell_trade.price * trade.quantity),2)
+                            ## trade.entity.money = round(trade.entity.money + (trade.price * trade.quantity) - (sell_trade.price * trade.quantity),2)
+                            trade.entity.add_money((trade.price * trade.quantity) - (sell_trade.price * trade.quantity))
                             # Rest the quantity of the buy trade
                             sell_trade.quantity = round(sell_trade.quantity - trade.quantity,2)
                             # Fullfill the buy trade
-                            sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * trade.quantity),2) 
+                            ## sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * trade.quantity),2) 
+                            sell_trade.entity.add_money(sell_trade.price * trade.quantity)
                             # Change the buy trade future price
                             if not price_up:
                                 if round(trade.price - (trade.price * 0.05)) != 0:
@@ -228,6 +267,7 @@ class Market():
                         # Check next sell trade
                 
         self.clean_market()
+        self.database.add_last_average_price()
         return free_comerce_data
                         
                 

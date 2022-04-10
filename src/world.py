@@ -2,6 +2,8 @@ from managers.business_manager import BusinessManager
 from managers.person_manager import PersonManager
 from managers.state_manager import StateManager
 from managers.city_manager import CityManager
+from managers.market_manager import MarketManager
+from managers.job_market_manager import JobMarketManager
 
 from src.new import New
 
@@ -23,10 +25,17 @@ class World():
         self.new_businesses = []
         self.new_states = []
         self.new_cities = []
+        self.new_markets = []
+        self.new_job_markets = []
+
+
         self.people_managers = []
         self.business_managers = []
         self.states_managers = []
         self.cities_managers = []
+        self.markets_managers = []
+        self.job_markets_managers = []
+
     
     def update(self):
         for p in self.new_people:
@@ -41,6 +50,12 @@ class World():
         for c in self.new_cities:
             self.cities_managers.append(CityManager(c.object, self))
         self.new_cities = []
+        for m in self.new_markets:
+            self.markets_managers.append(MarketManager(m.object, self))
+        self.new_markets = []
+        for j in self.new_job_markets:
+            self.job_markets_managers.append(JobMarketManager(j.object, self))
+        self.new_job_markets = []
     
     def do(self):
         for p in self.people_managers:
@@ -53,6 +68,12 @@ class World():
                 self.business_managers.remove(b)
         for s in self.states_managers:
             s.do()
+        for c in self.cities_managers:
+            c.do()
+        for m in self.markets_managers:
+            m.do()
+        for j in self.job_markets_managers:
+            j.do()
         
 
 

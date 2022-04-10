@@ -27,6 +27,9 @@ class PersonManager(Manager):
         self.city = city
         self.project_resources = {}
         self.world = world
+
+        # Set manager
+        self.person.manager = self
     
     def do(self):
 
@@ -54,6 +57,9 @@ class PersonManager(Manager):
         self.marry()
         self.children()
         self.family()
+
+        # Economy
+        self.person.restart_economics()
         
         if not self.person.inmortal:
             self.die()

@@ -35,5 +35,6 @@ class Trade:
         if self.sell:
             self.entity.items[self.product] += self.quantity
         else:
-            self.entity.money = round(self.entity.money + self.price * self.quantity ,2)
+            ## self.entity.money = round(self.entity.money + self.price * self.quantity ,2)
+            self.entity.add_money(self.price * self.quantity)
         return True

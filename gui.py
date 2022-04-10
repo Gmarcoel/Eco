@@ -1,4 +1,5 @@
 from tkinter import *
+from venv import create
 from loop import *
 import matplotlib.pyplot as plt
 from matplotlib import *
@@ -8,7 +9,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Create a GUI
 root = Tk()
 
+callbacks = []
+
 def menu_page():
+    global callbacks
+    callbacks.append(menu_page)
     clean_up()
     print("Menu clicked")
     # Put the background dark grey
@@ -32,6 +37,8 @@ def menu_page():
     root.mainloop()
 
 def worlds_page():
+    global callbacks
+    callbacks.append(worlds_page)
     clean_up()
     print("Worlds clicked")
     # Put the background light grey
@@ -63,10 +70,14 @@ def worlds_page():
     myButton.pack()
 
 current_world = None
-
-def world_page(world):
+def world_page(world = None):
+    global callbacks
+    callbacks.append(world_page)
     global current_world
-    current_world = world
+    if world:
+        current_world = world
+    else :
+        world = current_world
     clean_up()
     # Create a button for each city in the world
     for city_man in world.cities_managers:
@@ -76,17 +87,24 @@ def world_page(world):
         myButton.config(font=("Courier", 44))
         myButton.pack()
 
-    next_turn_button(world, world_page, world)
+    next_turn_button(world_page)
     # Create a back button
-    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=worlds_page)
+    # Create a go back button that executes go_back
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
 
 current_citym = None
 
-def city_page(citym):
+def city_page(citym = None):
+    global callbacks
+    callbacks.append(city_page)
     global current_world, current_citym
-    current_citym = citym
+    if citym:
+        current_citym = citym
+    else:
+        citym = current_citym
+    world = current_world
     city = citym.city
     clean_up()
     print("City clicked")
@@ -105,20 +123,184 @@ def city_page(citym):
     plot_pie_chart_public_private_bussiness(city.businesses)
     
     # Create a button for the businesses
-    myButton = Button(root, text="Businesses", bg="lightgrey", fg="black", command=lambda citym=citym: businesses_page(citym, city_page))
+    myButton = Button(root, text="Businesses", bg="lightgrey", fg="black", command=lambda citym=citym: businesses_page(citym))
     myButton.config(font=("Courier", 44))
     myButton.pack()
+
+    # Create a button for the people
+    myButton = Button(root, text="People", bg="lightgrey", fg="black", command=lambda citym=citym: people_page(citym))
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+    # Create a button for the markets
+    for market in city.markets:
+        myButton = Button(root, text=market.name, bg="lightgrey", fg="black", command=lambda market=market.manager: market_page(market))
+        myButton.config(font=("Courier", 44))
+        myButton.pack()
+
     
-    # Create a back button that goes to the world page with argument current_world
-    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=lambda world=current_world: world_page(world))
+    # Create a go back button that executes go_back
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
     
-    next_turn_button(current_world, city_page, citym)
-    
+    next_turn_button(city_page)
 
-def businesses_page(entitym, callback = city_page):
+current_entitym = None
+
+def people_page(entitym = None):
+    global callbacks
+    callbacks.append(people_page)
+    global current_entitym 
+    if entitym:
+        current_entitym = entitym
+    else:
+        entitym = current_entitym
+        
+    entity = entitym.entity
+
+    clean_up()
+    print("People clicked")
+    # Put the background light grey
+    root.configure(background='lightgrey')
+
+    # Create a label
+    myLabel = Label(root, text="People", bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+
+    # Put the label in the window
+    myLabel.pack()
+
+    # Create a button for each person in the city
+    # Create a sidebar if there are more than 10 people
+    if len(entity.people) > 10:
+        # Create a scrollbar
+        create_scroll(entity.people, person_page)
+        
+
+
+        """
+        # Create a scrollbar
+        text = Text(root, height=len(entity.people), width=20)
+        text.pack(side="left")
+
+        sb = Scrollbar(root, command=text.yview)
+        # Set the scrollbar to scroll through the windows
+        sb.pack(side="right", fill="y")
+        text.configure(yscrollcommand=sb.set)
+        
+        ...
+        for person in entity.people:
+            personm = person.manager
+            # Create a button for each person with lable person.name and the person as an argument and a width of 1/5 of the screen
+            # button = Button(text, text=person.name, bg="lightgrey", fg="black", command=lambda personm=personm: person_page(personm, callback))
+            button = Button(root, text=person.name, bg="lightgrey", fg="black", command=lambda personm=personm: person_page(personm))
+            # Make the button big
+            button.config(font=("Courier", 44))
+            # Put the button inside a canvas
+            
+            text.window_create("end", window=button)
+            text.insert("end", "\n")
+            
+        # Make buttons inside text scrollable
+        # text.bind("<Configure>", lambda event: text.configure(scrollregion=text.bbox("all")))
+        
+
+
+
+
+
+
+        text.configure(state="disabled")
+        # Make the text fill the rest of the space
+        text.pack(side="top", fill="y", expand=True)
+        """
+
+    # Create a go back button that executes go_back
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
+    # Make the button big
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+    next_turn_button(people_page)
+
+current_personm = None
+
+def person_page(personm = None):
+    global callbacks, current_personm
+    callbacks.append(person_page)
+    if personm:
+        current_personm = personm
+    else:
+        personm = current_personm
+    
+    person = personm.entity
+    clean_up()
+    print("Person clicked")
+    # Put the background light grey
+    root.configure(background='lightgrey')
+
+    # Create a label
+    myLabel = Label(root, text=person.name, bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+
+    # Put the label in the window
+    myLabel.pack()
+
+    # Print the person's age
+    myLabel = Label(root, text="Age: " + str(person.age), bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    myLabel.pack()
+
+    # Print the person's money
+    myLabel = Label(root, text="Money: " + str(person.money), bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    myLabel.pack()
+
+
+    # Print the place the person works in
+    if person.contract:
+        myLabel = Label(root, text="Works in: " + person.contract.entity1.name, bg="lightgrey", fg="black")
+    else:
+        myLabel = Label(root, text="Unenployed", bg="lightgrey", fg="black")
+    # Make the label big    
+    myLabel.config(font=("Courier", 44))
+    myLabel.pack()
+
+
+    # Create a graph
+    plot_linear_graph_earnings_expenses(person)
+
+    # Create a button for each business in the city
+    for business in person.businesses:
+        myButton = Button(root, text=business.name, bg="lightgrey", fg="black", command=lambda business=business: business_page(business.manager))
+        # Make the button big
+        myButton.config(font=("Courier", 44))
+        myButton.pack()
+
+    # Create a go back button that executes go_back
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
+
+    # Make the button big
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+    next_turn_button(person_page)
+
+
+def businesses_page(entitym = None):
+    global callbacks, current_entitym
+    callbacks.append(businesses_page)
+    if entitym:
+        current_entitym = entitym
+    else:
+        entitym = current_entitym
+    
     entity = entitym.entity
     clean_up()
     print("Businesses clicked")
@@ -138,62 +320,197 @@ def businesses_page(entitym, callback = city_page):
     if businesses:
         for business in businesses:
             # Create a button for each business with lable business.name and the business as an argument
-            myButton = Button(root, text=business.name, bg="lightgrey", fg="black", command=lambda businessm=business.manager: business_page(businessm, callback))
+            # If owner is instance of State turn color to blue
+            if is_public(business):
+                myButton = Button(root, text=business.name, bg="blue", fg="white", command=lambda business=business: business_page(business.manager))
+            else:
+                myButton = Button(root, text=business.name, bg="orange", fg="white", command=lambda businessm=business.manager: business_page(businessm))
             # Make the button big
             myButton.config(font=("Courier", 44))
 
             myButton.pack()
     
     # Create a back button
-    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=lambda entitym=entitym: callback(entitym))
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
 
-    next_turn_button(current_world, businesses_page, entitym, city_page)
+    next_turn_button(businesses_page)
 
-def business_page(businessm, callback):
+current_businessm = None
+
+def business_page(businessm = None):
+    # Initial setup
+    global callbacks, current_businessm
+    callbacks.append(business_page)
+    if businessm:
+        current_businessm = businessm
+    else:
+        businessm = current_businessm
+    
+
+    # Begin business page
     business = businessm.entity
     clean_up()
     print("Business clicked")
     # Put the background light grey
     root.configure(background='lightgrey')
 
+    # Show total money
+    myLabel = Label(root, text="Total Money: " + str(business.money), bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    # Put the label in the window
+    myLabel.pack()
+
+    # Show the owner
+    myLabel = Label(root, text="Owner: " + business.owner.name, bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    # Put the label in the window
+    myLabel.pack()
+
+    # Show product name and price
+    if business.product in business.items_price:
+        myLabel = Label(root, text="Product: " + business.product + " Price: " + str(business.items_price[business.product]), bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    # Put the label in the window
+    myLabel.pack()
+
+
     # Create a label
     myLabel = Label(root, text=business.name, bg="lightgrey", fg="black")
     # Make the label big
     myLabel.config(font=("Courier", 44))
-
     # Put the label in the window
     myLabel.pack()
+
+    # Create a button for workers
+    myButton = Button(root, text="Workers", bg="lightgrey", fg="black", command=lambda businessm=businessm: workers_page(businessm))
+    # Make the button big
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+
+
+    # Create a graph
+    plot_linear_graph_earnings_expenses(business)
     
     # Create a back button that goes to the businesses page with argument current_city
-    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=lambda entitym=current_citym: businesses_page(entitym, callback))
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
 
     # Create a next turn button that goes to the businesses page with argument current_city
-    next_turn_button(current_world, business_page, businessm, businesses_page)
+    next_turn_button(business_page)
 
+def workers_page(businessm = None):
+    global callbacks, current_businessm
+    callbacks.append(workers_page)
+    if businessm:
+        current_businessm = businessm
+    else:
+        businessm = current_businessm
+    
+    business = businessm.entity
+    clean_up()
+    print("Workers clicked")
+    # Put the background light grey
+    root.configure(background='lightgrey')
 
-def next_turn_button(world, callback, entitym, extra = None):
-    # Create a green square button at the bottom of the screen
+    # Create a label
+    myLabel = Label(root, text="Workers", bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    # Put the label in the window
+    myLabel.pack()
+
+    # Create a button for each worker
+    for contract in business.work_contracts:
+        worker = contract.entity2
+        workerm = worker.manager
+        myButton = Button(root, text=worker.name, bg="lightgrey", fg="black", command=lambda workerm=workerm: person_page(workerm))
+        # Make the button big
+        myButton.config(font=("Courier", 44))
+        myButton.pack()
+
+    # Create a back button that goes to the businesses page with argument current_city
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
+    # Make the button big
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+    next_turn_button(workers_page)
+
+current_marketm = None
+def market_page(marketm = None):
+    global callbacks, current_marketm
+    callbacks.append(market_page)
+    if marketm:
+        current_marketm = marketm
+    else:
+        marketm = current_marketm
+    
+    market = marketm.entity
+    clean_up()
+    print("Market clicked")
+    # Put the background light grey
+    root.configure(background='lightgrey')
+
+    # Create a label
+    myLabel = Label(root, text="Market", bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    # Put the label in the window
+    myLabel.pack()
+
+    # Create a graph
+    plot_last_average_price_market(market)
+
+    # For each product in the market show the price and the amount of the product
+    for product in market.database.average_price:
+        myLabel = Label(root, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product]), bg="lightgrey", fg="black")
+        # myLabel = Label(root, text=product + " Price: " + str(market.database.average_price[product]))
+        # Make the label big
+        myLabel.config(font=("Courier", 44))
+        # Put the label in the window
+        myLabel.pack()
+
+    
+
+    # Create a back button that goes to the businesses page with argument current_city
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
+    # Make the button big
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+    next_turn_button(market_page)
+
+def go_back():
+    global callbacks
+    if callbacks:
+        callbacks.pop()
+        callbacks.pop()()
+
+def next_turn_button(function):
+    global callbacks
+    
     # If pressed refresh the page
-    myButton = Button(root, text="Next Turn", bg="green", fg="white", command=lambda world=world: turn(world, callback, entitym, extra))
+    myButton = Button(root, text="Next Turn", bg="green", fg="white", command=lambda function=function: turn(function))
     myButton.pack(side=BOTTOM)
     # Make the button big
     myButton.config(font=("Courier", 44))
     # Put the button in the window
     myButton.pack()
 
-def turn(world, callback, entitym, extra = None):
-    pass_turn(world)
-    if extra:
-        callback(entitym,extra)
-    else:
-        callback(entitym)
-    
+def turn(function):
+    global current_world
+    pass_turn(current_world)
+    callbacks.pop()
+    function()
 
 def clean_up():
     # Remove all the widgets from the window
@@ -218,6 +535,36 @@ def plot_pie_chart_public_private_bussiness(businesses):
 
     #     pie = plt.pie(np.array([ratio, 1-ratio]), labels=["Public", "Private"], colors=["red", "blue"], startangle=90, shadow=True, explode=(0, 0.1), autopct='%1.1f%%')
 
+def create_scroll(entities, function):
+    canvas = Canvas(root)
+    sb = Scrollbar(root, orient="vertical", command=canvas.yview)
+
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
+    canvas.configure(yscrollcommand=sb.set)
+    # canvas.grid(row=0, column=0, sticky="nsew")
+    # sb.grid(row=0, column=1, sticky="ns")
+
+    size = 80
+    i = 0
+    for e in entities:
+        manager = e.manager
+        myButton = Button(canvas, text=e.name, bg="lightgrey", fg="black", command=lambda manager=manager: function(manager))
+        myButton.config(font=("Courier", 44))
+        myButton.pack()
+        canvas.create_window(0, size*i, window=myButton, anchor="nw",)
+        canvas.update_idletasks()
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+        i +=1
+    
+    canvas.pack(side="left", fill="y", expand=True)
+    sb.pack(side="left", fill="y")
+
+
+    canvas.bind("<Configure>", lambda event: canvas.configure(scrollregion=canvas.bbox("all")))
+
+
 
 
     """
@@ -229,6 +576,33 @@ def plot_pie_chart_public_private_bussiness(businesses):
     canvas.draw()
     """
 
+def plot_linear_graph_earnings_expenses(entity):
+    # Create a figure
+    fig = plt.figure()
+    # Add an ax to the figure
+    ax = fig.add_subplot(111)
+    # Create a line graph
+    ax.plot(entity.total_sum_money, label="Earnings")
+    ax.plot(entity.total_sub_money, label="Expenses")
+    ax.legend()
+
+    # Create the chart
+    chart = FigureCanvasTkAgg(fig, root)
+    chart.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
+
+def plot_last_average_price_market(market):
+    # Create a figure
+    fig = plt.figure()
+    # Add an ax to the figure
+    ax = fig.add_subplot(111)
+    # Create a line graph
+    for good in market.database.last_average_price:
+        ax.plot(market.database.last_average_price[good], label=good)
+    ax.legend()
+
+    # Create the chart
+    chart = FigureCanvasTkAgg(fig, root)
+    chart.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
 
     
 

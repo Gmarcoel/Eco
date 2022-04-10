@@ -98,13 +98,14 @@ class Person(Entity):
             
             job_market.add_job(j)
         
-        self.earnings[2] = self.earnings[1]
-        self.earnings[1] = self.earnings[0]
-        self.earnings[0] = self.money
-
-        self.balance[2] = self.balance[1]
-        self.balance[1] = self.balance[0]
-        self.balance[0] = round(self.earnings[0] - self.earnings[1],2)
+        # self.earnings[2] = self.earnings[1]
+        # self.earnings[1] = self.earnings[0]
+        # self.earnings[0] = self.money
+        # self.balance[2] = self.balance[1]
+        # self.balance[1] = self.balance[0]
+        # self.balance[0] = round(self.earnings[0] - self.earnings[1],2)
+        self.add_earnings(self.money)
+        self.add_balance()
         
 
             

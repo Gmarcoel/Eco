@@ -162,13 +162,14 @@ class Business(Entity):
         self.items["work"] = 0
 
         # Calcular el balance del negocio
-        self.earnings[2] = self.earnings[1]
-        self.earnings[1] = self.earnings[0]
-        self.earnings[0] = self.money
-
-        self.balance[2] = self.balance[1]
-        self.balance[1] = self.balance[0]
-        self.balance[0] = round(self.earnings[0] + self.last_divident - self.earnings[1],2)
+        # self.earnings[2] = self.earnings[1]
+        # self.earnings[1] = self.earnings[0]
+        # self.earnings[0] = self.money
+        # self.balance[2] = self.balance[1]
+        # self.balance[1] = self.balance[0]
+        # self.balance[0] = round(self.earnings[0] + self.last_divident - self.earnings[1],2)
+        self.add_earnings(self.money)
+        self.add_balance()
 
         # if balance is negative increase price NO SIRVE DE NADA
         # if not self.check_balance():
@@ -183,7 +184,7 @@ class Business(Entity):
             # Si los contratos son más caros que la ganancia del negocio se reduce el precio de los contratos
             if self.specialization not in self.contracts_price:
                 self.contracts_price[self.specialization] = 1
-            if self.balance[0] < self.contracts_price[self.specialization]:
+            if self.last_balance() < self.contracts_price[self.specialization]:
                 self.contracts_price[self.specialization] = round(self.contracts_price[self.specialization] * 0.9, 2)
             else:
                 self.hire(job_market)
@@ -193,7 +194,7 @@ class Business(Entity):
 
         # Dar al dueño una parte de la ganancia
         if self.owner != None and self.check_balance():
-            slice = round(self.balance[0] * self.dividend,2)
+            slice = round(self.last_balance() * self.dividend,2)
             self.owner.add_money(slice)
             self.money = round(self.money - slice,2)
             self.last_divident = slice

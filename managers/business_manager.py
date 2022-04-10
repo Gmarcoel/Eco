@@ -44,6 +44,9 @@ class BusinessManager(Manager):
         self.work()
         self.ask_for_money()
         self.check_balance()
+
+        # Economy
+        self.business.restart_economics()
     
 
     def check_balance(self):
