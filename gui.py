@@ -137,6 +137,12 @@ def city_page(citym = None):
         myButton = Button(root, text=market.name, bg="lightgrey", fg="black", command=lambda market=market.manager: market_page(market))
         myButton.config(font=("Courier", 44))
         myButton.pack()
+    
+    # Create a button for the state
+    myButton = Button(root, text="State", bg="lightgrey", fg="black", command=lambda statem=city.state.manager: state_page(statem))
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
 
     
     # Create a go back button that executes go_back
@@ -263,9 +269,11 @@ def person_page(personm = None):
     myLabel.pack()
 
 
-    # Print the place the person works in
+
+
+    # Print the place the person works in and the money they make
     if person.contract:
-        myLabel = Label(root, text="Works in: " + person.contract.entity1.name, bg="lightgrey", fg="black")
+        myLabel = Label(root, text="Works in: " + person.contract.entity1.name + " for " + str(person.contract.money1), bg="lightgrey", fg="black")
     else:
         myLabel = Label(root, text="Unenployed", bg="lightgrey", fg="black")
     # Make the label big    
@@ -488,6 +496,71 @@ def market_page(marketm = None):
     myButton.pack()
 
     next_turn_button(market_page)
+
+current_statem = None
+def state_page(statem = None):
+    global callbacks, current_statem
+    callbacks.append(state_page)
+    if statem:
+        current_statem = statem
+    else:
+        statem = current_statem
+    
+    state = statem.entity
+    clean_up()
+    print("State clicked")
+    # Put the background light grey
+    root.configure(background='lightgrey')
+
+    # Create a label
+    myLabel = Label(root, text="State", bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    # Put the label in the window
+    myLabel.pack()
+
+    # Create a button of the governor
+    myButton = Button(root, text=state.governor.name, bg="lightgrey", fg="black", command=lambda statem=statem: person_page(state.governor.manager))
+    # Make the button big
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+
+    # Show all projects with labels
+    myLabel = Label(root, text="Projects", bg="lightgrey", fg="black")
+    myLabel.config(font=("Courier", 44))
+    myLabel.pack()
+    for project in state.projects:
+        myLabel = Label(root, text=project.name + str(project.resources), bg="lightgrey", fg="black")
+        myLabel.config(font=("Courier", 20))
+        myLabel.pack()
+    
+
+    
+    # Show all current laws
+    myLabel = Label(root, text="Laws", bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+    # Put the label in the window
+    myLabel.pack()
+    for law in statem.current_laws:
+        myLabel = Label(root, text=law + " " + str(statem.current_laws[law]), bg="lightgrey", fg="black")
+        myLabel.config(font=("Courier", 20))
+        myLabel.pack()
+
+    
+
+    
+    
+
+    # Create a back button that goes to the businesses page with argument current_city
+    myButton = Button(root, text="Back", bg="lightgrey", fg="black", command=go_back)
+    # Make the button big
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+    next_turn_button(state_page)
+
 
 def go_back():
     global callbacks

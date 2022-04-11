@@ -14,11 +14,16 @@ class StateManager(Manager):
     world = None
     state = None
     market = None
+    current_laws = {}
+
     def __init__(self, state, world, market):
         super().__init__(state)
         self.state = state
         self.state.world = world
         self.market = market
+
+        self.state.manager = self
+        self.current_laws = {}
     
     def do(self):
 
@@ -77,6 +82,8 @@ class StateManager(Manager):
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             print("Proposed a people tax rate of {}".format(self.state.people_tax_rate))
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+            self.current_laws["people_tax_rate"] = self.state.people_tax_rate
         elif r == 2:
             # Set a random value between -0.1 and 0.1
             v = round(random.uniform(-0.1,0.1),2)
@@ -85,6 +92,8 @@ class StateManager(Manager):
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             print("Proposed a business tax rate of {}".format(self.state.business_tax_rate))
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+            self.current_laws["business_tax_rate"] = self.state.business_tax_rate
 
         elif r == 3:
             i = 20
@@ -104,6 +113,7 @@ class StateManager(Manager):
                 print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
                 print("Proposed to nationalize {}".format(bus.name))
                 print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
 
         elif r == 4:
             i = 20
@@ -144,6 +154,8 @@ class StateManager(Manager):
             print("Proposed a minimum wage of {}".format(self.state.minimum_wage))
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
+            self.current_laws["minimum_wage"] = self.state.minimum_wage
+
         elif r == 6:
             # Create a list with all resources
             resources = ["food", "wood", "stone", "build"]
@@ -158,6 +170,8 @@ class StateManager(Manager):
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             print("Proposed a maximum price of {} for {}".format(self.state.maximum_price[r], r))
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+            self.current_laws["maximum_price_"] = self.state.maximum_price
         elif r == 7:
             # Create a list with all resources
             resources = ["food", "wood", "stone", "build"]
@@ -172,6 +186,8 @@ class StateManager(Manager):
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             print("Proposed a minimum price of {} for {}".format(self.state.minimum_price[r], r))
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+            self.current_laws["minimum_price_"] = self.state.minimum_price
         elif r == 8:
             # Select a random inside self.state.maximum_price
             r = random.choice(list(self.state.maximum_price))
@@ -179,6 +195,9 @@ class StateManager(Manager):
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             print("Removed maximum price for {}".format(r))
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+            # Remove from current_laws
+            self.current_laws.remove("maximum_price_")
         elif r == 9:
             # Select a random inside self.state.minimum_price
             r = random.choice(list(self.state.minimum_price))
@@ -186,6 +205,9 @@ class StateManager(Manager):
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             print("Removed minimum price for {}".format(r))
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+            # Remove from current_laws
+            self.current_laws.remove("minimum_price_")
 
 
 
