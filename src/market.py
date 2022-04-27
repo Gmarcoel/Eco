@@ -53,7 +53,8 @@ class MarketDatabase():
             if not good in self.ammount:
                 self.total_value[good] = 0
                 self.ammount[good] = 0
-                self.average_price[good] = self.previous_average_price[good]
+                # self.average_price[good] = self.previous_average_price[good]
+                
 
 
 

@@ -12,6 +12,7 @@ class Sawmill(Business):
         self.add_needed_goods("work",1,1)
         self.add_item("wood",0)
         self.production = 2
+        self.sector = "lumber"
 
     
     def __str__(self):

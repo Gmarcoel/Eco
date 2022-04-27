@@ -2,7 +2,7 @@ from numpy import minimum
 from  src.entity import Entity
 from src.project import Project
 
-from managers.business_manager import create_business
+
 
 import json
 import random
@@ -52,27 +52,29 @@ class State(Entity):
         self.cities.remove(city)
 
     def add_infrastructure(self, city):
-
         with open("data/projects.json", "r") as f:
-                        data = json.load(f)
-                        # Get the resources needed for the project
-                        resources = data["projects"]["infrastructure"]["resources"]
-                        # Get the time needed for the project
-                        time = int(data["projects"]["infrastructure"]["time"])
-                        # Create the project
-                        p = Project("infrastructure", city, self, 0, resources, time)
-                        # Add the project to the list of projects
-                        self.projects.append(p)
+            data = json.load(f)
+            # Get the resources needed for the project
+            resources = data["projects"]["infrastructure"]["resources"]
+            # Get the time needed for the project
+            time = int(data["projects"]["infrastructure"]["time"])
+            # Create the project
+            p = Project("infrastructure", city, self, 0, resources, time)
+            # Add the project to the list of projects
+            self.projects.append(p)
         # inf = Project("infrastructure", city, self, 100, {'stone': 50}, 5)
         # self.projects.append(inf)
+
     
+
     def add_project(self, city):
+
         if city.infrastructure <= 0: return
         city.infrastructure -= 1
         with open("data/projects.json", "r") as f:
             data = json.load(f)
             # Choose random project from list
-            l = ["infrastructure", "farm", "mine", "sawmill", "constructor"]
+            l = ["infrastructure", "farm", "mine", "sawmill", "constructor", "chocolate", "housing", "furniture", "science"]
             ran = random.choice(l)
             # Get the resources needed for the project
             resources = data["projects"][ran]["resources"]
@@ -82,6 +84,18 @@ class State(Entity):
             p = Project(ran, city, self, 0, resources, time)
             # Add the project to the list of projects
             self.projects.append(p)
+    
+    def add_industry(self, city, type):
+        with open("data/projects.json", "r") as f:
+            data = json.load(f)
+            resources = data["projects"][type]["resources"]
+            # Get the time needed for the project
+            time = int(data["projects"][type]["time"])
+            # Create the project
+            p = Project(type, city, self, 0, resources, time)
+            # Add the project to the list of projects
+            self.projects.append(p)
+
 
 
     def process_needed_resourcess(self, market):
@@ -109,30 +123,11 @@ class State(Entity):
 
         for p in self.projects:
             if p.accomplish(self):
+                
                 self.projects.remove(p)
                 self.in_construction.append(p)
-        done = []
-        for p in self.in_construction:
-            if p.time <= 0:
-                done.append(p)
-                if p.name == "infrastructure":
-                    p.entity.add_infrastructure(1)
-                else:
-                    b = create_business(p.name, self, p.entity.money)
-                    self.owned_bussiness.append(b)
-                    # Add business to the city
-                    city.businesses.append(b)
-                    p.entity.add_business(b)
-                    # Add .05 percent of state money to the business
-                    amm = round(self.money * .05, 2)
-                    self.subtract_money(amm)
-                    b.add_money(amm)
-
-            else:
-                p.time -= 1
-        # remove completed projects from the project
-        for p in done:
-            self.in_construction.remove(p)
+        
+        
     
     def tax(self):
         tax = 0
@@ -157,8 +152,8 @@ class State(Entity):
     
     def set_businesses_tax(self, tax):
         self.business_tax_rate = tax
-        for b in self.owned_bussiness:
-            b.set_businesses_tax(tax)
+        for c in self.cities:
+            c.set_businesses_tax(tax)
     
     def nationalize_business(self, business):
         owner = business.owner
@@ -169,7 +164,7 @@ class State(Entity):
     def set_minimun_wage(self, wage):
         self.minimum_wage = wage
         for c in self.cities:
-            c.set_minimun_wage(wage)
+            c.set_minimum_wage(wage)
     
     def set_maximum_price(self, price, resource):
         self.maximum_price[resource] = price

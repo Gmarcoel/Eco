@@ -14,25 +14,41 @@ class StateManager(Manager):
     world = None
     state = None
     market = None
+    job_market = None
     current_laws = {}
+    last_law = ""
+    manual = False
+    basics_manual = False
 
-    def __init__(self, state, world, market):
+    def __init__(self, state, world, market, job_market):
         super().__init__(state)
         self.state = state
         self.state.world = world
         self.market = market
+        self.job_market = job_market
 
         self.state.manager = self
         self.current_laws = {}
     
     def do(self):
+        self.last_law = ""
 
-        self.tax()
-        self.work()
-        self.invest()
-        self.buy_resources()
+        if not self.basics_manual:
+            print("TAXEA Y WORKEA")
+            self.tax()
+            self.work()
+        
+        if not self.manual:
+            print("INVESTEA")
+            self.invest()
+        
+        if not self.basics_manual:
+            print("COMPRA")
+            self.buy_resources()
 
-        self.propose_law()
+        if not self.manual:
+            print("PROPONE")
+            self.propose_law()
 
         
 
@@ -45,6 +61,30 @@ class StateManager(Manager):
     def work(self):
         for c in self.state.cities:
             self.state.work(c)
+
+        done = []
+        for p in self.state.in_construction:
+            if p.time <= 0:
+                done.append(p)
+                if p.name == "infrastructure":
+                    p.entity.add_infrastructure(10) # AQUI NO LLEGA CREOOOOOOOOOOOOOOOOOOOOOOOO
+                else:
+                    b = create_business(p.name, self.state, p.entity.money)
+                    self.state.businesses.append(b)
+                    # Add business to the city
+                    # p.entity.businesses.append(b)
+                    p.entity.add_business(b)
+                    # Add .05 percent of state money to the business
+                    amm = round(self.state.money * .05, 2)
+                    self.state.subtract_money(amm)
+                    b.add_money(amm)
+                    self.state.world.new_businesses.append(New(b, p.entity, self.market, self.job_market)) # object, city, market, job_market
+
+            else:
+                p.time -= 1
+        # remove completed projects from the project
+        for p in done:
+            self.state.in_construction.remove(p)
     
     def invest(self):
         # randomize city order
@@ -66,8 +106,32 @@ class StateManager(Manager):
             self.state.money = round(self.state.money - dividend,2)
             self.state.governor.money = round(self.governor.money + dividend,2)
     
+
+        
+        
+    def build_infrastructure(self, city):
+        if city == "City":
+            return
+        for c in self.state.cities:
+            if str(c) == city:
+                self.state.add_infrastructure(c)
+                self.last_law = "build infrastructure"
+                return
+        
+
+    def build_industry(self, bus, city):
+        chosen = None
+        for c in self.state.cities:
+            if str(c) == city:
+                chosen = c
+                break
+        if chosen:
+            self.state.add_industry(chosen,bus)
+
+        
+
     def propose_law(self):
-        n = 6
+        n = 8
         if self.state.minimum_price != {}:
             n += 1
         if self.state.maximum_price != {}:
@@ -76,24 +140,15 @@ class StateManager(Manager):
         r = random.randint(1,n)
         if r == 1:
             # Set a random value between -0.1 and 0.1
-            v = round(random.uniform(-0.1,0.1),2)
-            # Add v to tax
-            self.state.set_people_tax(round(self.state.people_tax_rate + v,2))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("Proposed a people tax rate of {}".format(self.state.people_tax_rate))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            v = round(random.uniform(0,0.5),2)
 
-            self.current_laws["people_tax_rate"] = self.state.people_tax_rate
+            self.set_people_tax(v)
+            return
         elif r == 2:
             # Set a random value between -0.1 and 0.1
-            v = round(random.uniform(-0.1,0.1),2)
-            # Add v to tax
-            self.state.set_businesses_tax(round(self.state.business_tax_rate + v,2))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("Proposed a business tax rate of {}".format(self.state.business_tax_rate))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-
-            self.current_laws["business_tax_rate"] = self.state.business_tax_rate
+            v = round(random.uniform(0,0.5),2)
+            self.set_business_tax(v)
+            return
 
         elif r == 3:
             i = 20
@@ -109,10 +164,8 @@ class StateManager(Manager):
                     break
                 i -= 1
             if bus:
-                self.state.nationalize_business(bus)
-                print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                print("Proposed to nationalize {}".format(bus.name))
-                print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+                self.nationalize(bus)
+
 
 
         elif r == 4:
@@ -129,32 +182,19 @@ class StateManager(Manager):
                     break
                 i -= 1
             if bus:
-                # Select random person in city
-                p = random.choice(c.people)
-                # set owner of business to person
-                bus.owner = p
-                # Add business to person
-                p.businesses.append(bus)
-                # Remove business from state
-                if bus in self.state.businesses: # ESTO TIENE ALGO QUE NO DEBERIA SER NECESARIO QUE MIEDO 
-                    self.state.businesses.remove(bus)
-                # self.state.businesses.remove(bus)
-                print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                print("Proposed to privatize {}".format(bus.name))
-                print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+                
+                self.privatize(bus)
+
                 
         elif r == 5:
             # Set a random value between market value of food * 2 and market value of food * 10
             if not r in self.market.database.average_price:
+                self.last_law = ""
                 return
             avg_food = self.market.database.average_price["food"]
             v = round(random.uniform( avg_food* 2, avg_food * 10),2)
-            self.state.set_minimun_wage(v)
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("Proposed a minimum wage of {}".format(self.state.minimum_wage))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
-            self.current_laws["minimum_wage"] = self.state.minimum_wage
+            self.set_minimum_wage(v)
 
         elif r == 6:
             # Create a list with all resources
@@ -162,63 +202,163 @@ class StateManager(Manager):
             # Choose a random resource
             r = random.choice(resources)
             if not r in self.market.database.average_price:
+                self.last_law = ""
                 return
             # Set a random value between market value of food * 5 and market value of food * 10
             avg_food = self.market.database.average_price[r]
-            v = round(random.uniform( avg_food* 5, avg_food * 10),2)
-            self.state.set_maximum_price(v, r)
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("Proposed a maximum price of {} for {}".format(self.state.maximum_price[r], r))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            v = round(random.uniform( avg_food* 1, avg_food * 3),2)
+            self.set_maximum_price(v, r)
 
-            self.current_laws["maximum_price_"] = self.state.maximum_price
+
         elif r == 7:
             # Create a list with all resources
-            resources = ["food", "wood", "stone", "build"]
+            resources = ["food", "wood", "stone", "build", "chocolate", "house", "furniture"]
             # Choose a random resource
             r = random.choice(resources)
             # Set a random value between market value of food /2 and market value of food * 2
             if not "food" in self.market.database.average_price:
+                self.last_law = ""
                 return
             avg_food = self.market.database.average_price["food"]
             v = round(random.uniform( avg_food/2, avg_food * 2),2)
-            self.state.set_minimum_price(v,r)
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("Proposed a minimum price of {} for {}".format(self.state.minimum_price[r], r))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
-            self.current_laws["minimum_price_"] = self.state.minimum_price
+            self.set_minimum_price(v, r)
+
         elif r == 8:
             # Select a random inside self.state.maximum_price
+            if not self.state.maximum_price:
+                self.last_law = ""
+                return
             r = random.choice(list(self.state.maximum_price))
-            self.state.remove_maximum_price(r)
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("Removed maximum price for {}".format(r))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            self.remove_maximum_price(r)
 
-            # Remove from current_laws
-            self.current_laws.remove("maximum_price_")
+
+
         elif r == 9:
             # Select a random inside self.state.minimum_price
+            if not self.state.minimum_price:
+                self.last_law = ""
+                return
             r = random.choice(list(self.state.minimum_price))
-            self.state.remove_minimum_price(self, r)
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("Removed minimum price for {}".format(r))
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            self.remove_minimum_price(r)
 
-            # Remove from current_laws
-            self.current_laws.remove("minimum_price_")
+        
+        elif r == 10:
+            self.print_money(10000)
 
-
-
+        self.last_law = ""
+        return
 
 
-    # set_people_tax(self, tax):
-    # set_business_tax(self, tax):
-    # nationalize_business(self, business):
-    # set_minimun_wage(self, wage):
-    # set_maximum_price(self, price, resource):
-    # set_minimum_price(self, price, resource):
-    # remove_maximum_price(self, resource):
-    # remove_minimum_price(self, resource):
+
+    def print_money(self, n):
+        # Print money
+        self.state.money = round(self.state.money + n,2)
+        self.last_law = "print_money"
+        return
+    
+    def remove_minimum_price(self, r):
+        self.state.remove_minimum_price(r)
+        # Remove from current_laws
+        if not self.state.minimum_price:
+            self.current_laws.pop("minimum_price")
+        else:
+            self.current_laws["minimum_price"] = self.state.minimum_price
+        self.last_law = "remove minimum price of " + r
+        return
+
+    def remove_maximum_price(self, r):
+        self.state.remove_maximum_price(r)
+        # Remove from current_laws
+        if not self.state.maximum_price:
+            self.current_laws.pop("maximum_price")
+        else:
+            self.current_laws["maximum_price"] = self.state.maximum_price
+        self.last_law = "remove maximum price of " + r
+        return
+
+    def set_minimum_price(self, v, r):
+        self.state.set_minimum_price(v,r)
+        self.current_laws["minimum_price"] = self.state.minimum_price
+        self.last_law = "minimum price of " + r + ": " + str(self.state.minimum_price[r])
+        return
+
+    def set_maximum_price(self, v, r):
+        self.state.set_maximum_price(v, r)
+        self.current_laws["maximum_price"] = self.state.maximum_price
+        self.last_law = "maximum price of " + r + ": " + str(self.state.maximum_price[r])
+        return
+
+    def set_minimum_wage(self, v):
+        self.state.set_minimun_wage(v)
+        self.current_laws["minimum_wage"] = self.state.minimum_wage
+        self.last_law = "minimum_wage " + str(self.state.minimum_wage)
+
+
+    def privatize(self, bus):
+        # Select random person in city
+        if not bus.manager:
+            self.last_law = ""
+            return
+        if not bus.manager.city.people:
+            return
+        p = random.choice(bus.manager.city.people)
+        self.give_business(p, bus)
+
+    def give_business(self, person, bus):
+        # set owner of business to person
+        bus.owner = person
+        # Add business to person
+        person.businesses.append(bus)
+        # Remove business from state
+        if bus in self.state.businesses: # ESTO TIENE ALGO QUE NO DEBERIA SER NECESARIO QUE MIEDO 
+            self.state.businesses.remove(bus)
+        
+        self.last_law = "privatize " + bus.name
+
+    def nationalize(self, bus):
+        self.state.nationalize_business(bus)
+        self.last_law = "nationalize " + bus.name
+        return
+
+
+    def set_business_tax(self, v):
+        # Add v to tax
+        # self.state.set_businesses_tax(round(self.state.business_tax_rate + v,2))
+        self.state.set_businesses_tax(v)
+        self.current_laws["business_tax_rate"] = self.state.business_tax_rate
+        self.last_law = "business_tax_rate " + str(self.state.business_tax_rate)
+    
+    def set_people_tax(self, v):
+        # Add v to tax
+        # self.state.set_people_tax(round(self.state.people_tax_rate + v,2))
+        self.state.set_people_tax(v)
+        self.current_laws["people_tax_rate"] = self.state.people_tax_rate
+        self.last_law = "people_tax_rate " + str(self.state.people_tax_rate)
+
+    def nationalize_sector(self, sector):
+        for c in self.state.cities:
+            for b in c.businesses:
+                if b.sector == sector:
+                    self.nationalize(b)
+    
+    def privatize_sector(self, sector):
+        for c in self.state.cities:
+            for b in c.businesses:
+                if b.sector == sector and isinstance(b.owner, State):
+                    self.privatize(b)
+    
+    def set_manual(self):
+        self.manual = not self.manual
+        print("AHORA: " + str(self.manual))
+        return
+    
+    def set_basics_manual(self):
+        self.basics_manual = not self.basics_manual
+        print("AHORA BASICS ESTAN " + str(self.basics_manual))
+        return
+
+
+
+
 

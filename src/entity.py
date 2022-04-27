@@ -59,10 +59,10 @@ class Entity():
             return Trade(self, price, sell, buyable_ammount, product)
 
         else:
-            print("Trade went wrong")
-            print("************************")
-            print("Sell: ", sell, "Price: ", price, "Quantity: ", quantity, "Product: ", product)
-            print("************************")
+            # print("Trade went wrong")
+            # print("************************")
+            # print("Sell: ", sell, "Price: ", price, "Quantity: ", quantity, "Product: ", product)
+            # print("************************")
 
             return None
     
@@ -89,7 +89,7 @@ class Entity():
         if self.items[item] >= quantity:
             self.items[item] -= quantity
         else:
-            print("No hay suficiente producto")
+            # print("No hay suficiente producto")
             return False
         return True
 
@@ -102,15 +102,15 @@ class Entity():
             self.sub_money = round(self.sub_money - money,2)
             self.money =round(self.money- money,2)
         else:
-            print("No hay suficiente dinero")
+            # print("No hay suficiente dinero")
             return False
         return True
     
     def tax(self, tax_rate):
-        if self.balance[0] < 0:
+        if self.balance[-1] < 0:
             return 0
-        # tax = round(self.balance[0] * tax_rate,2)
-        tax = round(self.balance[0] * tax_rate,2)
+        # tax = round(self.balance[-1] * tax_rate,2)
+        tax = round(self.balance[-1] * tax_rate,2)
         if tax <= 0:
             return 0
         if self.money >= tax:
@@ -122,7 +122,7 @@ class Entity():
     
     def subsidize(self, entity, money):
         if self.money < money:
-            print("No hay suficiente dinero")
+            # print("No hay suficiente dinero")
             return False
         self.money = round(self.money - money,2)
         entity.money = round(entity.money + money,2)

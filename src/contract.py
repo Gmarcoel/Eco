@@ -69,17 +69,17 @@ class Contract():
             
         else:
             if not part1 and not part2:
-                print("Contrato no cumplido por ambas partes")
+                # print("Contrato no cumplido por ambas partes")
                 self.time = 0
             elif not part1:
-                print("Contrato no cumplido por la primera parte")
+                # print("Contrato no cumplido por la primera parte")
                 # Devolver lo quitado a la segunda parte y cancelar el contrato
                 self.entity2.add_item(self.item2, self.item2_quantity)
                 self.entity2.add_money(self.money2)
                 self.time = 0
                 return Contract(self.entity2, self.entity1, 0, self.fine, None, None, 0, 0, 1, self.fine + self.fine/20)
             elif not part2:
-                print("Contrato no cumplido por la segunda parte")
+                # print("Contrato no cumplido por la segunda parte")
                 # Devolver lo quitado a la primera parte y cancelar el contrato
                 self.entity1.add_item(self.item1, self.item1_quantity)
                 self.entity1.add_money(self.money1)

@@ -57,6 +57,55 @@
                 "build" : 50
             },
             "maintenance" : {
+                "build" : 2
+            }
+        },
+        "chocolate": {
+            "description" : "A chocolate factory",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "stone" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "build" : 2
+            }
+        },
+        "housing": {
+            "description" : "A house manufacture",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "stone" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "build" : 3
+            }
+        },
+        "furniture": {
+            "description" : "A furniture factory",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "stone" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "build" : 1
+            }
+        },
+        "science": {
+            "description" : "A science hub",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "stone" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "build" : 2
             }
         }
 

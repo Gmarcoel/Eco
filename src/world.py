@@ -45,7 +45,7 @@ class World():
             self.business_managers.append(BusinessManager(b.object, b.job_market, b.market, b.city, self))
         self.new_businesses = []
         for s in self.new_states:
-            self.states_managers.append(StateManager(s.object, self, s.market))
+            self.states_managers.append(StateManager(s.object, self, s.market, s.job_market))
         self.new_states = []
         for c in self.new_cities:
             self.cities_managers.append(CityManager(c.object, self))

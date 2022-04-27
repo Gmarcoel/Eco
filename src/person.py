@@ -12,6 +12,8 @@ class Person(Entity):
     specialization = "None"
     partner = None
     family = []
+    happiness = 30
+    status = 0
 
     inmortal = False
 
@@ -20,6 +22,8 @@ class Person(Entity):
     basic_needs = {
         "food": 1
     }
+
+    dead_by_hunger = False
 
     businesses = []
 
@@ -49,7 +53,7 @@ class Person(Entity):
         if self.items[item] >= quantity:
             self.items[item] -= quantity
         else:
-            print("No hay suficiente producto")
+            # print("No hay suficiente producto")
             return False
         return True
     
@@ -66,8 +70,9 @@ class Person(Entity):
             self.items[food] = 0
         if self.dead == True:
             return True
-        if self.hungry > 10:
+        if self.hungry >= 10:
             self.dead = True
+            self.dead_by_hunger = True
             return False
 
         if self.items[food] > 0:
@@ -81,7 +86,7 @@ class Person(Entity):
             self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.2,2)
         elif self.hungry > 2:
             self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.8,2)
-        elif self.hungry >= 10:
+        elif self.hungry >= 7:
             self.items_price[food] = self.money
         return True
 
@@ -94,6 +99,8 @@ class Person(Entity):
             # print("No tiene trabajo")
             if not self.specialization in self.contracts_price:
                 self.contracts_price[self.specialization] = 1
+            if self.items_price["food"] * 3 < self.contracts_price[self.specialization]:
+                self.contracts_price[self.specialization] = round(self.items_price["food"] * 3,2)
             j = self.create_job(self.contracts_price[self.specialization], 1, self.specialization, False)
             
             job_market.add_job(j)
@@ -102,8 +109,8 @@ class Person(Entity):
         # self.earnings[1] = self.earnings[0]
         # self.earnings[0] = self.money
         # self.balance[2] = self.balance[1]
-        # self.balance[1] = self.balance[0]
-        # self.balance[0] = round(self.earnings[0] - self.earnings[1],2)
+        # self.balance[1] = self.balance[-1]
+        #  = round(self.earnings[0] - self.earnings[1],2)
         self.add_earnings(self.money)
         self.add_balance()
         
@@ -147,4 +154,10 @@ class Person(Entity):
         return price
     
 
+    # Consume chocolate to increase happiness by 3
+    def eat_chocolate(self):
+        # If chocolate is in inventory
+        if "chocolate" in self.items and self.items["chocolate"] > 0:
+            self.items["chocolate"] -= 1
+            self.happiness += 3
     

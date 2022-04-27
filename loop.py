@@ -12,6 +12,12 @@ from src import state
 from src import job_market
 from src import sawmill
 from src import constructor
+from src import chocolate_factory
+from src import housing
+from src import furniture_factory
+from src import science_hub
+
+from controls.state_control import StateControl
 
 from managers import person_manager
 from src.new import New
@@ -72,7 +78,7 @@ def demo():
     # mi.contract(people[8], 2, time=10000)
 
     g = person.Person("Guille", 20, 500)
-    k = person.Person("Kelia", 20, 500)
+    k = person.Person("Test", 20, 500)
     people.append(g)
     people.append(k)
 
@@ -319,8 +325,8 @@ def generate_world():
     # mi.contract(people[7], 2, time=10000)
     # mi.contract(people[8], 2, time=10000)
 
-    g = person.Person("Guille", 20, 500)
-    k = person.Person("Kelia", 20, 500)
+    g = person.Person("guille", 20, 500)
+    k = person.Person("kelia", 20, 500)
     people.append(g)
     people.append(k)
 
@@ -328,7 +334,7 @@ def generate_world():
     k.partner = g
 
     # Create a second farm 
-    f2 = farm.Farm("Granja k", k, random.randint(1000, 2000), 5)
+    f2 = farm.Farm("Granja 2", k, random.randint(1000, 2000), 5)
     k.businesses.append(f2)
     businesses.append(f2)
 
@@ -339,6 +345,26 @@ def generate_world():
     # Create a constructor
     cons = constructor.Constructor("Constructor", g, random.randint(1000, 2000), 5)
     businesses.append(cons)
+
+    # Create a chocolate factory
+    choco = chocolate_factory.ChocolateFactory("Chocolate Factory", g, random.randint(1000, 2000))
+    businesses.append(choco)
+    g.businesses.append(choco)
+
+    # Create a housing business
+    hous = housing.Housing("Housing", k, 20000)
+    businesses.append(hous)
+    k.businesses.append(hous)
+
+    # Create a chocolate factory
+    fur = furniture_factory.FurnitureFactory("Furniture Factory", people[21], random.randint(1000, 2000))
+    businesses.append(fur)
+    people[21].businesses.append(fur)
+
+    # Create a science hub
+    sci = science_hub.ScienceHub("Science Hub", people[22], random.randint(1000, 2000))
+    businesses.append(sci)
+    people[22].businesses.append(sci)
 
     # Contract more people to the sawmill
     saw.contract(people[7], 0.8, time=10000)
@@ -464,7 +490,22 @@ def get_public_private_ratio(businesses):
     return public / (public + private)
 
 
+def set_state_control(sm):
+    return StateControl(sm)
+
+
+def show_last_law(sm):
+    return sm.last_law
+
+def get_deaths_natural_starvation_ratio(city_manager):
+    if city_manager.deaths == 0:
+        return 1
+    return  1 - city_manager.deaths_by_hunger / city_manager.deaths
+
+
 def is_public(business):
     return business.owner == None or isinstance(business.owner, state.State)
+
+
 # if __name__ == "__main__":
 #     demo()

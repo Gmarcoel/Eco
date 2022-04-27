@@ -12,6 +12,7 @@ class Constructor(Business):
         self.add_needed_goods("work",1,1)
         self.add_item("build",0)
         self.production = 2
+        self.sector = "construction"
 
     
     def __str__(self):

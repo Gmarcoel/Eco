@@ -1,7 +1,7 @@
 # Business class
 from  numpy import product
 from  src.entity import Entity
-from  src.job_market import job_market
+# from  src.job_market import job_market
 from  src.contract import Contract
 
 class Business(Entity):
@@ -17,6 +17,7 @@ class Business(Entity):
     needed_goods_price = 20 # Placeholder
     product = None
     production = 1
+    productivity = 1
 
     negative = 0
     dividend = 0.2
@@ -36,6 +37,9 @@ class Business(Entity):
     maximum_price = 0
     minimum_price = 0
 
+    sector = "None"
+
+    expected_contracts = 1
 
 
 
@@ -85,7 +89,7 @@ class Business(Entity):
         if self.needed_goods[item] >= quantity:
             self.needed_goods[item] -= quantity
         else:
-            print("No hay suficiente producto")
+            # print("No hay suficiente producto")
             return False
         return True
     
@@ -93,23 +97,15 @@ class Business(Entity):
         del self.needed_goods[item]
     
     def produce(self, job_market):
-        """
-        if self.product == None:
-            return
-        for item in self.needed_goods:
-            if self.items[item] < self.needed_goods[item]:
-                return False
-        for item in self.needed_goods:
-            self.items[item] -= self.needed_goods[item]
-        self.items[self.product] += 1
-        return True
-        """
 
         # if not employees hire
         if len(self.work_contracts) == 0:
             self.hire(job_market)
 
         # Destroy some of the existing stock
+        if not self.product in self.items:
+            self.items[self.product] = 1
+
         self.items[self.product] = round(self.items[self.product]* 0.8,0)
 
         # Parte bancarrota
@@ -149,8 +145,9 @@ class Business(Entity):
             if enough_goods:
                 for item in self.needed_goods:
                     self.items[item] -= self.needed_goods[item]
-                self.items[self.product] += 1 * self.production
+                self.items[self.product] += round(1 * self.production * self.productivity,0)
                 work_used += 1
+            self.items["work"] -= 1
         
         # Aqui tengo información de la productividad del negocio
         # Para utilizar a futuro en la ia de contrato-despido
@@ -161,34 +158,8 @@ class Business(Entity):
 
         self.items["work"] = 0
 
-        # Calcular el balance del negocio
-        # self.earnings[2] = self.earnings[1]
-        # self.earnings[1] = self.earnings[0]
-        # self.earnings[0] = self.money
-        # self.balance[2] = self.balance[1]
-        # self.balance[1] = self.balance[0]
-        # self.balance[0] = round(self.earnings[0] + self.last_divident - self.earnings[1],2)
         self.add_earnings(self.money)
         self.add_balance()
-
-        # if balance is negative increase price NO SIRVE DE NADA
-        # if not self.check_balance():
-        #     if not self.product in self.items_price:
-        #         self.items_price[self.product] = 1
-        #     self.items_price[self.product] = round(self.items_price[self.product] * 1.05, 2)
-        
-
-
-        # Si el balamce es positivo se intenta contratar
-        if self.check_balance():
-            # Si los contratos son más caros que la ganancia del negocio se reduce el precio de los contratos
-            if self.specialization not in self.contracts_price:
-                self.contracts_price[self.specialization] = 1
-            if self.last_balance() < self.contracts_price[self.specialization]:
-                self.contracts_price[self.specialization] = round(self.contracts_price[self.specialization] * 0.9, 2)
-            else:
-                self.hire(job_market)
-
 
                 
 
@@ -215,17 +186,13 @@ class Business(Entity):
     def create_trades(self, market):
         self.needed_goods_price = 0
         for item in self.needed_goods:
-            if item is not "work":
-                t = self.trade(item, self.get_expected_price(item, market), False, self.needed_goods[item])
-                self.needed_goods_price = round(self.needed_goods_price + t.price,2)
-                market.add_trade(t)
+            if item != "work":
+                t = self.trade(item, self.get_expected_price(item), False, self.needed_goods[item] * len(self.work_contracts))
+                if t:
+                    self.needed_goods_price = round(self.needed_goods_price + t.price,2)
+                    market.add_trade(t)
 
-    """
-    def get_expected_price(self, item, market):
-        if not item in self.needed_goods_price:
-            self.needed_goods_price[item] = 1 # ESTA FUNCION ENTERA ES BASURA
-        return self.needed_goods_price[item]
-    """
+
     
     def sell(self, market):
         if self.status == "closed":
@@ -245,18 +212,6 @@ class Business(Entity):
         market.add_trade(t)
 
 
-    #def bankrupt(self):
-    #    for item in self.items:
-    #        self.items[item] = 0
-    #    for employee in self.employees:
-    #        employee.employer = None
-    #    for contract in self.work_contracts:
-    #        contract.employer = None
-    #    self.employees = []
-    #    self.jobs = []
-    #    self.owner = None
-    #    self.status = "closed"
-    #    self.negative = 0
 
     def set_owner(self, owner):
         self.owner = owner
@@ -265,18 +220,20 @@ class Business(Entity):
         self.owner = None
     
 
-    def hire(self, job_market):
+    def hire(self, jm):
         # salary, time, specialization, contractor
         if self.specialization not in self.contracts_price:
-            self.contracts_price[self.specialization] = 1
-        # if self.balance[0] < self.contracts_price[self.specialization]:
+            self.contracts_price[self.specialization] = 5
+        # if self.balance[-1] < self.contracts_price[self.specialization]:
         #     self.contracts_price[self.specialization] = round(self.contracts_price[self.specialization] * 0.9, 2)
         # else:
+        j = None
         if self.minimum_wage > self.contracts_price[self.specialization]:
             j = self.create_job(self.minimum_wage, 10, self.specialization, True)
         else:
-            j = self.create_job(self.contracts_price[self.specialization], 10, self.specialization, True)
-        job_market.add_job(j)
+            j = self.create_job(self.contracts_price[self.specialization], 20, self.specialization, True)
+        if j:
+            jm.add_job(j)
 
     def contract(self, person, money, time= 10 ):
         con = Contract(self,person, money,0,None,"work",0,1, time=time, fine = round(money * 3,2))
@@ -314,10 +271,12 @@ class Business(Entity):
 
 
     def trade(self, product, price, sell, quantity):
+        # print("EN EL TRADE DE ", self.name, "el precio es ", price)
         if self.maximum_price != 0:
             if price > self.maximum_price:
                 price = self.maximum_price
         if self.minimum_price != 0:
             if price < self.minimum_price:
                 price = self.minimum_price
+        # print("ahora el precio es ", price)
         return super().trade(product, price, sell, quantity)

@@ -46,6 +46,7 @@ class PersonManager(Manager):
         self.person.create_trades(self.market)
 
         # Decissions:
+        self.check_status()
         self.grow()
 
         # Jobs
@@ -58,12 +59,39 @@ class PersonManager(Manager):
         self.children()
         self.family()
 
+        # Happiness
+        self.happiness()
+        self.housing()
+
         # Economy
         self.person.restart_economics()
         
         if not self.person.inmortal:
             self.die()
     
+    # Function to set economic status
+    def check_status(self):
+        if not "food" in self.market.database.average_price:
+            food_price = 1
+        else:
+            food_price = self.market.database.average_price["food"]
+        money = self.person.money
+        self.person.status = 0
+        if money < food_price:
+            self.person.status = 0
+        if money > food_price:
+            self.person.status = 1
+        if money > 2 * food_price:
+            self.person.status = 2
+        if money > 10 * food_price:
+            self.person.status = 3
+        if money > 100 * food_price:
+            self.person.status = 4
+        if money > 1000 * food_price:
+            self.person.status = 5
+
+
+
     # Function to grow
     def grow(self):
         self.person.age += 1
@@ -71,7 +99,7 @@ class PersonManager(Manager):
     # Function to entrepeneur
     def entrepreneur(self):
 
-        entrepeneurship = 0.4
+        entrepeneurship = 0.1
         
         # If already inversion return
         if self.inversion:
@@ -99,7 +127,7 @@ class PersonManager(Manager):
 
             # Choose random project from list
             # l = ["farm", "mine", "infrastructure"]
-            l = ["farm", "farm","farm","farm","mine", "constructor", "sawmill"]
+            l = ["farm","mine", "constructor", "sawmill", "chocolate", "housing", "furniture", "science"]
             project = random.choice(l)
             # Open the projects json file
             with open("data/projects.json", "r") as f:
@@ -119,6 +147,9 @@ class PersonManager(Manager):
     def invest(self):
         # If not inversion return
         if not self.inversion:
+            return
+        
+        if self.person.status < 4:
             return
 
         
@@ -258,7 +289,6 @@ class PersonManager(Manager):
         if self.person.age > 100:
             chance += 0.4
         if random.random() < chance:
-            print("HA MUERTO DE FORMA NATURAL")
             self.person.dead = True
             # delete all dead people from family
             dead = []
@@ -311,13 +341,68 @@ class PersonManager(Manager):
                     
                 self.person.businesses = []
                 self.person.money = 0
-            # Remove person from city
-            self.city.people.remove(self.person)
+            # Remove person from city ESTO LO HACE LA PROPIA CITY PARA LLEVAR EL CENSO
+            # self.city.people.remove(self.person)
 
             self.person.partner = None
             
             self.person.partner = None
         
+
+    def happiness(self):
+        if self.person.status < 2:
+            return
+        if not "chocolate" in self.person.items_price:
+            self.person.items_price["chocolate"] = 1
+
+        person = self.person
+        person.happiness -= 1
+        if person.happiness < 0:
+            person.happiness = 0
         
-        
+        # If person happiness is less than 10 buy chocolate
+        if person.happiness < 10:
+            # Create a trade for chocolate
+            t = self.person.trade("chocolate", person.items_price["chocolate"], False, 1)
+            self.market.add_trade(t)
+        # Quit if money is more than three times food price try to buy chocolate
+        elif person.money > person.items_price["food"] * 3:
+            # Create a trade for chocolate
+            t = self.person.trade("chocolate", person.items_price["chocolate"], False, 1)
+            self.market.add_trade(t)
+        # Consume chocolate
+        person.eat_chocolate()
     
+    
+    def housing(self):
+        if self.person.status < 2:
+            return
+        if "house" not in self.person.items:
+            self.person.items["house"] = 0
+        if "furniture" not in self.person.items:
+            self.person.items["furniture"] = 0
+        if self.person.items["house"] < 1:
+            if "house" not in self.person.items_price:
+                self.person.items_price["house"] = 10
+            t = self.person.trade("house", self.person.items_price["house"], False, 1)
+            if t:
+                self.market.add_trade(t)
+        else:
+            if random.random() < 0.01:
+                self.person.items["house"] -= 1
+                if self.person.items["house"] < 0:
+                    self.person.items["house"] = 0
+        
+        if self.person.items["house"] > 0:
+            if "furniture" not in self.person.items_price:
+                self.person.items_price["furniture"] = 1
+            if self.person.items["furniture"] < 4: 
+                t = self.person.trade("furniture", self.person.items_price["furniture"], False, 1)     
+                if t:
+                    self.market.add_trade(t)
+        else:
+            if self.person.items["furniture"] > 0: 
+                t = self.person.trade("furniture", self.person.items_price["furniture"], True, self.person.items["furniture"])     
+                if t:
+                    self.market.add_trade(t)
+

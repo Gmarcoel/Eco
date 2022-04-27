@@ -11,7 +11,7 @@ class City:
     businesses_tax_rate = 0.2
     money = 0
     infrastructure = 10
-    infrastructure_price = 10
+    infrastructure_price = 100
     markets = []
     state = None
 
@@ -79,11 +79,13 @@ class City:
             taxes = round(taxes + business.tax(self.businesses_tax_rate), 2)
         return taxes
     
+    sold_terrain = 0
     def buy_terrain(self, entity):
-        if self.infrastructure > 0 and entity.money > self.infrastructure_price:
+        if self.infrastructure > 0 and entity.money > self.infrastructure_price and self.sold_terrain < 3:
             entity.subtract_money(self.infrastructure_price)
             self.add_money(self.infrastructure_price)
             self.infrastructure -= 1
+            self.sold_terrain += 1
             return True
         return False
     

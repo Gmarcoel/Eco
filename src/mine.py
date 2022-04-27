@@ -13,6 +13,7 @@ class Mine(Business):
         self.add_needed_goods("work",1,1)
         self.add_item("stone",0)
         self.production = 2
+        self.sector = "mining"
 
     
     def __str__(self):
