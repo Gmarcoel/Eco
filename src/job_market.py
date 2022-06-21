@@ -13,6 +13,9 @@ class job_market(Entity):
     jobs = {}
     specializations = {} # Esto aún hay que implementarlo
     # database = MarketDatabase()
+    total_contracts_price = 0
+    total_contracts_ammount = 0
+    average_contracts_price = 1
 
     def __init__(self, name, owner, money, tax_rate):
         self.name = name
@@ -46,16 +49,19 @@ class job_market(Entity):
         return job.money
 
     def clean_market(self):
-        for j in self.jobs:
-            for specialization in self.jobs:
-                for job in self.jobs[specialization]:
-                    if job.contractor:
-                        job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] + job.entity.contracts_price[specialization]* 0.1,2)
-                    else:
-                        if not "food" in job.entity.items_price:
-                            job.entity.items_price["food"] = 1
-                        if job.entity.contracts_price[specialization] >= 2 * job.entity.items_price["food"]:
-                            job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] - job.entity.contracts_price[specialization]* 0.1,2)
+        checked = []
+        for specialization in self.jobs:
+            for job in self.jobs[specialization]:
+                if job.contractor:
+                    if job.entity not in checked:
+                        job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] + job.entity.contracts_price[specialization]* 0.5,2)
+                        checked.append(job.entity)
+                else:
+                    if not "food" in job.entity.items_price:
+                        job.entity.items_price["food"] = 1
+                    if job.entity.contracts_price[specialization] >= 2 * job.entity.items_price["food"]:
+                        job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] - job.entity.contracts_price[specialization]* 0.2,2)
+        
         self.jobs = {}
 
 
@@ -64,6 +70,9 @@ class job_market(Entity):
 
     # Function to make all jobs on a free market
     def free_commerce(self):
+        self.total_contracts_price = 0
+        self.total_contracts_ammount = 0
+
         # For each specialization on market
         for specialization in self.jobs:
             # Get all buy jobs on market
@@ -76,6 +85,7 @@ class job_market(Entity):
             for job in self.jobs[specialization]:
                 if not job.contractor:
                     contractee_jobs.append(job)
+            """
             print("ESPECIALIZACION ", specialization)
             print("============================================================================================================")
             print("OFERTA")
@@ -86,6 +96,7 @@ class job_market(Entity):
             print("------")
             for t in contractee_jobs:
                 print(t)
+            """
             
             # If more contractors than contractees contractees decide the price
             if len(contractor_jobs) > len(contractee_jobs):
@@ -110,6 +121,11 @@ class job_market(Entity):
 
                     # If the buy money is higher or equal than the contractor money
                     if job.money >= contractee_job.money and job.time >= contractee_job.time and contractee_job.money != 0:
+                        # Fill database data
+                        self.total_contracts_price += job.money
+                        self.total_contracts_ammount += 1
+                        job.entity.manager.contracted += 1
+                        job.entity.manager.contracted_price += job.money
                         # Create a contract
                         contract = job.entity.contract(contractee_job.entity, job.money, job.time)
                         # Add contract to the contratee
@@ -121,15 +137,16 @@ class job_market(Entity):
                         self.jobs[specialization].remove(job)
                         self.jobs[specialization].remove(contractee_job)
                         # Change contract price 
+                        
                         job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] - job.entity.contracts_price[specialization]* 0.05,2)
                         contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] + contractee_job.entity.contracts_price[specialization]* 0.05,2)
+                        
                         found = True
                         break
-                    # if not found:
-                    #     contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] - contractee_job.entity.contracts_price[specialization]* 0.05,2)
-
 
                         
- 
+        
+        if self.total_contracts_ammount != 0:
+            self.average_contracts_price = round(self.total_contracts_price / self.total_contracts_ammount,2)
         self.clean_market()
 

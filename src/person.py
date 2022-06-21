@@ -1,4 +1,5 @@
 from  src.entity import Entity
+import random
 
 
 class Person(Entity):
@@ -19,6 +20,8 @@ class Person(Entity):
 
     hungry = 0
     dead = False
+    sick = False
+
     basic_needs = {
         "food": 1
     }
@@ -72,6 +75,7 @@ class Person(Entity):
             return True
         if self.hungry >= 10:
             self.dead = True
+            self.active = False
             self.dead_by_hunger = True
             return False
 
@@ -83,9 +87,9 @@ class Person(Entity):
         else:
             self.hungry += 1
         if self.hungry > 0:
-            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.2,2)
+            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.1,2)
         elif self.hungry > 2:
-            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.8,2)
+            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.2,2)
         elif self.hungry >= 7:
             self.items_price[food] = self.money
         return True
@@ -101,9 +105,11 @@ class Person(Entity):
                 self.contracts_price[self.specialization] = 1
             if self.items_price["food"] * 3 < self.contracts_price[self.specialization]:
                 self.contracts_price[self.specialization] = round(self.items_price["food"] * 3,2)
-            j = self.create_job(self.contracts_price[self.specialization], 1, self.specialization, False)
-            
-            job_market.add_job(j)
+            # Select a random number between 0 and 1
+            ran = round(random.random(),2)
+            if ran < self.status * 0.16:
+                j = self.create_job(self.contracts_price[self.specialization], 1, self.specialization, False)
+                job_market.add_job(j)
         
         # self.earnings[2] = self.earnings[1]
         # self.earnings[1] = self.earnings[0]
@@ -126,6 +132,11 @@ class Person(Entity):
         if self.dead:
             return
         for item in self.basic_needs:
+            # No comprar mas caro que el salario propio
+            if self.contract and self.specialization in self.contracts_price and self.contracts_price[self.specialization] < self.get_expected_price(item):
+                return
+
+
             exp_price = self.get_expected_price(item)
             if exp_price == 0:
                 return
@@ -161,3 +172,43 @@ class Person(Entity):
             self.items["chocolate"] -= 1
             self.happiness += 3
     
+    def tax(self, tax_rate):
+        if self.contract:
+            earnings = self.contract.money1
+            if self.money > (earnings * tax_rate):
+                self.subtract_money(earnings * tax_rate)
+                return earnings * tax_rate
+            else:
+                self.subtract_money(self.money)
+                self.money = 0
+                return self.money
+        return 0
+    
+    def get_sick(self):
+        # Probability of getting sick
+        prob = 0.1
+        if self.hungry > 1:
+            prob += 0.1
+        # Random chance of getting sick
+        ran = random.random()
+        if ran < prob:
+            self.sick = True
+            return True
+        return False
+    
+    def heal(self):
+        if self.sick:
+            if "health" in self.items and self.items["health"] > 0:
+                self.items["health"] -= 1
+                self.sick = False
+
+
+    def consume_goods(self):
+        if not "good" in self.items:
+            self.items["good"] = 0
+        
+        num = self.items["good"]
+        self.items["good"] = 0
+        self.happiness += num
+        return
+

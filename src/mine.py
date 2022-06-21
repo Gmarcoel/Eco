@@ -9,9 +9,9 @@ class Mine(Business):
     def __init__(self, name, owner, money, space=5):
         super().__init__(name=name, owner=owner, money=money)
         self.space = space
-        self.product = "stone"
+        self.product = "iron"
         self.add_needed_goods("work",1,1)
-        self.add_item("stone",0)
+        self.add_item("iron",0)
         self.production = 2
         self.sector = "mining"
 

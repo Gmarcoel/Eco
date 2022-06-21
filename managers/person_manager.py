@@ -1,10 +1,11 @@
 from managers.manager import Manager
-from managers.business_manager import create_business
+from managers.business_manager import create_business, get_building
 from src import person
 from src.project import Project
 import json
 import random
 from src.person import Person
+from src.business_sale import Sale
 
 from src.new import New
 
@@ -28,6 +29,14 @@ class PersonManager(Manager):
         self.project_resources = {}
         self.world = world
 
+        for item in self.market.database.previous_average_price:
+            self.person.items_price[item] = self.market.database.previous_average_price[item]
+
+        self.person.contracts_price[self.person.specialization] = self.job_market.average_contracts_price
+        if "food" in self.market.database.previous_average_price:
+            if self.person.contracts_price[self.person.specialization] <= self.market.database.previous_average_price["food"]* 3:
+                self.person.contracts_price[self.person.specialization] = self.market.database.previous_average_price["food"] * 3
+
         # Set manager
         self.person.manager = self
     
@@ -37,7 +46,8 @@ class PersonManager(Manager):
             return
 
         # Basic needs
-        self.person.work(self.job_market)
+        if self.person.age > 1:
+            self.person.work(self.job_market)
         # If eating returns false is dead
         if not self.person.eat("food"):
             self.die(c=1)
@@ -60,8 +70,10 @@ class PersonManager(Manager):
         self.family()
 
         # Happiness
+        self.health()
         self.happiness()
         self.housing()
+        self.manage_goods()
 
         # Economy
         self.person.restart_economics()
@@ -90,7 +102,9 @@ class PersonManager(Manager):
         if money > 1000 * food_price:
             self.person.status = 5
 
-
+        if self.person.contract:
+            if self.person.contract.time <= 0:
+                self.person.contract = None
 
     # Function to grow
     def grow(self):
@@ -116,19 +130,52 @@ class PersonManager(Manager):
         if random.random() < entrepeneurship:
             return
         
+        # Find most efficient project
+        selected = None
+        max = - 9999
+        cero = []
+        for product in self.market.database.all_existing_goods:
+            # Se comprueba la oferta y demanda
+            if product in self.market.database.last_offer:
+                offer = self.market.database.last_offer[product]
+                demand = self.market.database.last_demand[product]
+                new_max = demand - offer
+                # Se escoge el que más margen tenga (mas demanda/menos oferta)
+                if new_max > max:
+                    max = new_max
+                    selected = product
+                    
+                # Si no hay oferta se guarda para después (prioridad)
+                if offer == 0 and demand != 0:
+                    cero.append(product)
+            # else:
+            #     return
+        # Se coge prioridad en los sin oferta
+        if cero != []:
+            for product in cero:
+                if product in self.market.database.last_offer:
+                    offer = self.market.database.last_offer[product]
+                    demand = self.market.database.last_demand[product]
+                    new_max = demand - offer
+                    if new_max > max:
+                        max = new_max
+                        selected = product
 
-        
-        # Buy terrain in city
-        if not self.city.buy_terrain(self.person):
+        if not selected:
             return
-        
-        # Create project
-        if self.person.specialization == "None":
-
-            # Choose random project from list
-            # l = ["farm", "mine", "infrastructure"]
-            l = ["farm","mine", "constructor", "sawmill", "chocolate", "housing", "furniture", "science"]
-            project = random.choice(l)
+        # Random chance to create a new business or buy one
+        if random.random() < 0.5:
+            # Buy business
+            sale = Sale(self.person, 10, False, None, get_building(selected))
+            self.city.business_market.add_sale(sale)
+        else:
+            # Create business
+            # Buy terrain in city
+            if not self.city.buy_terrain(self.person):
+                return
+            
+            # Create project
+            project = get_building(selected)
             # Open the projects json file
             with open("data/projects.json", "r") as f:
                 data = json.load(f)
@@ -145,6 +192,16 @@ class PersonManager(Manager):
 
     # Invest in current project
     def invest(self):
+        if self.person.status >= 3:
+            self.person.investment_pool = round(self.person.investment_pool + self.person.money* 0.1, 2)
+            self.person.subtract_money(self.person.money* 0.1)
+
+        # If not food inversion invest so not everyone dies
+        if not "food" in self.market.database.previous_ammount or self.market.database.previous_ammount["food"] == 0:
+            # Buy business
+            sale = Sale(self.person, 10, False, None, get_building("farm"))
+            self.city.business_market.add_sale(sale)
+
         # If not inversion return
         if not self.inversion:
             return
@@ -156,8 +213,8 @@ class PersonManager(Manager):
         # If project is accomplished
         if self.project.accomplish(self.person):
             # Create new business
-            b = create_business(self.project.name,self.person, self.person.money)
-            self.person.money = 0
+            b = create_business(self.project.name,self.person, self.person.investment_pool)
+            self.person.investment_pool = 0
             # Remove project from list
             self.project = None
             # Set inversion to false
@@ -245,6 +302,7 @@ class PersonManager(Manager):
         
         if self.person.age < 50 or partner.age < 50:
             # random chance to have children 1 to 5
+            # if random.random() < 0.95:
             if random.random() < 0.95:
                 return
             # Create a random name for the child
@@ -278,6 +336,8 @@ class PersonManager(Manager):
     def die(self, c = 0):
         # The chance increase the older the person is
         chance = 0.01 + c
+        if self.person.sick:
+            chance += 0.0
         if self.person.age > 50:
             chance += 0.01
         if self.person.age > 70:
@@ -290,6 +350,7 @@ class PersonManager(Manager):
             chance += 0.4
         if random.random() < chance:
             self.person.dead = True
+            self.person.active = False
             # delete all dead people from family
             dead = []
             for p in self.person.family:
@@ -405,4 +466,38 @@ class PersonManager(Manager):
                 t = self.person.trade("furniture", self.person.items_price["furniture"], True, self.person.items["furniture"])     
                 if t:
                     self.market.add_trade(t)
+
+    def health(self):
+        self.person.get_sick()
+        if self.person.status < 2:
+            return
+        # Buy health
+        if not self.person.sick:
+            return
+        if "health" not in self.person.items:
+            self.person.items["health"] = 0
+        if self.person.items["health"] < 1:
+            if "health" not in self.person.items_price:
+                self.person.items_price["health"] = 10
+            t = self.person.trade("health", self.person.items_price["health"], False, 1)
+            if t:
+                self.market.add_trade(t)
+        # Heal
+        self.person.heal()
+    
+    def manage_goods(self):
+        if self.person.status < 2:
+            return
+        # Get a number between 1 and 10
+        number = random.randint(1,10)
+        number = self.person.status
+        # Buy as much goods as number
+        if "good" not in self.person.items_price:
+            self.person.items_price["good"] = 10
+        t = self.person.trade("good", self.person.items_price["good"], False, number)
+        if t:
+            self.market.add_trade(t)
+
+
+        self.person.consume_goods()
 

@@ -112,8 +112,8 @@ def demo():
     c.state = s
     
 
-    f2.contract(g, 1, time=400)
-    f2.contract(k, 2, time=400)
+    f2.contract(g, 1, time=20)
+    f2.contract(k, 2, time=20)
     f.contract(people[11], 2, time=40)
     f.contract(people[12], 2, time=40)
     f.contract(people[13], 2, time=40)
@@ -301,7 +301,7 @@ def generate_world():
     people = []
     businesses = []
 
-    for i in range(30):
+    for i in range(100):
         people.append(person.Person("Person " + str(i),
                       random.randint(18, 80), random.randint(80, 800)))
     # Create a farm
@@ -352,7 +352,7 @@ def generate_world():
     g.businesses.append(choco)
 
     # Create a housing business
-    hous = housing.Housing("Housing", k, 20000)
+    hous = housing.Housing("Housing", k, 2000)
     businesses.append(hous)
     k.businesses.append(hous)
 
@@ -436,6 +436,7 @@ def generate_world():
     k.inmortal = True
     g.inmortal = True
 
+
     return w
 
 def ret_worlds():
@@ -487,6 +488,8 @@ def get_public_private_ratio(businesses):
             public += 1
         else:
             private += 1
+    if public + private == 0:
+        return 0
     return public / (public + private)
 
 

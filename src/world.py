@@ -4,6 +4,7 @@ from managers.state_manager import StateManager
 from managers.city_manager import CityManager
 from managers.market_manager import MarketManager
 from managers.job_market_manager import JobMarketManager
+from managers.business_market_manager import BusinessMarketManager
 
 from src.new import New
 
@@ -12,6 +13,10 @@ class World():
     new_businesses = []
     new_states = []
     new_cities = [] 
+    new_markets = []
+    new_job_markets = []
+    new_business_markets = []
+
     name = "World"
 
 
@@ -19,6 +24,9 @@ class World():
     business_managers = []
     states_managers = []
     cities_managers = []
+    markets_managers = []
+    job_markets_managers = []
+    business_market_managers = []
 
     def __init__(self):
         self.new_people = []
@@ -27,6 +35,8 @@ class World():
         self.new_cities = []
         self.new_markets = []
         self.new_job_markets = []
+        self.new_business_markets = []
+
 
 
         self.people_managers = []
@@ -35,6 +45,7 @@ class World():
         self.cities_managers = []
         self.markets_managers = []
         self.job_markets_managers = []
+        self.business_market_managers = []
 
     
     def update(self):
@@ -56,6 +67,10 @@ class World():
         for j in self.new_job_markets:
             self.job_markets_managers.append(JobMarketManager(j.object, self))
         self.new_job_markets = []
+        for u in self.new_business_markets:
+            self.business_market_managers.append(BusinessMarketManager(u.object, self))
+        self.new_business_markets = []
+
     
     def do(self):
         for p in self.people_managers:
@@ -64,8 +79,6 @@ class World():
                 self.people_managers.remove(p)
         for b in self.business_managers:
             b.do()
-            if b.business.status == "closed":
-                self.business_managers.remove(b)
         for s in self.states_managers:
             s.do()
         for c in self.cities_managers:
@@ -74,6 +87,8 @@ class World():
             m.do()
         for j in self.job_markets_managers:
             j.do()
+        for u in self.business_market_managers:
+            u.do()
         
 
 

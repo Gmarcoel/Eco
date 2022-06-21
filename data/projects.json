@@ -5,7 +5,7 @@
             "time" : "3",
             "resources" : {
                 "wood" : 100,
-                "stone" : 70,
+                "iron" : 70,
                 "build" : 70
 
             },
@@ -20,12 +20,12 @@
             "time" : "3",
             "resources" : {
                 "wood" : 80,
-                "stone" : 80,
+                "iron" : 80,
                 "build" : 80
             },
             "maintenance" : {
                 "wood" : 1,
-                "stone" : 1
+                "iron" : 1
             }
         },
         "sawmill" :{
@@ -33,11 +33,11 @@
             "time" : "3",
             "resources" : {
                 "wood" : 60,
-                "stone" : 60,
+                "iron" : 60,
                 "build" : 60
             },
             "maintenance" : {
-                "stone" : 1
+                "iron" : 1
             }
         },
         "constructor": {
@@ -53,7 +53,7 @@
             "description" : "A infrastructure",
             "time" : "3",
             "resources" : {
-                "stone" : 50,
+                "iron" : 50,
                 "build" : 50
             },
             "maintenance" : {
@@ -65,7 +65,7 @@
             "time" : "3",
             "resources" : {
                 "wood" : 50,
-                "stone" : 50,
+                "iron" : 50,
                 "build" : 50
             },
             "maintenance" : {
@@ -77,7 +77,7 @@
             "time" : "3",
             "resources" : {
                 "wood" : 50,
-                "stone" : 50,
+                "iron" : 50,
                 "build" : 50
             },
             "maintenance" : {
@@ -89,7 +89,7 @@
             "time" : "3",
             "resources" : {
                 "wood" : 50,
-                "stone" : 50,
+                "iron" : 50,
                 "build" : 50
             },
             "maintenance" : {
@@ -101,7 +101,103 @@
             "time" : "3",
             "resources" : {
                 "wood" : 50,
-                "stone" : 50,
+                "iron" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "build" : 2
+            }
+        },
+        "pharmacy": {
+            "description" : "A pharmaceutical industry",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "iron" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "iron" : 2
+            }
+        },
+        "hospital": {
+            "description" : "A hospital",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "iron" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "wood" : 2
+            }
+        },
+        "goods": {
+            "description" : "A consumer goods factory",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "iron" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "wood" : 2
+            }
+        },
+        "copper mine": {
+            "description" : "A copper mine",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "iron" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "iron" : 2
+            }
+        },
+        "electric central": {
+            "description" : "A electric central",
+            "time" : "3",
+            "resources" : {
+                "copper" : 50,
+                "iron" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "copper" : 2
+            }
+        },
+        "oil extractor": {
+            "description" : "A oil extractor",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "iron" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "build" : 2
+            }
+        },
+        "refinery": {
+            "description" : "An oil refinery",
+            "time" : "3",
+            "resources" : {
+                "wood" : 50,
+                "iron" : 50,
+                "build" : 50
+            },
+            "maintenance" : {
+                "iron" : 2
+            }
+        },
+        "engine factory": {
+            "description" : "An engine factory",
+            "time" : "3",
+            "resources" : {
+                "copper" : 50,
+                "iron" : 50,
                 "build" : 50
             },
             "maintenance" : {

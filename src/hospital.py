@@ -2,16 +2,16 @@ from  src.business import Business
 from  src.person import Person
 
 
-class ScienceHub(Business):
+class Hospital(Business):
 
-    def __init__(self, name, owner, money, land=100):
+    def __init__(self, name, owner, money):
         super().__init__(name=name, owner=owner, money=money)
-        self.land = land
-        self.product = "science"
+        self.product = "health"
         self.add_needed_goods("work",1,1)
-        self.add_item("science",0)
-        self.production = 1
-        self.sector = "science"
+        self.add_needed_goods("medicament",1,1)
+        self.add_item("health",0)
+        self.production = 3
+        self.sector = "health"
 
     
     def __str__(self):

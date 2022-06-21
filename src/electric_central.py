@@ -1,19 +1,16 @@
 from  src.business import Business
 
 
-class Housing(Business):
+class ElectricCentral(Business):
 
     def __init__(self, name, owner, money):
         super().__init__(name=name, owner=owner, money=money)
-        self.product = "house"
+        self.product = "electricity"
         self.add_needed_goods("work",1,1)
-        self.add_needed_goods("wood",1,1)
-        self.add_needed_goods("iron",1,1)
-        self.add_needed_goods("build",1,1)
-        self.add_item("house",0)
-        self.items_price["house"] = 10
-        self.production = 1
-        self.sector = "housing"
+        self.add_needed_goods("copper",1,1)
+        self.add_item("electricity",0)
+        self.production = 10
+        self.sector = "electricity"
 
     
     def __str__(self):

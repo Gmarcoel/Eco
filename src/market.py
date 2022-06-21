@@ -1,6 +1,8 @@
 from math import prod
 import random
 
+from more_itertools import last
+
 
 from  src.entity import Entity
 from  src.trade import Trade
@@ -26,8 +28,41 @@ class MarketDatabase():
     # Data for the last 100 average price
     last_average_price = {}
 
+    # Offer and demand of each product
+    offer = {}
+    demand = {}
+    last_offer = {}
+    last_demand = {}
+    all_existing_goods = []
+
     def __init__(self):
-        pass
+        self.all_existing_goods = ["food", "build", "wood", "iron", "chocolate", "house", "furniture", "science", "medicament", "health", "good", "copper", "electricity", "oil", "gas", "engine"]
+
+        self.traded_goods = []
+
+        # For each good, the ammount of money spent on buying and selling
+        self.total_value = {}
+        self.previous_value = {}
+
+        
+
+        # For each good, the average price of buying and selling
+        self.average_price = {}
+        self.previous_average_price = {}
+
+        # For each good, the ammount of goods bought and sold
+        self.ammount = {}
+        self.previous_ammount = {}
+
+        # Data for the last 100 average price
+        self.last_average_price = {}
+
+        # Offer and demand of each product
+        self.offer = {}
+        self.demand = {}
+        for good in self.all_existing_goods:
+            self.offer[good] = []
+            self.demand[good] = []
 
     def add_transaction(self, good, price, quantity):
         if good not in self.traded_goods:
@@ -72,6 +107,26 @@ class MarketDatabase():
         self.total_value = {}
         self.ammount = {}
         self.traded_goods = []
+    
+    def add_offer_demand(self, trades):
+        for p in self.all_existing_goods:
+            self.offer[p].append(0)
+            self.demand[p].append(0)
+        for product in trades:
+            for trade in trades[product]:
+                if trade.sell:
+                    self.offer[trade.product][-1] += trade.quantity
+                else:
+                    self.demand[trade.product][-1] += trade.quantity
+            self.offer[product][-1] = round(self.offer[product][-1],2)
+            self.demand[product][-1] = round(self.demand[product][-1],2)
+            self.last_offer[product] = self.offer[product][-1]
+            self.last_demand[product] = self.demand[product][-1]
+        # print("********************************************************")
+        # print(self.last_offer)
+        # print(self.last_demand)
+
+
         
         
 
@@ -135,9 +190,9 @@ class Market(Entity):
                     if trade.sell: # and b != 0 and round(trade.price - (trade.price * 0.05))!=0: # Solo baja si había más compradores
                         trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.05),2)
                     elif trade.sell and s == 1: # Si es el único vendedor sube
-                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.05),2)
+                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.1),2)
                     elif not trade.sell: # Solo sube si había más vendedores
-                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.05),2)
+                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.12),2)
 
                 trade.cancel()
             self.trades[product] = []
@@ -147,6 +202,9 @@ class Market(Entity):
 
     # Function to make all trades on a free market
     def free_commerce(self):
+        # Add info of offer and demand
+        self.database.add_offer_demand(self.trades)
+
         free_comerce_data = ""
         # For each product on market
         for product in self.trades:
@@ -164,6 +222,7 @@ class Market(Entity):
                 if trade.sell:
                     sell_trades.append(trade)
                     sell_amount += trade.quantity
+            """
             ("RECURSO ", product)
             free_comerce_data = free_comerce_data + "===========================" + "\n"
             free_comerce_data = free_comerce_data + "COMPRAS" + "\n"
@@ -174,6 +233,7 @@ class Market(Entity):
             free_comerce_data = free_comerce_data + "-------" + "\n"
             for t in sell_trades:
                 free_comerce_data = free_comerce_data + str(t) + "\n"
+            """
             
             # If more sells than buys buyer decide price
             if sell_amount > buy_amount:
@@ -208,6 +268,8 @@ class Market(Entity):
                             trade.entity.items[product] = round(trade.entity.items[product] + sell_trade.quantity,2)
                             # Add transaction to the database
                             self.database.add_transaction(product, sell_trade.price, sell_trade.quantity)
+                            # Add the transaction to the entity data
+                            sell_trade.entity.last_ammount_traded[product] += sell_trade.quantity
                             # Return the excess money to the buyer
                             ## trade.entity.money = round(trade.entity.money + (trade.price * sell_trade.quantity) - (sell_trade.price * sell_trade.quantity),2)
                             trade.entity.add_money((trade.price * sell_trade.quantity) - (sell_trade.price * sell_trade.quantity))
@@ -217,7 +279,7 @@ class Market(Entity):
                             ## sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * sell_trade.quantity),2)
                             sell_trade.entity.add_money(sell_trade.price * sell_trade.quantity)
                             # Change the sell trade future price
-                            sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.05),2)
+                            sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.1),2)
 
                             # Remove the sell trade
                             sell_trade.quantity = 0
@@ -228,6 +290,8 @@ class Market(Entity):
                             trade.entity.items[product] = round(trade.entity.items[product] + trade.quantity,2)
                             # Add transaction to the database
                             self.database.add_transaction(product, sell_trade.price, trade.quantity)
+                            # Add the transaction to the entity data
+                            sell_trade.entity.last_ammount_traded[product] += trade.quantity
                             # Return the excess money to the buyer
                             ## trade.entity.money = round(trade.entity.money + (trade.price * trade.quantity) - (sell_trade.price * trade.quantity),2)
                             trade.entity.add_money((trade.price * trade.quantity) - (sell_trade.price * trade.quantity))
@@ -247,7 +311,7 @@ class Market(Entity):
                             trade.quantity = 0
                             # If the sell trade quantity left is 0 change the sell trade price
                             if sell_trade.quantity == 0:
-                                sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.05),2)
+                                sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.1),2)
                             # Go to next buy trade (break)
                             
                             break

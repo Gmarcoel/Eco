@@ -1,12 +1,13 @@
 from src.city import City
 from src.state import State
 from managers.manager import Manager
-from managers.business_manager import create_business
+from managers.business_manager import create_business, get_building
 from src import person
 from src.project import Project
 import json
 import random
 from src.person import Person
+
 
 from src.new import New
 
@@ -33,21 +34,18 @@ class StateManager(Manager):
     def do(self):
         self.last_law = ""
 
-        if not self.basics_manual:
-            print("TAXEA Y WORKEA")
-            self.tax()
-            self.work()
+        # if not self.basics_manual:
+        self.tax()
+        self.work()
+        self.pay_subsidies()
         
         if not self.manual:
-            print("INVESTEA")
             self.invest()
         
-        if not self.basics_manual:
-            print("COMPRA")
-            self.buy_resources()
+        # if not self.basics_manual:
+        self.buy_resources()
 
         if not self.manual:
-            print("PROPONE")
             self.propose_law()
 
         
@@ -55,8 +53,8 @@ class StateManager(Manager):
 
     
     def tax(self):
-        for c in self.state.cities:
-            c.tax()
+        self.state.tax()
+        
     
     def work(self):
         for c in self.state.cities:
@@ -95,7 +93,44 @@ class StateManager(Manager):
                 if c.infrastructure < 5:
                     self.state.add_infrastructure(c)
                 else:
-                    self.state.add_project(c)
+                    # self.state.add_project(c)
+                    selected = None
+                    max = - 9999
+                    cero = []
+                    for product in self.market.database.all_existing_goods:
+                        # Se comprueba la oferta y demanda
+                        if product in self.market.database.last_offer:
+                            offer = self.market.database.last_offer[product]
+                            demand = self.market.database.last_demand[product]
+                            new_max = demand - offer
+                            # Se escoge el que más margen tenga (mas demanda/menos oferta)
+                            if new_max > max:
+                                max = new_max
+                                selected = product
+                                
+                            # Si no hay oferta se guarda para después (prioridad)
+                            if offer == 0 and demand != 0:
+                                cero.append(product)
+                        # else:
+                        #     print("POR QUEEE")
+                        #     return
+                    # Se coge prioridad en los sin oferta
+                    if cero != []:
+                        for product in cero:
+                            if product in self.market.database.last_offer:
+                                offer = self.market.database.last_offer[product]
+                                demand = self.market.database.last_demand[product]
+                                new_max = demand - offer
+                                if new_max > max:
+                                    max = new_max
+                                    selected = product
+
+                    if not selected:
+                        return
+                    
+                    # Create project
+                    project = get_building(selected)
+                    self.state.add_industry(c, project)
         
     def buy_resources(self):
         self.state.process_needed_resourcess(self.market)
@@ -103,12 +138,12 @@ class StateManager(Manager):
     def pay_workers(self):
         if self.state.governor:
             dividend = round(self.state.money * 0.05,2)
-            self.state.money = round(self.state.money - dividend,2)
-            self.state.governor.money = round(self.governor.money + dividend,2)
-    
+            self.state.governor.add_money(dividend)
+            self.state.subtract_money(dividend)
 
-        
-        
+
+
+
     def build_infrastructure(self, city):
         if city == "City":
             return
@@ -117,7 +152,7 @@ class StateManager(Manager):
                 self.state.add_infrastructure(c)
                 self.last_law = "build infrastructure"
                 return
-        
+
 
     def build_industry(self, bus, city):
         chosen = None
@@ -128,7 +163,6 @@ class StateManager(Manager):
         if chosen:
             self.state.add_industry(chosen,bus)
 
-        
 
     def propose_law(self):
         n = 8
@@ -157,6 +191,8 @@ class StateManager(Manager):
                 # choose a random city
                 c = random.choice(self.state.cities)
                 # Choose a random business
+                if not c.businesses:
+                    return
                 b = random.choice(c.businesses)
                 # If business is not owned by state
                 if not isinstance(b.owner, State):
@@ -175,6 +211,8 @@ class StateManager(Manager):
                 # choose a random city
                 c = random.choice(self.state.cities)
                 # Choose a random business
+                if not c.businesses:
+                    return
                 b = random.choice(c.businesses)
                 # If business is not owned by state
                 if  isinstance(b.owner, State):
@@ -198,7 +236,7 @@ class StateManager(Manager):
 
         elif r == 6:
             # Create a list with all resources
-            resources = ["food", "wood", "stone", "build"]
+            resources = ["food", "wood", "iron", "build"]
             # Choose a random resource
             r = random.choice(resources)
             if not r in self.market.database.average_price:
@@ -212,7 +250,7 @@ class StateManager(Manager):
 
         elif r == 7:
             # Create a list with all resources
-            resources = ["food", "wood", "stone", "build", "chocolate", "house", "furniture"]
+            resources = ["food", "wood", "iron", "build", "chocolate", "house", "furniture"]
             # Choose a random resource
             r = random.choice(resources)
             # Set a random value between market value of food /2 and market value of food * 2
@@ -256,7 +294,7 @@ class StateManager(Manager):
         self.state.money = round(self.state.money + n,2)
         self.last_law = "print_money"
         return
-    
+
     def remove_minimum_price(self, r):
         self.state.remove_minimum_price(r)
         # Remove from current_laws
@@ -328,7 +366,7 @@ class StateManager(Manager):
         self.state.set_businesses_tax(v)
         self.current_laws["business_tax_rate"] = self.state.business_tax_rate
         self.last_law = "business_tax_rate " + str(self.state.business_tax_rate)
-    
+
     def set_people_tax(self, v):
         # Add v to tax
         # self.state.set_people_tax(round(self.state.people_tax_rate + v,2))
@@ -347,18 +385,44 @@ class StateManager(Manager):
             for b in c.businesses:
                 if b.sector == sector and isinstance(b.owner, State):
                     self.privatize(b)
+
+    def nationalize_all(self):
+        for c in self.state.cities:
+            for b in c.businesses:
+                if not isinstance(b.owner, State):
+                    self.nationalize(b)
     
+    def privatize_all(self):
+        for c in self.state.cities:
+            for b in c.businesses:
+                if isinstance(b.owner, State):
+                    self.privatize(b)   
+
     def set_manual(self):
         self.manual = not self.manual
-        print("AHORA: " + str(self.manual))
         return
-    
+
     def set_basics_manual(self):
         self.basics_manual = not self.basics_manual
-        print("AHORA BASICS ESTAN " + str(self.basics_manual))
         return
 
+    def subsidize_business(self, bus, money):
+        self.state.subsidize(bus, money)
+
+    def unsubsidize_business(self, bus):
+        self.state.unsubsidize(bus)
 
 
-
+    def pay_subsidies(self):
+        self.state.pay_subsidies()
+    
+    def open_business(self, bus):
+        if bus.status == "open":
+            return
+        bus.status = "open"
+        if bus.owner:
+            if bus in bus.owner.businesses:
+                bus.owner.businesses.remove(bus)
+        bus.owner = self.state
+        self.state.businesses.append(bus)
 

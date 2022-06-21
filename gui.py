@@ -130,7 +130,7 @@ def city_page(citym = None):
 
 
     # Show population and deaths
-    myLabel = Label(buttons_panel, text="Population " + str(len(city.people)), bg="lightgrey", fg="black")
+    myLabel = Label(buttons_panel, text="Population " + str(len(city.people)) + " Average salary: " + str(city.state.manager.job_market.average_contracts_price), bg="lightgrey", fg="black")
     myLabel.config(font=("Courier", 20))
     myLabel.pack(expand=True)
     # Show deaths
@@ -141,30 +141,35 @@ def city_page(citym = None):
 
     
     # Create a button for the businesses
-    myButton = Button(buttons_panel, text="Businesses", bg="lightgrey", fg="black", command=lambda citym=citym: businesses_page(citym))
+    myButton = Button(buttons_panel, text="Businesses", bg="orange", fg="white", command=lambda citym=citym: businesses_page(citym))
+    myButton.config(font=("Courier", 20))
+    myButton.pack(expand=True)
+
+    # Create a button for the closed businesses
+    myButton = Button(buttons_panel, text="Closed Businesses", bg="grey", fg="white", command=lambda citym=citym: closed_businesses_page(citym))
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
 
     # Create a button for the people
-    myButton = Button(buttons_panel, text="People", bg="lightgrey", fg="black", command=lambda citym=citym: people_page(citym))
+    myButton = Button(buttons_panel, text="People", bg="lightgreen", fg="black", command=lambda citym=citym: people_page(citym))
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
 
     # Create a button for the markets
     for market in city.markets:
-        myButton = Button(buttons_panel, text=market.name, bg="lightgrey", fg="black", command=lambda market=market.manager: market_page(market))
+        myButton = Button(buttons_panel, text=market.name, bg="blue", fg="white", command=lambda market=market.manager: market_page(market))
         myButton.config(font=("Courier", 20))
         myButton.pack(expand=True)
     
     # Create a button for the state
-    myButton = Button(buttons_panel, text="State", bg="lightgrey", fg="black", command=lambda statem=city.state.manager: state_page(statem))
+    myButton = Button(buttons_panel, text="State", bg="lightblue", fg="black", command=lambda statem=city.state.manager: state_page(statem))
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
 
 
     
     # Create a go back button that executes go_back
-    myButton = Button(buttons_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(buttons_panel, text="Back", bg="black", fg="white", command=go_back)
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
     
@@ -177,9 +182,15 @@ def city_page(citym = None):
 
     # Create a vertical panel for charts
     charts_panel = PanedWindow(graphics_panel, orient=VERTICAL)
+    # Create a frame for the charts
     charts_panel.pack(fill=BOTH, expand=True)
     graphics_panel.add(charts_panel)
 
+    # Create a vertical panel for charts
+    charts_panel2 = PanedWindow(graphics_panel, orient=VERTICAL)
+    # Create a frame for the charts
+    charts_panel2.pack(fill=BOTH, expand=True)
+    graphics_panel.add(charts_panel2)
 
 
 
@@ -187,8 +198,22 @@ def city_page(citym = None):
     charts_panel.add(chart)
     chart = plot_pie_chart_deaths_natural_starvation(citym, charts_panel)
     charts_panel.add(chart)
+
+    chart = None
+    chart = plot_pie_chart_pib(citym, charts_panel2)
+    if chart:
+        charts_panel2.add(chart)
+    
+    chart = None
+    chart = plot_pie_chart_people_status(citym, charts_panel2)
+    if chart:
+        charts_panel2.add(chart)
+
     chart = plot_borns_deaths(citym, graphics_panel)
     graphics_panel.add(chart)
+
+
+    
 
 
 
@@ -281,11 +306,15 @@ def person_page(personm = None):
     else:
         personm = current_personm
     
+
     person = personm.entity
     clean_up()
     print("Person clicked")
     # Put the background light grey
     pages_panel.configure(background='lightgrey')
+
+    if person.contract:
+        print(person.contract)
 
     # Create a label
     myLabel = Label(pages_panel, text=person.name, bg="lightgrey", fg="black")
@@ -377,7 +406,7 @@ def businesses_page(entitym = None):
             aux.append(business)
     businesses = aux
     if businesses:
-        if len(businesses) > 1:
+        if len(businesses) > 0:
             # Create a scrollbar
             create_scroll(businesses, business_page, "business")
         else:
@@ -403,6 +432,44 @@ def businesses_page(entitym = None):
 
     next_turn_button(businesses_page)
 
+def closed_businesses_page(entitym = None):
+    global callbacks, current_entitym
+    callbacks.append(closed_businesses_page)
+    if entitym:
+        current_entitym = entitym
+    else:
+        entitym = current_entitym
+    
+    entity = entitym.entity
+    clean_up()
+    print("Businesses clicked")
+    # Put the background light grey
+    pages_panel.configure(background='lightgrey')
+
+    # Create a label
+    myLabel = Label(pages_panel, text="Businesses", bg="lightgrey", fg="black")
+    # Make the label big
+    myLabel.config(font=("Courier", 44))
+
+    # Put the label in the window
+    myLabel.pack()
+
+    # Create a button for each business if ret_businesses() is not empty
+    businesses = entitym.entity.closed_businesses
+    if businesses:
+        if len(businesses) > 0:
+            # Create a scrollbar
+            create_scroll(businesses, business_page)    
+    # Create a back button
+    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    # Make the button big
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+    next_turn_button(closed_businesses_page)
+
+
+
 current_businessm = None
 
 def business_page(businessm = None):
@@ -414,6 +481,7 @@ def business_page(businessm = None):
     else:
         businessm = current_businessm
     
+
 
     # Begin business page
     business = businessm.entity
@@ -429,20 +497,52 @@ def business_page(businessm = None):
     # Put the label in the window
     myLabel.pack()
 
+    # If public or subsidized show
+    if is_public(business):
+        if business.subsidized:        
+            myLabel = Label(pages_panel, text="Public Subsidized", bg="lightgrey", fg="black")
+            myLabel.config(font=("Courier", 44))
+            myLabel.pack()
+        else:
+            myLabel = Label(pages_panel, text="Public", bg="lightgrey", fg="black")
+            myLabel.config(font=("Courier", 44))
+            myLabel.pack()
+        
+    else:
+        if business.subsidized:
+            myLabel = Label(pages_panel, text="Private Subsidized", bg="lightgrey", fg="black")
+            myLabel.config(font=("Courier", 44))
+            myLabel.pack()
+        else:
+            myLabel = Label(pages_panel, text="Private", bg="lightgrey", fg="black")
+            myLabel.config(font=("Courier", 44))
+            myLabel.pack()
+
     # Show 
     # total_costs
     # expected_earnings
     # expected_one_earning
     # expected_product_price
     myLabel = Label(pages_panel, text="Total costs: " + str(businessm.total_costs) + " Expected earnings: " + str(businessm.expected_earnings), bg="lightgrey", fg="black")
-    # Make the label big
     myLabel.config(font=("Courier", 44))
-    # Put the label in the window
     myLabel.pack()
-    myLabel = Label(pages_panel, text="Minimum product price to be profitable: " + str(businessm.expected_product_price) + "\n Expected earnings per worker: " + str(businessm.expected_one_earning), bg="lightgrey", fg="black")
-    # Make the label big
+
+    myLabel = Label(pages_panel, text="Price to be profitable: " + str(businessm.expected_product_price) + "\n Expected earnings per worker: " + str(businessm.expected_one_earning), bg="lightgrey", fg="black")
     myLabel.config(font=("Courier", 44))
-    # Put the label in the window
+    myLabel.pack()
+
+    # Show the products produced and sold
+    myLabel = Label(pages_panel, text="Products produced: " + str(businessm.number_products) + " Products sold: " + str(businessm.number_sold_products), bg="lightgrey", fg="black")
+    myLabel.config(font=("Courier", 44))
+    myLabel.pack()
+
+
+    # Show the average profit
+    if businessm.average_profit >= 0:
+        myLabel = Label(pages_panel, text="Average profit " + str(businessm.average_profit), bg="lightgrey", fg="green")
+    else:
+        myLabel = Label(pages_panel, text="Average profit " + str(businessm.average_profit), bg="lightgrey", fg="red")
+    myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
 
@@ -474,6 +574,16 @@ def business_page(businessm = None):
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
+
+    # Show a take control button
+    if not businessm.manual:
+        myButton = Button(pages_panel, text="Take control", bg="lightgrey", fg="black", command=lambda businessm=businessm: set_control(businessm, "business"))
+        myButton.config(font=("Courier", 44))
+        myButton.pack()
+    else:
+        myButton = Button(pages_panel, text="Stop control", bg="lightgrey", fg="black", command=lambda businessm=businessm: stop_control_state(businessm))
+        myButton.config(font=("Courier", 44))
+        myButton.pack()
 
 
 
@@ -561,10 +671,21 @@ def market_page(marketm = None):
 
     # For each product in the market show the price and the amount of the product
     for product in market.database.average_price:
-        myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product]), bg="lightgrey", fg="black")
+        offer = market.database.last_offer[product]
+        demand = market.database.last_demand[product]
+        ammount = market.database.previous_ammount[product]
+        if offer >= demand:
+            if ammount >= demand:
+                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="lightgrey", fg="green")
+            else:
+                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="lightgrey", fg="darkblue")
+        else:
+            myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="lightgrey", fg="red")
+
+
         # myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]))
         # Make the label big
-        myLabel.config(font=("Courier", 44))
+        myLabel.config(font=("Courier", 20))
         # Put the label in the window
         myLabel.pack()
 
@@ -780,6 +901,9 @@ def plot_pie_chart_weight_product_economy(market_manager, panel = None):
 
     if not values:
         return None
+    # If all values are cero return
+    if sum(values) == 0:
+        return None
     # Create a figure
     fig = plt.figure()
     # Add an ax to the figure
@@ -798,6 +922,64 @@ def plot_pie_chart_weight_product_economy(market_manager, panel = None):
     
     #     pie = plt.pie(np.array([ratio, 1-ratio]), labels=["Public", "Private"], colors=["red", "blue"], startangle=90, shadow=True, explode=(0, 0.1), autopct='%1.1f%%')
 
+def plot_pie_chart_pib(city_manager, panel = None):
+    products = {}
+    for b in city_manager.city.businesses:
+        if not b.manager:
+            continue
+        if b.product in products:
+            products[b.product] += b.manager.pib
+        else:
+            products[b.product] = b.manager.pib
+    if not products:
+        return None
+    
+    all_zero = True
+    for p in products.values():
+        if p != 0:
+            all_zero = False
+            break
+    if all_zero:
+        return None
+    # Create a figure
+    fig = plt.figure()
+    # Add an ax to the figure
+    ax = fig.add_subplot(111)
+    # Create a pie chart
+    ax.pie(np.array(list(products.values())), labels=list(products.keys()), autopct='%1.1f%%', startangle=90)
+
+    # Create the chart
+    chart = FigureCanvasTkAgg(fig, panel)
+    chart.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
+
+    # Close the chart
+    plt.close(fig)
+
+    return chart.get_tk_widget()
+
+def plot_pie_chart_people_status(city_manager, panel = None):
+    if not city_manager.city.people:
+        return None
+    st = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0}
+    for p in city_manager.city.people:
+        st[p.status] += 1
+    # Create a figure
+    fig = plt.figure()
+    # Add an ax to the figure
+    ax = fig.add_subplot(111)
+    # Create a pie chart
+    ax.pie(np.array([st[0], st[1], st[2], st[3], st[4], st[5]]), labels=["Starving", "Poor", "Lower Class", "Middle Class", "Wealthy", "Rich"], autopct='%1.1f%%', startangle=90)
+
+    # Create the chart
+    chart = FigureCanvasTkAgg(fig, panel)
+    chart.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
+
+    # Close the chart
+    plt.close(fig)
+
+    return chart.get_tk_widget()
+
+
 def create_scroll(entities, function, extra=None):
     canvas = Canvas(pages_panel)
     sb = Scrollbar(pages_panel, orient="vertical", command=canvas.yview)
@@ -810,40 +992,75 @@ def create_scroll(entities, function, extra=None):
 
     size = 43
     i = 0
+
     for e in entities:
         # if not e.manager:
         #     continue
         manager = e.manager
-        if extra == "businesse":
-            business_panel = PanedWindow(pages_panel,orient=HORIZONTAL)
-            business_panel.pack(fill=BOTH, expand=False)
-            if is_public(e):
-                myButton = Button(business_panel, text=e.name, bg="blue", fg="white", command=lambda business=e: business_page(business.manager))
-            else:
-                myButton = Button(business_panel, text=e.name, bg="orange", fg="white", command=lambda businessm=e.manager: business_page(businessm))
-            myButton.config(font=("Courier", 20))
-            myButton.pack()
-            myLabel = Label(business_panel, bg="Brown", fg="white", text="Produces: " + str(e.product))
-            myLabel.config(font=("Courier", 10))
-            myLabel.pack()
-            if e.check_balance():
-                myLabel = Label(business_panel, bg="green", fg="white", text="Total Money: " + str(e.money) + ", Balance: " + str(e.balance[-1]) + " Productivity: " + str(e.productivity))
-            else:
-                myLabel = Label(business_panel, bg="red", fg="white", text="Total Money: " + str(e.money) + ", Balance: " + str(e.balance[-1]) + " Productivity: " + str(e.productivity))
-            myLabel.config(font=("Courier", 10))
-            myLabel.pack()
-            """
-            pages_panel.add(business_panel)
+        if extra == "business":
+            font_size = 20
+            # Create horizontal panel for each button, production and profitability
+            business_panel = PanedWindow(canvas, orient=HORIZONTAL)
+            # business_panel = Frame(pages_panel)
+            # Set minimum size for panel
+            
+            business_panel.pack(fill=BOTH, expand=1)
 
-            canvas.create_window(0, size*i, window=business_panel, anchor="nw",)
+            # Create a button for the button
+            if is_public(e):
+                if e.subsidized:
+                    myButton = Button(business_panel, text=e.name, bg="darkblue", fg="white", command=lambda business=e: business_page(business.manager), font=("Helvetica", font_size))
+                else:
+                    myButton = Button(business_panel, text=e.name, bg="blue", fg="white", command=lambda business=e: business_page(business.manager), font=("Helvetica", font_size))
+
+            else:
+                if e.subsidized:
+                    myButton = Button(business_panel, text=e.name, bg="darkorange", fg="white", command=lambda businessm=e.manager: business_page(businessm),font=("Helvetica", font_size))
+                else:
+                    myButton = Button(business_panel, text=e.name, bg="orange", fg="white", command=lambda businessm=e.manager: business_page(businessm),font=("Helvetica", font_size))
+
+            myButton.pack(fill=BOTH, expand=1)
+
+
+            # Create a label for the production
+            label = Label(business_panel, text="Produces: " + str(e.product), font=("Helvetica", font_size))
+            label.pack()
+            # Create a label for the profitability
+            label = Label(business_panel, text="Total Money: " + str(e.money) + ", Balance: " + str(e.check_balance()) + " Productivity: " + str(e.productivity), font=("Helvetica", font_size))
+            label.pack()
+
+            # Show the average profit
+            if manager is not None:
+                if manager.average_profit >= 0:
+                    myLabel = Label(business_panel, text="Average profit " + str(manager.average_profit), bg="lightgrey", fg="green", font=("Helvetica", font_size))
+                else:
+                    myLabel = Label(business_panel, text="Average profit " + str(manager.average_profit), bg="lightgrey", fg="red", font=("Helvetica", font_size))
+                myLabel.pack()
+            
+            # pages_panel.add(business_panel)
+            business_panel.pack(fill=BOTH, expand=1)
+            # Width of windows should be as wide as the screen
+            canvas.create_window(size,(150)*(i+1), window=business_panel, anchor="center",width=pages_panel.winfo_width())
+            canvas.create_window(size,(150)*(i+2), window=business_panel, anchor="center",width=pages_panel.winfo_width())
             canvas.update_idletasks()
             canvas.configure(scrollregion=canvas.bbox("all"))
-            """
+            # pages_panel.add(canvas)
+            
+            
+
+            
+            
         elif extra == "person":
-            myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)), bg="lightgrey", fg="black", command=lambda manager=manager: function(manager))
+            if e.contract:
+                if e.contract.money1 > 10000:
+                    myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)),  command=lambda manager=manager: function(manager), fg="white", bg="orange")
+                else:
+                    myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)), command=lambda manager=manager: function(manager), fg="white", bg="darkgreen")
+            else:
+                myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)), command=lambda manager=manager: function(manager), fg="white", bg="darkblue")
             myButton.config(font=("Courier", 20))
             myButton.pack()
-            canvas.create_window(0, size*i, window=myButton, anchor="nw",)
+            canvas.create_window(0, size*(i+1), window=myButton, anchor="nw",)
             canvas.update_idletasks()
             canvas.configure(scrollregion=canvas.bbox("all"))
 
@@ -852,17 +1069,17 @@ def create_scroll(entities, function, extra=None):
             myButton = Button(canvas, text=e.name, bg="lightgrey", fg="black", command=lambda manager=manager: function(manager))
             myButton.config(font=("Courier", 20))
             myButton.pack()
-            canvas.create_window(0, size*i, window=myButton, anchor="nw",)
+            canvas.create_window(0, size*(i+1), window=myButton, anchor="nw",)
             canvas.update_idletasks()
             canvas.configure(scrollregion=canvas.bbox("all"))
         
 
         i +=1
     
+    
     canvas.pack(side="left", fill="both", expand=True)
     sb.pack(side="right", fill="y")
     
-
     return sb
 
 
@@ -939,6 +1156,9 @@ def plot_borns_deaths(city_manager, panel = None):
 current_control = None
 control_type = ""
 
+secondary_control = None
+secondary_type = ""
+
 # Controls
 """
 from controls.state_control import StateControl
@@ -964,6 +1184,8 @@ def control(panel = None):
         return
     if control_type == "state":
         control_state(current_control, panel)
+    elif control_type == "business":
+        control_business(current_control, panel)
 
 def set_control(control, type):
     global current_control, control_type
@@ -990,35 +1212,10 @@ def control_state(statem, panel = None):
         panel = PanedWindow(orient=VERTICAL)
         panel.pack(fill=BOTH, expand=True)
     
-
-
-    # Create an horizontal panel for sliders
-    # panel_sliders = PanedWindow(orient=HORIZONTAL)
-    # panel_sliders.pack(fill=BOTH, expand=True)
-
-    # Create a check button of manual 
-    # man = IntVar(statem.manual)
-    # Set man value to statem.manual value
-
-    # manual_control = Checkbutton(panel_sliders, text="Manual control", onvalue=True, offvalue=False, indicatoron=True, function=statem.set_manual())
-    # statem.manual = man.get()
-    # manual_control = Checkbutton(panel_sliders,text="Manual control", onvalue=True, offvalue=False, variable=man, function=change_man(statem, man.get()))
-    # manual_control.pack(side=LEFT)
-
-    # Create a check button of basics manual control
-    # bas = IntVar()
-    # Set bas value to statem.basics_manual value
-    # bas.initialize(statem.basics_manual)
-    # basics_manual_control = Checkbutton(panel_sliders, text="Basics manual control", onvalue=True, offvalue=False, indicatoron=True, function= statem.set_basics_manual())
-    # statem.basics_manual = bas.get()
-
-    # basics_manual_control.pack(side=RIGHT)
-
-
     # panel.add(panel_sliders)
-    industries = ["farm", "mine", "sawmill", "constructor", "chocolate", "housing", "furniture", "science"]
-    goods = ["food", "build", "wood", "stone", "chocolate", "house", "furniture", "science"]
-    sectors = ["farming", "mining", "lumber", "construction", "chocolating", "housing", "furniture", "science"]
+    industries = ["farm", "mine", "sawmill", "constructor", "chocolate", "housing", "furniture", "science", "pharmacy", "hospital", "goods", "copper mine", "electric central", "oil extractor", "refinery", "engine factory"]
+    goods = ["food", "build", "wood", "iron", "chocolate", "house", "furniture", "science", "medicament", "health", "good", "copper", "electricity", "oil", "gas", "engine"]
+    sectors = ["farming", "mining", "lumber", "construction", "chocolating", "housing", "furniture", "science", "pharmaceutical", "healthcare", "consumer", "copper", "electricity", "oil", "gas", "engine"]
 
     # Create a button to add money with a field for the ammount of money
     print_money_panel = PanedWindow(panel, orient=HORIZONTAL)
@@ -1037,10 +1234,10 @@ def control_state(statem, panel = None):
     tax_field = Entry(taxes_panel)
     tax_field.config(font=("Courier", 20))
     tax_field.pack()
-    button = Button(taxes_panel, text="Business tax", command=lambda: statem.set_business_tax(int(tax_field.get())))
+    button = Button(taxes_panel, text="Business tax", command=lambda: statem.set_business_tax(float(tax_field.get())))
     button.config(font=("Courier", 20))
     button.pack()
-    button2 = Button(taxes_panel, text="Business tax", command=lambda: statem.set_people_tax(int(tax_field.get())))
+    button2 = Button(taxes_panel, text="People tax", command=lambda: statem.set_people_tax(float(tax_field.get())))
     button2.config(font=("Courier", 20))
     button2.pack()
     panel.add(taxes_panel)
@@ -1153,11 +1350,231 @@ def control_state(statem, panel = None):
     button.pack()
     panel.add(build_infrastructure_panel)
 
-    # print(controls_panel.winfo_children())
-    # for widget in controls_panel.winfo_children():
-    #     widget.destroy()
-    # print(controls_panel.winfo_children())
-    # print("MAMA")
+    # Create a button to nationalize all businesses
+    nationalize_all_panel = PanedWindow(panel, orient=HORIZONTAL)
+    nationalize_all_panel.pack(fill=BOTH, expand=False)
+    button = Button(nationalize_all_panel, text="Nationalize all businesses", command=lambda: statem.nationalize_all(), fg="white", bg="darkblue")
+    button.config(font=("Courier", 20))
+    button.pack(fill=BOTH, expand=False)
+    panel.add(nationalize_all_panel)
+
+    # Create a button to privatize all businesses
+    privatize_all_panel = PanedWindow(panel, orient=HORIZONTAL)
+    privatize_all_panel.pack(fill=BOTH, expand=False)
+    button = Button(privatize_all_panel, text="Privatize all businesses", command=lambda: statem.privatize_all(),fg="white", bg="darkorange")
+    button.config(font=("Courier", 20))
+    button.pack(fill=BOTH, expand=False)
+    panel.add(privatize_all_panel)
+
+
+    # If on business page
+    if callbacks[-1] == business_page and current_businessm != None:
+        businessm = current_businessm
+        business = businessm.business
+        # If a business is public
+        if is_public(business):
+            # Create a button to privatize the business
+            privatize_panel = PanedWindow(panel, orient=HORIZONTAL)
+            privatize_panel.pack(fill=BOTH, expand=False)
+            button = Button(privatize_panel, text="Privatize business", command=lambda: statem.privatize(business), fg="white", bg="orange")
+            button.config(font=("Courier", 20))
+            button.pack(fill=BOTH, expand=False)
+            panel.add(privatize_panel)
+        else:
+            # Create a button to nationalize the business
+            nationalize_panel = PanedWindow(panel, orient=HORIZONTAL)
+            nationalize_panel.pack(fill=BOTH, expand=False)
+            button = Button(nationalize_panel, text="Nationalize business", command=lambda: statem.nationalize(business),fg="white", bg="blue")
+            button.config(font=("Courier", 20))
+            button.pack(fill=BOTH, expand=False)
+            panel.add(nationalize_panel)
+
+        if business.status == "open":
+            # Create a button to close the business
+            close_business_panel = PanedWindow(panel, orient=HORIZONTAL)
+            close_business_panel.pack(fill=BOTH, expand=False)
+            button = Button(close_business_panel, text="Close business", command=lambda: businessm.close_business(),fg="white", bg="red")
+            button.config(font=("Courier", 20))
+            button.pack(fill=BOTH, expand=False)
+            panel.add(close_business_panel)
+
+            if not business.subsidized:
+                # Create a button to subsidize with a field for ammount
+                subsidize_panel = PanedWindow(panel, orient=HORIZONTAL)
+                subsidize_panel.pack(fill=BOTH, expand=False)
+                ammount_field = Entry(subsidize_panel)
+                ammount_field.config(font=("Courier", 20))
+                ammount_field.pack(fill=BOTH, expand=False)
+                button = Button(subsidize_panel, text="Subsidize", command=lambda: statem.subsidize_business(business, float(ammount_field.get())),fg="white", bg="green")
+                button.config(font=("Courier", 20))
+                button.pack(fill=BOTH, expand=False)
+                panel.add(subsidize_panel)
+            else:
+                # Create a button to unsubsidize
+                unsubsidize_panel = PanedWindow(panel, orient=HORIZONTAL)
+                unsubsidize_panel.pack(fill=BOTH, expand=False)
+                button = Button(unsubsidize_panel, text="Unsubsidize", command=lambda: statem.unsubsidize_business(business),fg="white", bg="red")
+                button.config(font=("Courier", 20))
+                button.pack(fill=BOTH, expand=False)
+                panel.add(unsubsidize_panel)
+        
+        else:
+            # Create a button to open the business
+            open_business_panel = PanedWindow(panel, orient=HORIZONTAL)
+            open_business_panel.pack(fill=BOTH, expand=False)
+            button = Button(open_business_panel, text="Open business", command=lambda: statem.open_business(business),fg="white", bg="green")
+            button.config(font=("Courier", 20))
+            button.pack(fill=BOTH, expand=False)
+            panel.add(open_business_panel)
+
+
+        
+
+
+
+
+
+def control_business(businessm, panel = None):
+    global current_control
+    
+    current_control = businessm
+    
+
+    # Set manual to true
+    businessm.manual = True
+
+    # Create an horizontal panel
+    if not panel:
+        panel = PanedWindow(orient=VERTICAL)
+        panel.pack(fill=BOTH, expand=True)
+    
+    industries = ["farm", "mine", "sawmill", "constructor", "chocolate", "housing", "furniture", "science", "pharmacy", "hospital", "goods", "copper mine", "electric central", "oil extractor", "refinery", "engine factory"]
+    goods = ["food", "build", "wood", "iron", "chocolate", "house", "furniture", "science", "medicament", "health", "good", "copper", "electricity", "oil", "gas", "engine"]
+    sectors = ["farming", "mining", "lumber", "construction", "chocolating", "housing", "furniture", "science", "pharmaceutical", "healthcare", "consumer", "copper", "electricity", "oil", "gas", "engine"]
+
+
+    # Show business name
+    name_label = Label(panel, text=businessm.business.name)
+    name_label.config(font=("Courier", 20))
+    name_label.pack(fill=BOTH, expand=False)
+    panel.add(name_label)
+
+    # Show business money
+    money_label = Label(panel, text="Money: " + str(businessm.business.money))
+    money_label.config(font=("Courier", 20))
+    money_label.pack(fill=BOTH, expand=False)
+    panel.add(money_label)
+
+
+    # Create a button to set sell price of business
+    set_sell_price_panel = PanedWindow(panel, orient=HORIZONTAL)
+    set_sell_price_panel.pack()
+    price_field = Entry(set_sell_price_panel)
+    price_field.config(font=("Courier", 20))
+    price_field.pack()
+    button = Button(set_sell_price_panel, text="Set sell price", command=lambda: businessm.set_sell_price(float(price_field.get())))
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(set_sell_price_panel)
+
+    # Create a button to unset sell price of business
+    unset_sell_price_panel = PanedWindow(panel, orient=HORIZONTAL)
+    unset_sell_price_panel.pack()
+    button = Button(unset_sell_price_panel, text="Unset sell price", command=lambda: businessm.unset_sell_price())
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(unset_sell_price_panel)
+
+    # Create a button to set ammount of workers
+    set_workers_panel = PanedWindow(panel, orient=HORIZONTAL)
+    set_workers_panel.pack()
+    workers_field = Entry(set_workers_panel)
+    workers_field.config(font=("Courier", 20))
+    workers_field.pack()
+    button = Button(set_workers_panel, text="Set workers", command=lambda: businessm.set_ammount_workers(int(workers_field.get())))
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(set_workers_panel)
+
+    # Create a button to unset ammount of workers
+    unset_workers_panel = PanedWindow(panel, orient=HORIZONTAL)
+    unset_workers_panel.pack()
+    button = Button(unset_workers_panel, text="Unset workers", command=lambda: businessm.unset_ammount_workers())
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(unset_workers_panel)
+
+    # Create a button to set contract price
+    set_contract_price_panel = PanedWindow(panel, orient=HORIZONTAL)
+    set_contract_price_panel.pack()
+    price_field_2 = Entry(set_contract_price_panel)
+    price_field_2.config(font=("Courier", 20))
+    price_field_2.pack()
+    button = Button(set_contract_price_panel, text="Set contract price", command=lambda: businessm.set_contract_price(float(price_field_2.get())))
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(set_contract_price_panel)
+
+    # Create a button to unset contract price
+    unset_contract_price_panel = PanedWindow(panel, orient=HORIZONTAL)
+    unset_contract_price_panel.pack()
+    button = Button(unset_contract_price_panel, text="Unset contract price", command=lambda: businessm.unset_contract_price())
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(unset_contract_price_panel)
+
+    # Create a button to set science buy
+    set_science_buy_panel = PanedWindow(panel, orient=HORIZONTAL)
+    set_science_buy_panel.pack()
+    science_buy_field = Entry(set_science_buy_panel)
+    science_buy_field.config(font=("Courier", 20))
+    science_buy_field.pack()
+    button = Button(set_science_buy_panel, text="Set science buy", command=lambda: businessm.set_science_buy(int(science_buy_field.get())))
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(set_science_buy_panel)
+
+    # Create a button to unset science buy
+    unset_science_buy_panel = PanedWindow(panel, orient=HORIZONTAL)
+    unset_science_buy_panel.pack()
+    button = Button(unset_science_buy_panel, text="Unset science buy", command=lambda: businessm.unset_science_buy())
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(unset_science_buy_panel)
+
+    # Create a button to set science price
+    set_science_price_panel = PanedWindow(panel, orient=HORIZONTAL)
+    set_science_price_panel.pack()
+    science_price_field = Entry(set_science_price_panel)
+    science_price_field.config(font=("Courier", 20))
+    science_price_field.pack()
+    button = Button(set_science_price_panel, text="Set science price", command=lambda: businessm.set_science_price(float(science_price_field.get())))
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(set_science_price_panel)
+
+    # Create a button to unset science price
+    unset_science_price_panel = PanedWindow(panel, orient=HORIZONTAL)
+    unset_science_price_panel.pack()
+    button = Button(unset_science_price_panel, text="Unset science price", command=lambda: businessm.unset_science_price())
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(unset_science_price_panel)
+
+    # Create a button to close business
+    close_business_panel = PanedWindow(panel, orient=HORIZONTAL)
+    close_business_panel.pack()
+    button = Button(close_business_panel, text="Close business", command=lambda: businessm.close_business(), fg="white", bg="red")
+    button.config(font=("Courier", 20))
+    button.pack()
+    panel.add(close_business_panel)
+
+
+
+
+
+
+
 
 
 main_panel = None

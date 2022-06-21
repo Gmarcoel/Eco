@@ -19,6 +19,14 @@ class Entity():
     sub_money = 0
     total_sum_money = []
     total_sub_money = []
+    investment_pool = 0
+
+    last_ammount_traded = {}
+
+    subsidized = False
+    subsidizing = {}
+
+    active = True
     
 
 
@@ -33,11 +41,16 @@ class Entity():
 
         self.total_sum_money = []
         self.total_sub_money = []
+        self.last_ammount_traded = {}
     
     def __str__(self):
         return f"{self.money} {self.items}"
     
     def trade(self, product, price, sell, quantity):
+        # self.last_ammount_traded[product] = 0
+        if not product in self.last_ammount_traded:
+            self.last_ammount_traded[product] = 0
+
         if not product in self.items:
             self.items[product] = 0
             self.items_price[product] = 1
@@ -47,15 +60,12 @@ class Entity():
             return Trade(self, price, sell, quantity, product)
         # Buy a product
         elif not sell and self.money >= price * quantity:
-            ## self.money = round(self.money - (price * quantity),2)
             self.subtract_money(price * quantity)
             return Trade(self, price, sell, quantity, product)
         elif not sell and self.money >= price:
             buyable_ammount = 1
             while self.money >= price * (buyable_ammount + 1):
-                buyable_ammount += 1
-            ## self.money = round(self.money - (price * buyable_ammount),2)
-            self.subtract_money(price * buyable_ammount)
+                self.subtract_money(price * buyable_ammount)
             return Trade(self, price, sell, buyable_ammount, product)
 
         else:
@@ -70,7 +80,7 @@ class Entity():
         return Job(self, salary, time, specialization, contractor)
     
     def pay_taxes(self, taxes):
-        self.money = round(self.money - taxes,2)
+        self.subtract_money(taxes)
     
     def get_expected_price(self, item):
         if not item in self.items_price:
@@ -95,39 +105,62 @@ class Entity():
 
     def add_money(self, money):
         self.sum_money = round(self.sum_money + money,2)
-        self.money = round(self.money +money,2)
+        self.money = round(self.money + money,2)
     
     def subtract_money(self, money):
         if self.money >= money:
             self.sub_money = round(self.sub_money - money,2)
-            self.money =round(self.money- money,2)
+            self.money = round(self.money - money,2)
         else:
             # print("No hay suficiente dinero")
             return False
         return True
     
     def tax(self, tax_rate):
-        if self.balance[-1] < 0:
-            return 0
-        # tax = round(self.balance[-1] * tax_rate,2)
         tax = round(self.balance[-1] * tax_rate,2)
+        if tax > 10000: print("                ", self.money, tax_rate, self.balance[-1], tax)
         if tax <= 0:
             return 0
         if self.money >= tax:
-            self.money = round(self.money - tax,2)
+            self.subtract_money(tax)
         else:
             tax = self.money
             self.money = 0
         return tax
     
     def subsidize(self, entity, money):
-        if self.money < money:
-            # print("No hay suficiente dinero")
-            return False
-        self.money = round(self.money - money,2)
-        entity.money = round(entity.money + money,2)
-        return True
+        entity.subsidized = True
+        self.subsidizing[entity] = money
     
+    def unsubsidize(self, entity):
+        entity.subsidized = False
+        del self.subsidizing[entity]
+
+
+    def pay_subsidies(self):
+        aux = {}
+        for entity in self.subsidizing:
+            if not entity.active:
+                entity.subsidized = False
+                continue
+            if self.money >= self.subsidizing[entity]:
+                self.subtract_money(self.subsidizing[entity])
+                entity.add_money(self.subsidizing[entity])
+            else:
+                self.subsidizing[entity] = round(self.subsidizing[entity] - self.money,2)
+                self.money = 0
+            aux[entity] = self.subsidizing[entity]
+        self.subsidizing = aux
+        
+    def pay_subsidy(self, entity):
+        if self.money >= self.subsidizing[entity]:
+                self.subtract_money(self.subsidizing[entity])
+                entity.add_money(self.subsidizing[entity])
+                del self.subsidizing[entity]
+        else:
+            self.subsidizing[entity] = round(self.subsidizing[entity] - self.money,2)
+            self.money = 0
+
     def check_balance(self):
         if self.balance[-1] >= 0 and self.balance[-2] >= 0 and self.balance[-3] >= 0:
             return True

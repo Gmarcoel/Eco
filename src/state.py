@@ -24,6 +24,7 @@ class State(Entity):
     minimum_wage = 0
     maximum_price = {}
     minimum_price = {}
+    public_price = {}
     people_tax_rate = 0.2
     business_tax_rate = 0.2
 
@@ -41,6 +42,7 @@ class State(Entity):
 
         self.maximum_price = {}
         self.minimum_price = {}
+        self.public_price = {}
 
     def __str__(self):
         return f"{self.name} has {self.money} money"
@@ -62,7 +64,7 @@ class State(Entity):
             p = Project("infrastructure", city, self, 0, resources, time)
             # Add the project to the list of projects
             self.projects.append(p)
-        # inf = Project("infrastructure", city, self, 100, {'stone': 50}, 5)
+        # inf = Project("infrastructure", city, self, 100, {'iron': 50}, 5)
         # self.projects.append(inf)
 
     
@@ -74,7 +76,7 @@ class State(Entity):
         with open("data/projects.json", "r") as f:
             data = json.load(f)
             # Choose random project from list
-            l = ["infrastructure", "farm", "mine", "sawmill", "constructor", "chocolate", "housing", "furniture", "science"]
+            l = ["farm", "mine", "sawmill", "constructor", "chocolate", "housing", "furniture", "science", "pharmacy", "hospital", "goods", "copper mine", "electric central", "oil extractor", "refinery", "engine factory"]
             ran = random.choice(l)
             # Get the resources needed for the project
             resources = data["projects"][ran]["resources"]
@@ -133,13 +135,7 @@ class State(Entity):
         tax = 0
         for c in self.cities:
             tax += c.tax()
-        self.money = round(self.money + tax,2)
-    
-
-    def subsidize_entity(self, entity, amount):
-        if self.money >= amount:
-            self.subtract_money(amount)
-            entity.add_money(amount)
+        self.add_money(tax)
 
     def set_governor(self, new_governor):
         self.governor = new_governor
@@ -175,6 +171,11 @@ class State(Entity):
         self.minimum_price[resource] = price
         for c in self.cities:
             c.set_minimum_price(price, resource)
+
+    def set_public_price(self, price, resource):
+        self.public_price[resource] = price
+        for c in self.cities:
+            c.set_public_price(price, resource)
     
     def remove_maximum_price(self, resource):
         del self.maximum_price[resource]
@@ -186,7 +187,9 @@ class State(Entity):
         for c in self.cities:
             c.remove_minimum_price(resource)
 
-    
-
+    def remove_public_price(self, resource):
+        del self.public_price[resource]
+        for c in self.cities:
+            c.remove_public_price(resource)
 
 

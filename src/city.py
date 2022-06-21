@@ -6,25 +6,31 @@ class City:
     name = ""
     entities = []
     businesses = []
+    closed_businesses = []
     people = []
     people_tax_rate = 0.2
     businesses_tax_rate = 0.2
     money = 0
-    infrastructure = 10
+    infrastructure = 50
     infrastructure_price = 100
     markets = []
+    job_markets = []
+    business_market = None
     state = None
 
     # Law related attributes
     minimum_wage = 0
     maximum_price = {}
     minimum_price = {}
+    public_price = {}
 
-    def __init__(self, name = "", businesses = [], people = [], tax_rate = 0.1, money = 1000, state = None):
+    def __init__(self, name = "", businesses = [], people = [], tax_rate = 0.1, money = 1000, state = None, business_market = None):
         self.entities = []
         self.businesses = []
+        self.closed_businesses = []
         self.people = []
         self.markets = []
+        self.job_markets = []
         self.name = name
         self.businesses = businesses
         self.people = people
@@ -32,9 +38,11 @@ class City:
         self.money = money
         self.state = state
         self.entities = self.businesses + self.people
+        self.business_market = business_market
 
         self.maximum_price = {}
         self.minimum_price = {}
+        self.public_price = {}
 
     
     def __str__(self):
@@ -114,12 +122,16 @@ class City:
     def set_minimum_price(self, price, resource):
         self.minimum_price[resource] = price
     
+    def set_public_price(self, price, resource):
+        self.public_price[resource] = price
+
     def remove_maximum_price(self, resource):
         del self.maximum_price[resource]
     
     def remove_minimum_price(self, resource):
         del self.minimum_price[resource]
     
-
+    def remove_public_price(self, resource):
+        del self.public_price[resource]
 
 

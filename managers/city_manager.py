@@ -1,25 +1,11 @@
 from managers.manager import Manager
+from src.new import New
+from src.business_market import BusinessMarket
 
 
 class CityManager(Manager):
     city = None
     world = None
-
-    def __init__(self, city, world):
-        super().__init__(city)
-        self.city = city
-        self.world = world
-    
-    def do(self):
-        self.restart_sold_terrain()
-        self.census()
-
-    def restart_sold_terrain(self):
-        self.city.sold_terrain = 0
-    
-    def change_sold_terrain(self, amount):
-        self.city.sold_terrain += amount
-    
     population = 0
     deaths = 0
     borns = 0
@@ -27,6 +13,46 @@ class CityManager(Manager):
 
     last_borns = [0]
     last_deaths = [0]
+
+
+    def __init__(self, city, world):
+        super().__init__(city)
+        self.city = city
+        self.world = world
+
+        # Si no existe crear el business market de la ciudad
+        if not self.city.business_market:
+            market = BusinessMarket(self.city.name + " Business Market", None, 0, 0.1)
+            self.world.new_business_markets.append(New(market, self.city, None, None))
+            self.city.business_market = market
+    
+    def do(self):
+        self.restart_sold_terrain()
+        self.census()
+        self.check_business_status()
+
+    def restart_sold_terrain(self):
+        self.city.sold_terrain = 0
+    
+    def change_sold_terrain(self, amount):
+        self.city.sold_terrain += amount
+    
+    def check_business_status(self):
+        aux = []
+        for business in self.city.businesses:
+            if business.status == "closed":
+                self.city.closed_businesses.append(business)
+            else:
+                aux.append(business)
+        self.city.businesses = aux
+        aux = []
+        for business in self.city.closed_businesses:
+            if business.status == "open":
+                self.city.businesses.append(business)
+            else:
+                aux.append(business)
+        self.city.closed_businesses = aux
+
 
     def census(self):
         population = 0
