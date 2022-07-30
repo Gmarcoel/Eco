@@ -113,12 +113,45 @@ class job_market(Entity):
                 # Shuffle order of jobs
                 random.shuffle(contractor_jobs)
                 random.shuffle(contractee_jobs)
+            # Put farming jobs first ###################### CHAPUZA A CAMBIAR EN EL FUTURO para que no mueran de hambre
+            for job in contractor_jobs:
+                if job.entity.sector == "farming":
+                    contractor_jobs.remove(job)
+                    contractor_jobs.insert(0, job)
             # Loop trough all the buy jobs
             for job in contractor_jobs:
                 # Loop through all the contractor jobs
                 for contractee_job in contractee_jobs:
                     found = False
 
+                    # If hungry look for a job of farming sector
+                    if contractee_job.entity.hungry > 3:
+                        if job.entity.sector == "farming":
+                            # Fill database data
+                            self.total_contracts_price += job.money
+                            self.total_contracts_ammount += 1
+                            job.entity.manager.contracted += 1
+                            job.entity.manager.contracted_price += job.money
+                            # Create a contract
+                            contract = job.entity.contract(contractee_job.entity, job.money, job.time)
+                            # Add contract to the contratee
+                            contractee_job.entity.contract = contract
+                            # Set contract to 0 so it doesn't show again
+                            job.money = 0
+                            contractee_job.money = 0
+                            # Remove the job from the market
+                            self.jobs[specialization].remove(job)
+
+                            if contractee_job in self.jobs: # NO SE POR QUE DA ERROR SI SE QUITA ESTO PERO IMPLICA QUE ALGO ESTA MUY MUY MUY MAL
+                                self.jobs[specialization].remove(contractee_job)
+                            # Change contract price 
+                            
+                            job.entity.contracts_price[specialization] = round(job.entity.contracts_price[specialization] - job.entity.contracts_price[specialization]* 0.05,2)
+                            contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] + contractee_job.entity.contracts_price[specialization]* 0.05,2)
+                            
+                            found = True
+                            break
+                    
                     # If the buy money is higher or equal than the contractor money
                     if job.money >= contractee_job.money and job.time >= contractee_job.time and contractee_job.money != 0:
                         # Fill database data

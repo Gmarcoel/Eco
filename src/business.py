@@ -145,9 +145,12 @@ class Business(Entity):
             self.no_contracts += 1
         else:
             self.no_contracts = 0
-        if self.negative > 5 or self.no_contracts > 10:
+        if self.negative > 5 or self.no_contracts > 6 or self.money < 1: ## Cambiar lo del money esta MUY MAL
             # self.bankrupt()
             self.status = "closed"
+            self.negative = 0
+            self.no_contracts = 0
+            
             self.active = False
             if round(self.needed_goods_price * 0.8, 2) != 0:
                 self.items_price[self.product] = round(self.needed_goods_price * 0.8, 2) # Una chapuza para quitar luego hace que al quebrar venda más barato
@@ -227,6 +230,8 @@ class Business(Entity):
                 if t:
                     self.needed_goods_price = round(self.needed_goods_price + t.price,2)
                     market.add_trade(t)
+        if not self.product in self.items_price:
+            self.items_price[self.product] = round(self.needed_goods_price * 1.2,2)
 
 
     
@@ -311,6 +316,7 @@ class Business(Entity):
         # print("EN EL TRADE DE ", self.name, "el precio es ", price)
         if self.public_price != -1:
             price = self.public_price
+            self.items_price[product] = price
         else:
             if self.maximum_price != -1:
                 if price > self.maximum_price:

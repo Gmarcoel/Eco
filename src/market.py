@@ -180,10 +180,9 @@ class Market(Entity):
             b = 0
             s = 0
             for t in self.trades[product]:
-                if t.quantity >0 and t.sell:
+                if t.quantity > 0 and t.sell:
                     s += 1
-                if t.quantity >0 and not t.sell:
-                    
+                if t.quantity > 0 and not t.sell:
                     b += 1
             for trade in self.trades[product]:
                 if trade.quantity > 0:
@@ -192,7 +191,7 @@ class Market(Entity):
                     elif trade.sell and s == 1: # Si es el único vendedor sube
                         trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.1),2)
                     elif not trade.sell: # Solo sube si había más vendedores
-                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.12),2)
+                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.5),2) # Antes a 0.12
 
                 trade.cancel()
             self.trades[product] = []

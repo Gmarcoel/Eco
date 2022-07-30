@@ -47,6 +47,8 @@ class PersonManager(Manager):
 
         # Basic needs
         if self.person.age > 1:
+            if "food" in self.market.database.previous_average_price:
+                self.person.food_price = self.market.database.previous_average_price["food"]
             self.person.work(self.job_market)
         # If eating returns false is dead
         if not self.person.eat("food"):
@@ -411,6 +413,8 @@ class PersonManager(Manager):
         
 
     def happiness(self):
+        if self.person.hungry > 0:
+            return
         if self.person.status < 2:
             return
         if not "chocolate" in self.person.items_price:
@@ -428,6 +432,9 @@ class PersonManager(Manager):
             self.market.add_trade(t)
         # Quit if money is more than three times food price try to buy chocolate
         elif person.money > person.items_price["food"] * 3:
+            # Revise chocolate price
+            if person.items_price["chocolate"] > person.money / 6:
+                person.items_price["chocolate"] = round(person.money / 6,2)
             # Create a trade for chocolate
             t = self.person.trade("chocolate", person.items_price["chocolate"], False, 1)
             self.market.add_trade(t)
@@ -436,6 +443,8 @@ class PersonManager(Manager):
     
     
     def housing(self):
+        if self.person.hungry > 0:
+            return
         if self.person.status < 2:
             return
         if "house" not in self.person.items:
@@ -445,6 +454,9 @@ class PersonManager(Manager):
         if self.person.items["house"] < 1:
             if "house" not in self.person.items_price:
                 self.person.items_price["house"] = 10
+            # Revise house price
+            if self.person.items_price["house"] > self.person.money / 2:
+                self.person.items_price["house"] = round(self.person.money / 2,2)
             t = self.person.trade("house", self.person.items_price["house"], False, 1)
             if t:
                 self.market.add_trade(t)
@@ -486,6 +498,8 @@ class PersonManager(Manager):
         self.person.heal()
     
     def manage_goods(self):
+        if self.person.hungry > 0:
+            return
         if self.person.status < 2:
             return
         # Get a number between 1 and 10
@@ -494,6 +508,9 @@ class PersonManager(Manager):
         # Buy as much goods as number
         if "good" not in self.person.items_price:
             self.person.items_price["good"] = 10
+        # Revise good price
+        if self.person.items_price["good"] > self.person.money / 5:
+            self.person.items_price["good"] = round(self.person.money / 5,2)
         t = self.person.trade("good", self.person.items_price["good"], False, number)
         if t:
             self.market.add_trade(t)

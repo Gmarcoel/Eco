@@ -11,7 +11,7 @@ class Farm(Business):
         self.product = "food"
         self.add_needed_goods("work",1,1)
         self.add_item("food",0)
-        self.production = 10
+        self.production = 30
         self.sector = "farming"
 
     
@@ -31,6 +31,3 @@ class Farm(Business):
             return False
         return True
     
-
-    
-

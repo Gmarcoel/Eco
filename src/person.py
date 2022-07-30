@@ -15,6 +15,9 @@ class Person(Entity):
     family = []
     happiness = 30
     status = 0
+    
+
+    food_price = 2 # Chapuza para que no se mueran
 
     inmortal = False
 
@@ -86,12 +89,25 @@ class Person(Entity):
                 self.hungry = 0
         else:
             self.hungry += 1
+        if self.items_price[food] < 0.1:
+            self.items_price[food] = 0.1
         if self.hungry > 0:
-            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.1,2)
-        elif self.hungry > 2:
             self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.2,2)
-        elif self.hungry >= 7:
+        elif self.hungry > 2:
+            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.5,2)
+        elif self.hungry > 5:
+            self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.7,2)
+        elif self.hungry > 8:
+            self.items_price[food] = round(self.money * 0.8,2)
+        elif self.hungry > 10:
             self.items_price[food] = self.money
+        """
+        elif self.hungry >= 7:
+            self.items_price[food] = self.money / 3
+        elif self.hungry >= 9:
+            self.items_price[food] = self.money
+        """
+
         return True
 
     # El trabajar da 1 de trabajo a cada individuo si éste tiene trabajo
@@ -104,7 +120,12 @@ class Person(Entity):
             if not self.specialization in self.contracts_price:
                 self.contracts_price[self.specialization] = 1
             if self.items_price["food"] * 3 < self.contracts_price[self.specialization]:
-                self.contracts_price[self.specialization] = round(self.items_price["food"] * 3,2)
+                self.contracts_price[self.specialization] = round(self.food_price * 3,2)
+            if self.hungry > 5:
+                self.contracts_price[self.specialization] = round(self.food_price * 1.5,2)
+            if self.hungry > 8:
+                self.contracts_price[self.specialization] = self.food_price
+
             # Select a random number between 0 and 1
             ran = round(random.random(),2)
             if ran < self.status * 0.16:

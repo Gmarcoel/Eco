@@ -417,8 +417,8 @@ class StateManager(Manager):
         self.state.pay_subsidies()
     
     def open_business(self, bus):
-        if bus.status == "open":
-            return
+        #if bus.status == "open":
+        #    return
         bus.status = "open"
         if bus.owner:
             if bus in bus.owner.businesses:

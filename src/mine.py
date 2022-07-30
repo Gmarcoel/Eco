@@ -12,7 +12,7 @@ class Mine(Business):
         self.product = "iron"
         self.add_needed_goods("work",1,1)
         self.add_item("iron",0)
-        self.production = 2
+        self.production = 5
         self.sector = "mining"
 
     
