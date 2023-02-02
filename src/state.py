@@ -112,11 +112,23 @@ class State(Entity):
 
         # create trades for all needed resources
         for key in self.needed_resources:
+            if key in market.database.previous_average_price:
+                price = market.database.previous_average_price[key]
+                if price == 0:
+                    price = self.get_expected_price(key)
+            else:
+                price = self.get_expected_price(key)
+            if price <= self.money:
+                # self.subtract_money(self.get_expected_price(key))
+                t = self.trade(key, price * 1.25, False, self.needed_resources[key])
+                market.add_trade(t)
+            """
             if self.get_expected_price(key) <= self.money:
                 # self.subtract_money(self.get_expected_price(key))
                 t = self.trade(key, self.get_expected_price(
                     key), False, self.needed_resources[key])
                 market.add_trade(t)
+            """
 
     def work(self, city):
         if self.governor:
@@ -192,4 +204,10 @@ class State(Entity):
         for c in self.cities:
             c.remove_public_price(resource)
 
-
+    def set_money_aids(self, status, money):
+        for c in self.cities:
+            for person in c.people:
+                if person.status == status:
+                    if self.subtract_money(money):
+                        person.add_money(money)
+                        

@@ -85,6 +85,8 @@ class Entity():
     def get_expected_price(self, item):
         if not item in self.items_price:
             self.items_price[item] = 1 # ESTA FUNCION ENTERA ES BASURA
+        if self.items_price[item] <= 0:
+            self.items_price[item] = 0.2
         return self.items_price[item]
     
     def add_item(self, item, quantity):
@@ -109,7 +111,7 @@ class Entity():
     
     def subtract_money(self, money):
         if self.money >= money:
-            self.sub_money = round(self.sub_money - money,2)
+            self.sub_money = round(self.sub_money + money,2)
             self.money = round(self.money - money,2)
         else:
             # print("No hay suficiente dinero")
@@ -180,9 +182,16 @@ class Entity():
             self.earnings.pop(0)
 
     def restart_economics(self):
-        self.total_sum_money.append(self.sum_money)
-        self.total_sub_money.append(self.sub_money * -1)
-
-        
+        if self.total_sum_money == []:
+            self.total_sum_money.append(0)
+            self.total_sub_money.append(0)
+        else:
+            self.total_sum_money.append(self.sum_money)
+            self.total_sub_money.append(self.sub_money)
         self.sum_money = 0
         self.sub_money = 0
+
+
+        for price in self.items_price:
+            if self.items_price[price] < 0.1:
+                self.items_price[price] = 0.2

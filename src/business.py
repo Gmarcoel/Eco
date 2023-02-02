@@ -52,7 +52,7 @@ class Business(Entity):
 
 
     def __init__(self, name = "", employees = [], tech_level = 0, owner = None, product = None, money = 0):
-        super().__init__(money=money)
+        super().__init__(money=money + 100) # EL +100 ESTE LO PEOR QUE HE HECHO PERO ES QUE NO HAY BANCOS
         self.name = name
         self.employees = employees
         self.tech_level = tech_level
@@ -145,20 +145,22 @@ class Business(Entity):
             self.no_contracts += 1
         else:
             self.no_contracts = 0
-        if self.negative > 5 or self.no_contracts > 6 or self.money < 1: ## Cambiar lo del money esta MUY MAL
-            # self.bankrupt()
-            self.status = "closed"
-            self.negative = 0
-            self.no_contracts = 0
-            
-            self.active = False
-            if round(self.needed_goods_price * 0.8, 2) != 0:
-                self.items_price[self.product] = round(self.needed_goods_price * 0.8, 2) # Una chapuza para quitar luego hace que al quebrar venda más barato
-            for contract in self.work_contracts:
-                contract.entity2.contract = None
-            self.work_contracts = []
-            # return False
-            return 0
+        if self.negative > 30 or self.no_contracts > 10 or self.money < 1: ## Cambiar lo del money esta MUY MAL
+            if self.manager: # RE cutre
+                if not self.manager.isPublic():
+                    # self.bankrupt()
+                    self.status = "closed"
+                    self.negative = 0
+                    self.no_contracts = 0
+                    
+                    self.active = False
+                    if round(self.needed_goods_price * 0.8, 2) != 0:
+                        self.items_price[self.product] = round(self.needed_goods_price * 0.8, 2) # Una chapuza para quitar luego hace que al quebrar venda más barato
+                    for contract in self.work_contracts:
+                        contract.entity2.contract = None
+                    self.work_contracts = []
+                    # return False
+                    return 0
 
 
 
@@ -199,6 +201,7 @@ class Business(Entity):
         if self.owner != None and self.check_balance():
             slice = round(self.last_balance() * self.dividend,2)
             if self.money > slice:
+                if slice > 20000: slice = 20000 # Cutrez que hay que quitar
                 self.owner.add_money(slice)
                 self.subtract_money(slice)
                 self.last_dividend = slice
@@ -226,7 +229,7 @@ class Business(Entity):
         self.needed_goods_price = 0
         for item in self.needed_goods:
             if item != "work":
-                t = self.trade(item, self.get_expected_price(item), False, self.needed_goods[item] * len(self.work_contracts))
+                t = self.trade(item, self.get_expected_price(item), False, self.needed_goods[item] * len(self.work_contracts) * 5)
                 if t:
                     self.needed_goods_price = round(self.needed_goods_price + t.price,2)
                     market.add_trade(t)
@@ -238,6 +241,8 @@ class Business(Entity):
     def sell(self, market):
         if self.status == "closed":
             self.after_close += 1
+        else:
+            self.after_close = 0
         if self.after_close > 3:
             return
         if not self.product in self.items:
@@ -271,9 +276,13 @@ class Business(Entity):
 
         j = None
         if self.minimum_wage > self.contracts_price[self.specialization]:
-            j = self.create_job(self.minimum_wage, 10, self.specialization, True)
+            if self.money > self.minimum_wage:
+                j = self.create_job(self.minimum_wage, 10, self.specialization, True)
         else:
-            j = self.create_job(self.contracts_price[self.specialization], 20, self.specialization, True)
+            if self.contracts_price[self.specialization] < self.money:
+                j = self.create_job(self.contracts_price[self.specialization], 20, self.specialization, True)
+            # else:
+            #     j = self.create_job(self.money, 20, self.specialization, True)
         if j:
             jm.add_job(j)
 
@@ -333,7 +342,7 @@ class Business(Entity):
             self.total_sub_money.append(0)
             #return
         self.total_sum_money.append(self.sum_money)
-        self.total_sub_money.append((self.sub_money - self.last_dividend) * -1)
+        self.total_sub_money.append((self.sub_money + self.last_dividend))
         # If greater than 300 pop
         if len(self.total_sum_money) > 300:
             self.total_sum_money.pop(0)
@@ -345,3 +354,7 @@ class Business(Entity):
         
         self.sum_money = 0
         self.sub_money = 0
+
+        for price in self.items_price:
+            if self.items_price[price] < 0.1:
+                self.items_price[price] = 0.2

@@ -73,7 +73,8 @@ class StateManager(Manager):
                     # p.entity.businesses.append(b)
                     p.entity.add_business(b)
                     # Add .05 percent of state money to the business
-                    amm = round(self.state.money * .05, 2)
+                    amm = round(self.state.money * .3, 2)
+                    if amm > 20000: amm = 20000
                     self.state.subtract_money(amm)
                     b.add_money(amm)
                     self.state.world.new_businesses.append(New(b, p.entity, self.market, self.job_market)) # object, city, market, job_market
@@ -138,6 +139,7 @@ class StateManager(Manager):
     def pay_workers(self):
         if self.state.governor:
             dividend = round(self.state.money * 0.05,2)
+            if dividend > 1000: dividend = 1000 # QUITAR CUANDO FUNCIONEN LAS COSAS
             self.state.governor.add_money(dividend)
             self.state.subtract_money(dividend)
 
@@ -426,3 +428,29 @@ class StateManager(Manager):
         bus.owner = self.state
         self.state.businesses.append(bus)
 
+        # PARA LA CIUDAD LUEGO QUITARLO
+        bus.manager.city.businesses.append(bus)
+        bus.manager.city.closed_businesses.remove(bus)
+        amm = round(self.state.money * .3, 2)
+        if amm > 20000: amm = 20000
+        self.state.subtract_money(amm)
+        bus.add_money(amm)
+        bus.active = True
+
+    def set_public_price(self, v, r):
+        self.state.set_public_price(v, r)
+        self.current_laws["public_price"] = self.state.public_price
+        self.last_law = "public_price " + r + ": " + str(self.state.public_price[r])
+    
+    def remove_public_price(self, r):
+        self.state.remove_public_price(r)
+        # Remove from current_laws
+        if not self.state.public_price:
+            self.current_laws.pop("public_price")
+        else:
+            self.current_laws["public_price"] = self.state.public_price
+        self.last_law = "remove public_price of " + r
+        return
+    
+    def give_money_aid(self, status, money):
+        self.state.set_money_aids(status, money)

@@ -90,7 +90,7 @@ class Person(Entity):
         else:
             self.hungry += 1
         if self.items_price[food] < 0.1:
-            self.items_price[food] = 0.1
+            self.items_price[food] = 0.2
         if self.hungry > 0:
             self.items_price[food] = round(self.items_price[food] + self.items_price[food] * 0.2,2)
         elif self.hungry > 2:
@@ -113,9 +113,11 @@ class Person(Entity):
     # El trabajar da 1 de trabajo a cada individuo si éste tiene trabajo
     def work(self, job_market):
         if self.contract:
-            self.add_item("work", 1)
+            if self.contract not in self.contract.entity1.work_contracts:
+                self.contract = None
+            self.add_item("work", 10)
             # self.job.fullfill()
-        else:
+        if not self.contract:
             # print("No tiene trabajo")
             if not self.specialization in self.contracts_price:
                 self.contracts_price[self.specialization] = 1
@@ -149,6 +151,10 @@ class Person(Entity):
     # create trades for all needed goods
 
     def create_trades(self, market):
+        for item in self.items_price:
+            if self.items_price[item] < 0.1:
+                self.items_price[item] = 0.2
+
         
         if self.dead:
             return
@@ -166,6 +172,12 @@ class Person(Entity):
 
             # If extra money buy more
             if self.money > self.items_price[item] * 5:
+                t = self.trade(item, self.items_price[item], False, 1)
+                market.add_trade(t)
+        
+        # if hungry buy more food
+        if self.hungry > 0:
+            if self.money > self.items_price[item]:
                 t = self.trade(item, self.items_price[item], False, 1)
                 market.add_trade(t)
                 

@@ -95,13 +95,13 @@ class PersonManager(Manager):
             self.person.status = 0
         if money > food_price:
             self.person.status = 1
-        if money > 2 * food_price:
+        if money > 50 * food_price: # 2
             self.person.status = 2
-        if money > 10 * food_price:
+        if money > 500 * food_price: # 10
             self.person.status = 3
-        if money > 100 * food_price:
+        if money > 1000 * food_price: # 100
             self.person.status = 4
-        if money > 1000 * food_price:
+        if money > 10000 * food_price: # 1000
             self.person.status = 5
 
         if self.person.contract:
@@ -150,8 +150,8 @@ class PersonManager(Manager):
                 # Si no hay oferta se guarda para después (prioridad)
                 if offer == 0 and demand != 0:
                     cero.append(product)
-            # else:
-            #     return
+            else:
+                cero.append(product)
         # Se coge prioridad en los sin oferta
         if cero != []:
             for product in cero:
@@ -305,7 +305,7 @@ class PersonManager(Manager):
         if self.person.age < 50 or partner.age < 50:
             # random chance to have children 1 to 5
             # if random.random() < 0.95:
-            if random.random() < 0.95:
+            if random.random() < 0.91:
                 return
             # Create a random name for the child
             name = "Person " + str(random.randint(100, 10000))
@@ -415,7 +415,7 @@ class PersonManager(Manager):
     def happiness(self):
         if self.person.hungry > 0:
             return
-        if self.person.status < 2:
+        if self.person.status < 3:
             return
         if not "chocolate" in self.person.items_price:
             self.person.items_price["chocolate"] = 1
@@ -498,16 +498,15 @@ class PersonManager(Manager):
         self.person.heal()
     
     def manage_goods(self):
-        if self.person.hungry > 0:
+        if self.person.hungry > 1:
             return
         if self.person.status < 2:
             return
         # Get a number between 1 and 10
-        number = random.randint(1,10)
         number = self.person.status
         # Buy as much goods as number
         if "good" not in self.person.items_price:
-            self.person.items_price["good"] = 10
+            self.person.items_price["good"] = 2
         # Revise good price
         if self.person.items_price["good"] > self.person.money / 5:
             self.person.items_price["good"] = round(self.person.money / 5,2)

@@ -91,37 +91,42 @@ class BusinessManager(Manager):
 
         self.fixed_parameters()
         # self.check_balance()
+
+        # Cutrez que hay que arreglar
+        if self.business.money >= self.total_costs * 10:
+            # Dar al dueño el dinero sobrante
+            excedent = self.business.money - (self.total_costs * 10)
+            self.business.subtract_money(excedent)
+            self.business.owner.add_money(excedent)
     
     total_costs = 0
     total_costs_alert = 0 # Variable contador que sube cuando se pierde dinero y si llega a 3 se pone el dinero al minimo para no perder
     expected_earnings = 0
     expected_one_earning = 0
     expected_product_price = 0
-    number_sold_products = 0
+    number_sold_products = 0        # Cantidad de productos vendidos
     number_products = 0
+    one_product_cost = 0
     def check_balance(self):
         amount = 0                  # Cantidad de dinero que gasta el negocio
         number_products = 0         # Cantidad que produce el negocio
-        expected_earnings = 0       # Cantia de dinero que se espera que gane el negocio
+        expected_earnings = 0       # Cantidad de dinero que se espera que gane el negocio
+        input_price = 0             # Cantidad de dinero que cuestan los bienes necesarios
         
-        # Se calcula los costes totales
-        # print(self.business.name)
+        # Se calcula los costes (amount, input_price)
         for con in self.business.work_contracts:
-            # print("     ", con.money1)
             amount += con.money1
-            print("     sueldo: ", con.money1)
-            # print("         ", amount)
             number_products += round(1 * self.business.productivity * self.business.production,0)
-        needed_goods_price = 0
         for item in self.business.needed_goods:
             if item in self.business.items_price:
                 amount += self.business.items_price[item] * self.business.needed_goods[item]
-                needed_goods_price += self.business.items_price[item] * self.business.needed_goods[item]
+                input_price += self.business.items_price[item] * self.business.needed_goods[item]
 
-        # Vamos a usar los sold products en vez de los productos fabricados porque asi los precios no bajan de manera insostenible
+        # Vamos a usar los sold products en vez de los productos fabricados porque asi los 
+        # precios no bajan de manera insostenible
         # Si no vendemos usamos lo otro para que baje el precio
 
-        # Número de productos vendidos la última vez
+        # Número de productos vendidos la última vez 
         no_sales = False
         if not self.business.product in self.business.last_ammount_traded:
             number_sold_products = 1
@@ -134,7 +139,6 @@ class BusinessManager(Manager):
         # Ganancias esperadas si se vende la misma cantidad
         if self.business.product in self.business.items_price:
             expected_earnings = round(self.business.items_price[item]*number_sold_products,2)
-            
         self.total_costs = amount
         self.expected_earnings = expected_earnings
         if no_sales:
@@ -164,13 +168,15 @@ class BusinessManager(Manager):
         else:
             offer = 0
             demand = 0
-        
+
+        # Control chapucero de precios negativos
         if self.business.items_price[self.business.product] <= 0:
             self.business.items_price[self.business.product] = 0.5
+
         # Si la oferta es mayor que la demanda y no se venden todos los productos se baja el precio
         if offer > demand and number_sold_products < number_products:
             # Se baja el precio del producto
-            self.business.items_price[self.business.product] = round(self.business.items_price[self.business.product] * 0.6,2)
+            self.business.items_price[self.business.product] = round(self.business.items_price[self.business.product] * 0.9,2)
             if self.business.items_price[self.business.product] < 0.1:
                 self.business.items_price[self.business.product] = 0.1
             # Si aun así sigue siendo alto respecto al mercado:
@@ -184,10 +190,11 @@ class BusinessManager(Manager):
         elif number_sold_products == number_products:
             if offer < demand:
                 # Se sube el precio del producto
-                self.business.items_price[self.business.product] = round(self.business.items_price[self.business.product] * 1.2,2)
+                self.business.items_price[self.business.product] = round(self.business.items_price[self.business.product] * 1.1,2) # 1.2
             else:
                 # Se sube el precio del producto
-                self.business.items_price[self.business.product] = round(self.business.items_price[self.business.product] * 1.05,2)
+                # self.business.items_price[self.business.product] = round(self.business.items_price[self.business.product] * 1.05,2)
+                self.business.items_price[self.business.product] = round(self.business.items_price[self.business.product] * 1.05,2) # 1.05
             # Si aun así sigue siendo bajo respecto al mercado:
             if not self.business.product in self.market.database.previous_average_price:
                 return
@@ -223,10 +230,29 @@ class BusinessManager(Manager):
         else:
             self.total_costs_alert = 0
         
-        if self.business.items_price[self.business.product] > needed_goods_price * 100:
-            self.business.items_price[self.business.product] = round(needed_goods_price * 100,2)
+        if self.business.items_price[self.business.product] > input_price * 100:
+            self.business.items_price[self.business.product] = round(input_price * 100,2)
 
-        print("Minimo: " + str(self.expected_product_price))
+        # Si el precio es excesivo se arregla
+        if self.number_products != 0:
+            self.one_product_cost = self.total_costs / self.number_products
+        else:
+            self.one_product_cost = 0
+        if self.one_product_cost != 0 and self.business.items_price[self.business.product] > self.one_product_cost * 10:
+            self.business.items_price[self.business.product] = self.one_product_cost * 10
+        # print("Minimo: " + str(self.expected_product_price))
+
+        # Arreglar precios de compra
+        for item in self.business.items_price:
+            if item == self.business.product:
+                continue
+            price = self.business.items_price[item]
+            if not item in self.market.database.previous_average_price:
+                continue
+            market_price = self.market.database.previous_average_price[item]
+            if price > 3 * market_price:
+                self.business.items_price[item] = market_price * 1.2 # yoquese esto hay que balancearlo
+
 
 
     def manage_personal(self):
@@ -253,7 +279,7 @@ class BusinessManager(Manager):
             self.pib = 0
         # if not self.business.produce(self.job_market):
         #     self.city.infrastructure += 1
-        print(self.business.name, " vendiendo ", self.business.items[self.business.product]," de ", self.business.product, " por ",  self.business.get_expected_price(self.business.product))
+        print(self.business.name, " vendiendo ", self.business.items[self.business.product]," de ", self.business.product, " por ",  self.business.get_expected_price(self.business.product), "teniendo", self.business.money)
         for good in self.business.needed_goods:
             print("     ", good, ": ", self.business.needed_goods[good], self.business.items_price[good])
             if good in self.business.items:
@@ -296,9 +322,18 @@ class BusinessManager(Manager):
             debt_money += contract.money1
         if self.business.owner is not None and self.business.money < debt_money :
             mon = self.business.owner.money * 0.3
-            self.business.owner.subtract_money(mon)
-            self.business.add_money(mon)
-            self.business.negative = 0
+            if mon > 20000: mon = 20000 # Esto a cambiar en el futuro
+            if self.business.owner.subtract_money(mon):
+                self.business.add_money(mon)
+                self.business.negative = 0
+        
+        # Arreglar precios
+        for item in self.business.items_price:
+            if not item in self.market.database.previous_average_price:
+                continue
+            market_price = self.market.database.previous_average_price[item]
+            self.business.items_price[item] = market_price * 1.2
+
         
 
     def manage_laws(self):
@@ -337,27 +372,31 @@ class BusinessManager(Manager):
             if self.business.specialization not in self.business.contracts_price:
                 self.business.contracts_price[self.business.specialization] = 5
 
+            
             # Si lo que se espera ganar por empleado es menor que el precio del contrato
+            """
             if self.expected_one_earning < self.business.contracts_price[self.business.specialization]:
                 # Se baja el precio del contrato
-                self.business.contracts_price[self.business.specialization] = round(self.expected_one_earning * 0.,2)
+                self.business.contracts_price[self.business.specialization] = round(self.expected_one_earning * 0.8,2)
                 # self.business.contracts_price[self.business.specialization] = self.expected_one_earning
-                
+            """
+            # Si lo que cuesta es menos 
+
+            # En vez de lo de arriba se acerca el sueldo a la ganancia por empleado
+            if self.expected_one_earning != 0:
+                self.business.contracts_price[self.business.specialization] = round(self.expected_one_earning * 0.2 + self.business.contracts_price[self.business.specialization] * 0.8,2)
             
-            # Si el balamce es positivo se intenta contratar
+            # Si el balance es positivo se intenta contratar
             if offer < demand and demand > self.number_products: # and self.business.check_balance()>0:
-                # total_costs = 0
-                # total_costs_alert = 0 # Variable contador que sube cuando se pierde dinero y si llega a 3 se pone el dinero al minimo para no perder
-                # expected_earnings = 0
-                # expected_one_earning = 0
-                # expected_product_price = 0
-                # number_sold_products = 0
-                # number_products = 0
                 # if self.expected_one_earning > self.business.contracts_price[self.business.specialization]:
-                self.business.expected_contracts += 1
+                # Random chance 1/2
+                if random.randint(0,1) == 0:
+                    self.business.expected_contracts += 1
                 # Si 
             else:
-                self.business.expected_contracts = len(self.business.work_contracts) - 1
+                # Random chance 1/4
+                if random.randint(0,3) == 0:
+                    self.business.expected_contracts = len(self.business.work_contracts) - 1
             if self.business.expected_contracts < 1:
                 self.business.expected_contracts = 1
             
@@ -369,7 +408,14 @@ class BusinessManager(Manager):
             
             # Esto no esta del todo balanceado
             if self.business.last_balance() < self.business.contracts_price[self.business.specialization]:
-                self.business.contracts_price[self.business.specialization] = round(self.business.contracts_price[self.business.specialization] * 0.8, 2)
+                # Random chance 1/4
+                if random.randint(0,3) == 0:
+                    self.business.contracts_price[self.business.specialization] = round(self.business.contracts_price[self.business.specialization] * 0.9, 2)
+            else:
+                # Esto es HORRIBLE solo lo pongo para tratar de que se pague mejor
+                # Random chance 1/4
+                if random.randint(0,3) == 0:
+                    self.business.contracts_price[self.business.specialization] = round(self.business.contracts_price[self.business.specialization] * 1.1, 2)
             
 
             # Si no hay contratos se hace lo posible por contratar
@@ -383,8 +429,13 @@ class BusinessManager(Manager):
         
         # Se contrata a todos los que se necesiten
         if self.business.expected_contracts > len(self.business.work_contracts):
+            cost = 0
             for i in range(self.business.expected_contracts - len(self.business.work_contracts)):
-                self.business.hire(self.job_market)
+                cost += self.business.contracts_price[self.business.specialization]
+                if self.business.money > cost:
+                    self.business.hire(self.job_market)
+                else:
+                    break
         
         # Printear el nombre del negrocio y los expected_contracts
         # print(self.business.name, self.business.expected_contracts)
@@ -430,7 +481,7 @@ class BusinessManager(Manager):
         # If not enough money to improve return
         if not self.business.product in self.business.items_price:
             return
-        if self.business.check_balance() < self.business.items_price[self.business.product] * 2:
+        if self.business.money < self.total_costs * 4: # 2
             return
         # Try to buy electricity
         t = self.business.trade("electricity", self.business.items_price["electricity"], False, 1)
@@ -455,10 +506,10 @@ class BusinessManager(Manager):
             if not "science" in self.business.items:
                 self.business.items["science"] = 0
             if not "science" in self.business.items_price:
-                self.business.items_price["science"] = 1
+                self.business.items_price["science"] = 2
             # If business is profitable
             if self.business.check_balance() > 0:
-                if self.business.money >= self.total_costs:
+                if self.business.money >= self.total_costs * 2: # * 1
                     t = self.business.trade("science", self.business.items_price["science"], False, ammount)
                     self.market.add_trade(t)
                 while self.business.items["science"] > 0:
@@ -534,6 +585,13 @@ class BusinessManager(Manager):
     def close_business(self):
         self.business.status = "closed"
         self.business.active = False
+        self.business.negative = 0
+        self.business.no_contracts = 0
+    
+    def isPublic(self):
+        if not isinstance(self.business.owner, state.State):
+            return False
+        return True
 
 
 def create_business(business_type, owner, money):
@@ -683,3 +741,4 @@ def get_building(product):
     for i in range(len(goods)):
         if goods[i] == product:
             return industries[i]
+

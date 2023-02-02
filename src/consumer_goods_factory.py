@@ -8,9 +8,10 @@ class GoodsFactory(Business):
         self.product = "good"
         self.add_needed_goods("work",1,1)
         self.add_needed_goods("iron",1,1)
+        self.add_needed_goods("build",1,1)
         self.add_needed_goods("wood",1,1)
         self.add_item("good",0)
-        self.production = 5
+        self.production = 8
         self.sector = "consumer"
 
     

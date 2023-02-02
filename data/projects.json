@@ -4,9 +4,9 @@
             "description" : "A farm industry",
             "time" : "3",
             "resources" : {
-                "wood" : 100,
-                "iron" : 70,
-                "build" : 70
+                "wood" : 1,
+                "iron" : 7,
+                "build" : 7
 
             },
             "maintenance" : {
@@ -19,9 +19,9 @@
             "description" : "A mine industry",
             "time" : "3",
             "resources" : {
-                "wood" : 80,
-                "iron" : 80,
-                "build" : 80
+                "wood" : 8,
+                "iron" : 8,
+                "build" : 8
             },
             "maintenance" : {
                 "wood" : 1,
@@ -32,9 +32,9 @@
             "description" : "A sawmill industry",
             "time" : "3",
             "resources" : {
-                "wood" : 60,
-                "iron" : 60,
-                "build" : 60
+                "wood" : 6,
+                "iron" : 6,
+                "build" : 6
             },
             "maintenance" : {
                 "iron" : 1
@@ -44,7 +44,7 @@
             "description" : "A construction industry",
             "time" : "3",
             "resources" : {
-                "wood" : 80
+                "wood" : 8
             },
             "maintenance" : {
             }
@@ -53,8 +53,9 @@
             "description" : "A infrastructure",
             "time" : "3",
             "resources" : {
-                "iron" : 50,
-                "build" : 50
+                "iron" : 1,
+                "wood" : 1,
+                "build" : 1
             },
             "maintenance" : {
                 "build" : 2
@@ -64,9 +65,9 @@
             "description" : "A chocolate factory",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "build" : 2
@@ -76,9 +77,9 @@
             "description" : "A house manufacture",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "build" : 3
@@ -88,9 +89,9 @@
             "description" : "A furniture factory",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "build" : 1
@@ -100,9 +101,9 @@
             "description" : "A science hub",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "build" : 2
@@ -112,9 +113,9 @@
             "description" : "A pharmaceutical industry",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "iron" : 2
@@ -124,9 +125,9 @@
             "description" : "A hospital",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "wood" : 2
@@ -136,9 +137,9 @@
             "description" : "A consumer goods factory",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "wood" : 2
@@ -148,9 +149,9 @@
             "description" : "A copper mine",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "iron" : 2
@@ -160,9 +161,9 @@
             "description" : "A electric central",
             "time" : "3",
             "resources" : {
-                "copper" : 50,
-                "iron" : 50,
-                "build" : 50
+                "copper" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "copper" : 2
@@ -172,9 +173,9 @@
             "description" : "A oil extractor",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "build" : 2
@@ -184,9 +185,9 @@
             "description" : "An oil refinery",
             "time" : "3",
             "resources" : {
-                "wood" : 50,
-                "iron" : 50,
-                "build" : 50
+                "wood" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "iron" : 2
@@ -196,9 +197,9 @@
             "description" : "An engine factory",
             "time" : "3",
             "resources" : {
-                "copper" : 50,
-                "iron" : 50,
-                "build" : 50
+                "copper" : 5,
+                "iron" : 5,
+                "build" : 5
             },
             "maintenance" : {
                 "build" : 2

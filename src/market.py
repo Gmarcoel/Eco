@@ -1,7 +1,7 @@
 from math import prod
 import random
 
-from more_itertools import last
+# from more_itertools import last
 
 
 from  src.entity import Entity
@@ -187,11 +187,11 @@ class Market(Entity):
             for trade in self.trades[product]:
                 if trade.quantity > 0:
                     if trade.sell: # and b != 0 and round(trade.price - (trade.price * 0.05))!=0: # Solo baja si había más compradores
-                        trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.05),2)
+                        trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.1),2) # 0.05
                     elif trade.sell and s == 1: # Si es el único vendedor sube
                         trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.1),2)
                     elif not trade.sell: # Solo sube si había más vendedores
-                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.5),2) # Antes a 0.12
+                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 2),2) # Antes a 0.12 luego 0.5
 
                 trade.cancel()
             self.trades[product] = []
@@ -278,7 +278,7 @@ class Market(Entity):
                             ## sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * sell_trade.quantity),2)
                             sell_trade.entity.add_money(sell_trade.price * sell_trade.quantity)
                             # Change the sell trade future price
-                            sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.1),2)
+                            sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.3),2) # Antes 0.1
 
                             # Remove the sell trade
                             sell_trade.quantity = 0
@@ -303,14 +303,14 @@ class Market(Entity):
                             if not price_up:
                                 if round(trade.price - (trade.price * 0.05)) != 0:
                                     # print("Precio antes era ", trade.entity.items_price[trade.product])
-                                    trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.05),2)
+                                    trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.05),2) # antes 0.05
                                     # print("Pecio ahora es ", trade.entity.items_price[trade.product])
                                 price_up = True
                             # Remove the buy trade
                             trade.quantity = 0
                             # If the sell trade quantity left is 0 change the sell trade price
                             if sell_trade.quantity == 0:
-                                sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.1),2)
+                                sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.3),2) # Antes 0.1
                             # Go to next buy trade (break)
                             
                             break

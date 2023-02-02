@@ -18,17 +18,17 @@ def menu_page():
     clean_up()
     print("Menu clicked")
     # Put the background dark grey
-    pages_panel.configure(background='grey')
+    pages_panel.configure(background='#222')
 
     # Create a label
-    myLabel = Label(pages_panel, text="ECONOMICS", bg="grey", fg="white")
+    myLabel = Label(pages_panel, text="ECONOMICS", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
     myLabel.pack()
 
     # Create a world button
-    myButton = Button(pages_panel, text="WORLDS", bg="grey", fg="white", command=worlds_page)
+    myButton = Button(pages_panel, text="WORLDS", bg="#222", fg="white", command=worlds_page)
     # Make the button big
     myButton.config(font=("Courier", 44))
     # Put the button in the window
@@ -42,10 +42,10 @@ def worlds_page():
     clean_up()
     print("Worlds clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     # Create a label
-    myLabel = Label(pages_panel, text="WORLDS", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="WORLDS", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
 
@@ -57,14 +57,14 @@ def worlds_page():
     if worlds:
         for world in worlds:
             # Create a button for each world with lable world.name and the world as an argument
-            myButton = Button(pages_panel, text=world.name, bg="lightgrey", fg="black", command=lambda world=world: world_page(world))
+            myButton = Button(pages_panel, text=world.name, bg="#222", fg="white", command=lambda world=world: world_page(world))
             # Make the button big
             myButton.config(font=("Courier", 44))
 
             myButton.pack()
     
     # Create a back button
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=menu_page)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=menu_page)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
@@ -79,10 +79,11 @@ def world_page(world = None):
     else :
         world = current_world
     clean_up()
+    pages_panel.configure(background='#222')
     # Create a button for each city in the world
     for city_man in world.cities_managers:
         city = city_man.city
-        myButton = Button(pages_panel, text=city.name, bg="grey", fg="white", command=lambda city=city_man: city_page(city_man))
+        myButton = Button(pages_panel, text=city.name, bg="#222", fg="white", command=lambda city=city_man: city_page(city_man))
         # Make the button big
         myButton.config(font=("Courier", 44))
         myButton.pack(expand=True)
@@ -90,7 +91,7 @@ def world_page(world = None):
     next_turn_button(world_page, pages_panel)
     # Create a back button
     # Create a go back button that executes go_back
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="blue", fg="white", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
 
@@ -112,64 +113,64 @@ def city_page(citym = None):
     clean_up()
     print("City clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightblue') 
+    pages_panel.configure(background='#222') 
 
     # Create a panel for the city
-    buttons_panel = PanedWindow(pages_panel, orient=VERTICAL)
+    buttons_panel = PanedWindow(pages_panel, orient=VERTICAL, background="#222")
     buttons_panel.pack(fill=BOTH, expand=True)
     
     # Create a label
-    myLabel = Label(buttons_panel, text=city.name, bg="lightgrey", fg="black")
+    myLabel = Label(buttons_panel, text=city.name, bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack(expand=True)
 
     # Show infrastructure
-    myLabel = Label(buttons_panel, text="Infrastructure " + str(city.infrastructure), bg="lightgrey", fg="black")
+    myLabel = Label(buttons_panel, text="Infrastructure " + str(city.infrastructure), bg="#222", fg="white")
     myLabel.config(font=("Courier", 20))
     myLabel.pack(expand=True)
 
 
     # Show population and deaths
-    myLabel = Label(buttons_panel, text="Population " + str(len(city.people)) + " Average salary: " + str(city.state.manager.job_market.average_contracts_price), bg="lightgrey", fg="black")
+    myLabel = Label(buttons_panel, text="Population " + str(len(city.people)) + " Average salary: " + str(city.state.manager.job_market.average_contracts_price), bg="#222", fg="white")
     myLabel.config(font=("Courier", 20))
     myLabel.pack(expand=True)
     # Show deaths
-    myLabel = Label(buttons_panel, text="Deaths " + str(citym.deaths), bg="lightgrey", fg="black")
+    myLabel = Label(buttons_panel, text="Deaths " + str(citym.deaths), bg="#222", fg="white")
     myLabel.config(font=("Courier", 20))
     myLabel.pack(expand=True)
 
 
     
     # Create a button for the businesses
-    myButton = Button(buttons_panel, text="Businesses", bg="orange", fg="white", command=lambda citym=citym: businesses_page(citym))
+    myButton = Button(buttons_panel, text="Businesses", bg="#222", fg="white", command=lambda citym=citym: businesses_page(citym))
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
 
     # Create a button for the closed businesses
-    myButton = Button(buttons_panel, text="Closed Businesses", bg="grey", fg="white", command=lambda citym=citym: closed_businesses_page(citym))
+    myButton = Button(buttons_panel, text="Closed Businesses", bg="#222", fg="white", command=lambda citym=citym: closed_businesses_page(citym))
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
 
     # Create a button for the people
-    myButton = Button(buttons_panel, text="People", bg="lightgreen", fg="black", command=lambda citym=citym: people_page(citym))
+    myButton = Button(buttons_panel, text="People", bg="#222", fg="white", command=lambda citym=citym: people_page(citym))
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
 
     # Create a button for the markets
     for market in city.markets:
-        myButton = Button(buttons_panel, text=market.name, bg="blue", fg="white", command=lambda market=market.manager: market_page(market))
+        myButton = Button(buttons_panel, text=market.name, bg="#222", fg="white", command=lambda market=market.manager: market_page(market))
         myButton.config(font=("Courier", 20))
         myButton.pack(expand=True)
     
     # Create a button for the state
-    myButton = Button(buttons_panel, text="State", bg="lightblue", fg="black", command=lambda statem=city.state.manager: state_page(statem))
+    myButton = Button(buttons_panel, text="State", bg="#222", fg="white", command=lambda statem=city.state.manager: state_page(statem))
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
 
 
     
     # Create a go back button that executes go_back
-    myButton = Button(buttons_panel, text="Back", bg="black", fg="white", command=go_back)
+    myButton = Button(buttons_panel, text="Back", bg="#222", fg="white", command=go_back)
     myButton.config(font=("Courier", 20))
     myButton.pack(expand=True)
     
@@ -231,12 +232,13 @@ def people_page(entitym = None):
     entity = entitym.entity
 
     clean_up()
+    pages_panel.configure(background='#222')
     print("People clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     # Create a label
-    myLabel = Label(pages_panel, text="People", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="People", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
 
@@ -265,8 +267,8 @@ def people_page(entitym = None):
         for person in entity.people:
             personm = person.manager
             # Create a button for each person with lable person.name and the person as an argument and a width of 1/5 of the screen
-            # button = Button(text, text=person.name, bg="lightgrey", fg="black", command=lambda personm=personm: person_page(personm, callback))
-            button = Button(pages_panel, text=person.name, bg="lightgrey", fg="black", command=lambda personm=personm: person_page(personm))
+            # button = Button(text, text=person.name, bg="#222", fg="white", command=lambda personm=personm: person_page(personm, callback))
+            button = Button(pages_panel, text=person.name, bg="#222", fg="white", command=lambda personm=personm: person_page(personm))
             # Make the button big
             button.config(font=("Courier", 44))
             # Put the button inside a canvas
@@ -289,7 +291,7 @@ def people_page(entitym = None):
         """
 
     # Create a go back button that executes go_back
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
@@ -309,36 +311,37 @@ def person_page(personm = None):
 
     person = personm.entity
     clean_up()
+    pages_panel.configure(background='#222')
     print("Person clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     if person.contract:
         print(person.contract)
 
     # Create a label
-    myLabel = Label(pages_panel, text=person.name, bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text=person.name, bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
     # Print the person's age
-    myLabel = Label(pages_panel, text="Age: " + str(person.age), bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Age: " + str(person.age), bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
     # Print the person's money
-    myLabel = Label(pages_panel, text="Money: " + str(person.money), bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Money: " + str(person.money), bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
     # Print the person's happiness and hunger
-    myLabel = Label(pages_panel, text="Happiness: " + str(person.happiness) + ", Hunger: " + str(person.hungry), bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Happiness: " + str(person.happiness) + ", Hunger: " + str(person.hungry), bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
     # Print the person's items
     for it in person.items:
-        myLabel = Label(pages_panel, text=str(it) + ": " + str(person.items[it]), bg="lightgrey", fg="black")
+        myLabel = Label(pages_panel, text=str(it) + ": " + str(person.items[it]), bg="#222", fg="white")
         myLabel.config(font=("Courier", 44))
         myLabel.pack()
 
@@ -347,9 +350,9 @@ def person_page(personm = None):
 
     # Print the place the person works in and the money they make
     if person.contract:
-        myLabel = Label(pages_panel, text="Works in: " + person.contract.entity1.name + " for " + str(person.contract.money1), bg="lightgrey", fg="black")
+        myLabel = Label(pages_panel, text="Works in: " + person.contract.entity1.name + " for " + str(person.contract.money1), bg="#222", fg="white")
     else:
-        myLabel = Label(pages_panel, text="Unenployed", bg="lightgrey", fg="black")
+        myLabel = Label(pages_panel, text="Unenployed", bg="#222", fg="white")
     # Make the label big    
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
@@ -361,13 +364,13 @@ def person_page(personm = None):
     # Create a button for each business in the city
     for business in person.businesses:
         businessm = business.manager
-        myButton = Button(pages_panel, text=business.name, bg="lightgrey", fg="black", command=lambda businessm=businessm: business_page(businessm))
+        myButton = Button(pages_panel, text=business.name, bg="#222", fg="white", command=lambda businessm=businessm: business_page(businessm))
         # Make the button big
         myButton.config(font=("Courier", 44))
         myButton.pack()
 
     # Create a go back button that executes go_back
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
 
     # Make the button big
     myButton.config(font=("Courier", 44))
@@ -386,12 +389,13 @@ def businesses_page(entitym = None):
     
     entity = entitym.entity
     clean_up()
+    pages_panel.configure(background='#222')
     print("Businesses clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     # Create a label
-    myLabel = Label(pages_panel, text="Businesses", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Businesses", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
 
@@ -425,7 +429,7 @@ def businesses_page(entitym = None):
                 myButton.pack()
     
     # Create a back button
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
@@ -444,10 +448,10 @@ def closed_businesses_page(entitym = None):
     clean_up()
     print("Businesses clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     # Create a label
-    myLabel = Label(pages_panel, text="Businesses", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Businesses", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
 
@@ -461,7 +465,7 @@ def closed_businesses_page(entitym = None):
             # Create a scrollbar
             create_scroll(businesses, business_page)    
     # Create a back button
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
@@ -488,10 +492,10 @@ def business_page(businessm = None):
     clean_up()
     print("Business clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     # Show total money
-    myLabel = Label(pages_panel, text="Total Money: " + str(business.money) + " Productivity: " + str(business.productivity), bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Total Money: " + str(business.money) + " Productivity: " + str(business.productivity), bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
@@ -500,21 +504,21 @@ def business_page(businessm = None):
     # If public or subsidized show
     if is_public(business):
         if business.subsidized:        
-            myLabel = Label(pages_panel, text="Public Subsidized", bg="lightgrey", fg="black")
+            myLabel = Label(pages_panel, text="Public Subsidized", bg="#222", fg="white")
             myLabel.config(font=("Courier", 44))
             myLabel.pack()
         else:
-            myLabel = Label(pages_panel, text="Public", bg="lightgrey", fg="black")
+            myLabel = Label(pages_panel, text="Public", bg="#222", fg="white")
             myLabel.config(font=("Courier", 44))
             myLabel.pack()
         
     else:
         if business.subsidized:
-            myLabel = Label(pages_panel, text="Private Subsidized", bg="lightgrey", fg="black")
+            myLabel = Label(pages_panel, text="Private Subsidized", bg="#222", fg="white")
             myLabel.config(font=("Courier", 44))
             myLabel.pack()
         else:
-            myLabel = Label(pages_panel, text="Private", bg="lightgrey", fg="black")
+            myLabel = Label(pages_panel, text="Private", bg="#222", fg="white")
             myLabel.config(font=("Courier", 44))
             myLabel.pack()
 
@@ -523,31 +527,31 @@ def business_page(businessm = None):
     # expected_earnings
     # expected_one_earning
     # expected_product_price
-    myLabel = Label(pages_panel, text="Total costs: " + str(businessm.total_costs) + " Expected earnings: " + str(businessm.expected_earnings), bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Total costs: " + str(businessm.total_costs) + " Expected earnings: " + str(businessm.expected_earnings), bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
-    myLabel = Label(pages_panel, text="Price to be profitable: " + str(businessm.expected_product_price) + "\n Expected earnings per worker: " + str(businessm.expected_one_earning), bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Price to be profitable: " + str(businessm.expected_product_price) + "\n Expected earnings per worker: " + str(businessm.expected_one_earning), bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
     # Show the products produced and sold
-    myLabel = Label(pages_panel, text="Products produced: " + str(businessm.number_products) + " Products sold: " + str(businessm.number_sold_products), bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Products produced: " + str(businessm.number_products) + " Products sold: " + str(businessm.number_sold_products), bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
 
     # Show the average profit
     if businessm.average_profit >= 0:
-        myLabel = Label(pages_panel, text="Average profit " + str(businessm.average_profit), bg="lightgrey", fg="green")
+        myLabel = Label(pages_panel, text="Average profit " + str(businessm.average_profit), bg="#222", fg="green")
     else:
-        myLabel = Label(pages_panel, text="Average profit " + str(businessm.average_profit), bg="lightgrey", fg="red")
+        myLabel = Label(pages_panel, text="Average profit " + str(businessm.average_profit), bg="#222", fg="red")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
 
 
     # Show the owner
-    myLabel = Label(pages_panel, text="Owner: " + business.owner.name, bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Owner: " + business.owner.name, bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
@@ -555,7 +559,7 @@ def business_page(businessm = None):
 
     # Show product name and price
     if business.product in business.items_price:
-        myLabel = Label(pages_panel, text="Product: " + business.product + " Price: " + str(business.items_price[business.product]), bg="lightgrey", fg="black")
+        myLabel = Label(pages_panel, text="Product: " + business.product + " Price: " + str(business.items_price[business.product]), bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
@@ -563,25 +567,25 @@ def business_page(businessm = None):
 
 
     # Create a label
-    myLabel = Label(pages_panel, text=business.name, bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text=business.name, bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
     myLabel.pack()
 
     # Create a button for workers
-    myButton = Button(pages_panel, text="Workers", bg="lightgrey", fg="black", command=lambda businessm=businessm: workers_page(businessm))
+    myButton = Button(pages_panel, text="Workers", bg="#222", fg="white", command=lambda businessm=businessm: workers_page(businessm))
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
 
     # Show a take control button
     if not businessm.manual:
-        myButton = Button(pages_panel, text="Take control", bg="lightgrey", fg="black", command=lambda businessm=businessm: set_control(businessm, "business"))
+        myButton = Button(pages_panel, text="Take control", bg="#222", fg="white", command=lambda businessm=businessm: set_control(businessm, "business"))
         myButton.config(font=("Courier", 44))
         myButton.pack()
     else:
-        myButton = Button(pages_panel, text="Stop control", bg="lightgrey", fg="black", command=lambda businessm=businessm: stop_control_state(businessm))
+        myButton = Button(pages_panel, text="Stop control", bg="#222", fg="white", command=lambda businessm=businessm: stop_control_state(businessm))
         myButton.config(font=("Courier", 44))
         myButton.pack()
 
@@ -591,7 +595,7 @@ def business_page(businessm = None):
     plot_linear_graph_earnings_expenses(business)
     
     # Create a back button that goes to the businesses page with argument current_city
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
@@ -611,10 +615,10 @@ def workers_page(businessm = None):
     clean_up()
     print("Workers clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     # Create a label
-    myLabel = Label(pages_panel, text="Workers", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Workers", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
@@ -626,7 +630,7 @@ def workers_page(businessm = None):
     for contract in business.work_contracts:
         worker = contract.entity2
         # workerm = worker.manager
-        # myButton = Button(pages_panel, text=worker.name, bg="lightgrey", fg="black", command=lambda workerm=workerm: person_page(workerm))
+        # myButton = Button(pages_panel, text=worker.name, bg="#222", fg="white", command=lambda workerm=workerm: person_page(workerm))
         # Make the button big
         # myButton.config(font=("Courier", 44))
         # myButton.pack()
@@ -635,7 +639,7 @@ def workers_page(businessm = None):
     create_scroll(workers, person_page, "person")
 
     # Create a back button that goes to the businesses page with argument current_city
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
@@ -655,10 +659,10 @@ def market_page(marketm = None):
     clean_up()
     print("Market clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     # Create a label
-    myLabel = Label(pages_panel, text="Market", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Market", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
@@ -676,11 +680,13 @@ def market_page(marketm = None):
         ammount = market.database.previous_ammount[product]
         if offer >= demand:
             if ammount >= demand:
-                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="lightgrey", fg="green")
+                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="green")
             else:
-                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="lightgrey", fg="darkblue")
+                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="lightblue")
+        elif offer > 0:
+            myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="orange")
         else:
-            myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="lightgrey", fg="red")
+            myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="red")
 
 
         # myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]))
@@ -692,7 +698,7 @@ def market_page(marketm = None):
     
 
     # Create a back button that goes to the businesses page with argument current_city
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
@@ -712,17 +718,17 @@ def state_page(statem = None):
     clean_up()
     print("State clicked")
     # Put the background light grey
-    pages_panel.configure(background='lightgrey')
+    pages_panel.configure(background='#222')
 
     # Create a label
-    myLabel = Label(pages_panel, text="State", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="State", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
     myLabel.pack()
 
     # Show state money
-    myLabel = Label(pages_panel, text="Money: " + str(state.money), bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Money: " + str(state.money), bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 20))
     # Put the label in the window
@@ -730,30 +736,30 @@ def state_page(statem = None):
 
     # Create a button of the governor
     if state.governor:
-        myButton = Button(pages_panel, text=state.governor.name, bg="lightgrey", fg="black", command=lambda statem=statem: person_page(state.governor.manager))
+        myButton = Button(pages_panel, text=state.governor.name, bg="#222", fg="white", command=lambda statem=statem: person_page(state.governor.manager))
         myButton.config(font=("Courier", 44))
         myButton.pack()
 
 
     # Show all projects with labels
-    myLabel = Label(pages_panel, text="Projects", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Projects", bg="#222", fg="white")
     myLabel.config(font=("Courier", 44))
     myLabel.pack()
     for project in state.projects:
-        myLabel = Label(pages_panel, text=project.name + str(project.resources), bg="lightgrey", fg="black")
+        myLabel = Label(pages_panel, text=project.name + str(project.resources), bg="#222", fg="white")
         myLabel.config(font=("Courier", 20))
         myLabel.pack()
     
 
     
     # Show all current laws
-    myLabel = Label(pages_panel, text="Laws", bg="lightgrey", fg="black")
+    myLabel = Label(pages_panel, text="Laws", bg="#222", fg="white")
     # Make the label big
     myLabel.config(font=("Courier", 44))
     # Put the label in the window
     myLabel.pack()
     for law in statem.current_laws:
-        myLabel = Label(pages_panel, text=law + " " + str(statem.current_laws[law]), bg="lightgrey", fg="black")
+        myLabel = Label(pages_panel, text=law + " " + str(statem.current_laws[law]), bg="#222", fg="white")
         myLabel.config(font=("Courier", 20))
         myLabel.pack()
 
@@ -763,18 +769,18 @@ def state_page(statem = None):
     
 
     # Create a back button that goes to the businesses page with argument current_city
-    myButton = Button(pages_panel, text="Back", bg="lightgrey", fg="black", command=go_back)
+    myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
     # Make the button big
     myButton.config(font=("Courier", 44))
     myButton.pack()
 
     # Show a take control button
     if not statem.manual:
-        myButton = Button(pages_panel, text="Take control", bg="lightgrey", fg="black", command=lambda statem=statem: set_control(statem, "state"))
+        myButton = Button(pages_panel, text="Take control", bg="#222", fg="white", command=lambda statem=statem: set_control(statem, "state"))
         myButton.config(font=("Courier", 44))
         myButton.pack()
     else:
-        myButton = Button(pages_panel, text="Stop control", bg="lightgrey", fg="black", command=lambda statem=statem: stop_control_state(statem))
+        myButton = Button(pages_panel, text="Stop control", bg="#222", fg="white", command=lambda statem=statem: stop_control_state(statem))
         myButton.config(font=("Courier", 44))
         myButton.pack()
 
@@ -799,6 +805,15 @@ def next_turn_button(function, panel = None):
     myButton.config(font=("Courier", 44))
     myButton.pack()
 
+    # Pas 10 turns button
+    myButton = Button(panel, text="10 Turns", bg="green", fg="white", command=lambda function=function: turn(function,10))
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
+
+    # Pas 20 turns button
+    myButton = Button(panel, text="20 Turns", bg="green", fg="white", command=lambda function=function: turn(function,20))
+    myButton.config(font=("Courier", 44))
+    myButton.pack()
 
     # Pas 100 turns button
     myButton = Button(panel, text="100 Turns", bg="green", fg="white", command=lambda function=function: turn(function,100))
@@ -821,6 +836,10 @@ def turn(function, time = 1):
     global current_world
     clean_up()
     for i in range(time):
+        bus = current_world.cities_managers[0].city.businesses
+        for b in bus:
+            if b.money > 1000000:
+                return
         pass_turn(current_world)
     callbacks.pop()
     function()
@@ -889,6 +908,8 @@ def plot_pie_chart_deaths_natural_starvation(city_manager, panel = None):
     return chart.get_tk_widget()
     
 def plot_pie_chart_weight_product_economy(market_manager, panel = None):
+    if panel == None:
+        panel = pages_panel
     m = market_manager.market
     names = []
     values = []
@@ -981,7 +1002,7 @@ def plot_pie_chart_people_status(city_manager, panel = None):
 
 
 def create_scroll(entities, function, extra=None):
-    canvas = Canvas(pages_panel)
+    canvas = Canvas(pages_panel, background="#222")
     sb = Scrollbar(pages_panel, orient="vertical", command=canvas.yview)
 
     pages_panel.grid_rowconfigure(0, weight=1)
@@ -1000,7 +1021,7 @@ def create_scroll(entities, function, extra=None):
         if extra == "business":
             font_size = 20
             # Create horizontal panel for each button, production and profitability
-            business_panel = PanedWindow(canvas, orient=HORIZONTAL)
+            business_panel = PanedWindow(canvas, orient=HORIZONTAL, background="#222")
             # business_panel = Frame(pages_panel)
             # Set minimum size for panel
             
@@ -1023,18 +1044,18 @@ def create_scroll(entities, function, extra=None):
 
 
             # Create a label for the production
-            label = Label(business_panel, text="Produces: " + str(e.product), font=("Helvetica", font_size))
+            label = Label(business_panel, text="Produces: " + str(e.product), font=("Helvetica", font_size), background="#222", fg="white")
             label.pack()
             # Create a label for the profitability
-            label = Label(business_panel, text="Total Money: " + str(e.money) + ", Balance: " + str(e.check_balance()) + " Productivity: " + str(e.productivity), font=("Helvetica", font_size))
+            label = Label(business_panel, text="Total Money: " + str(e.money) + ", Balance: " + str(e.check_balance()) + " Productivity: " + str(e.productivity), font=("Helvetica", font_size), background="#222", fg="white")
             label.pack()
 
             # Show the average profit
             if manager is not None:
                 if manager.average_profit >= 0:
-                    myLabel = Label(business_panel, text="Average profit " + str(manager.average_profit), bg="lightgrey", fg="green", font=("Helvetica", font_size))
+                    myLabel = Label(business_panel, text="Average profit " + str(manager.average_profit), bg="#222", fg="green", font=("Helvetica", font_size))
                 else:
-                    myLabel = Label(business_panel, text="Average profit " + str(manager.average_profit), bg="lightgrey", fg="red", font=("Helvetica", font_size))
+                    myLabel = Label(business_panel, text="Average profit " + str(manager.average_profit), bg="#222", fg="red", font=("Helvetica", font_size))
                 myLabel.pack()
             
             # pages_panel.add(business_panel)
@@ -1055,7 +1076,7 @@ def create_scroll(entities, function, extra=None):
                 if e.contract.money1 > 10000:
                     myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)),  command=lambda manager=manager: function(manager), fg="white", bg="orange")
                 else:
-                    myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)), command=lambda manager=manager: function(manager), fg="white", bg="darkgreen")
+                    myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)), command=lambda manager=manager: function(manager), fg="white", bg="green")
             else:
                 myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)), command=lambda manager=manager: function(manager), fg="white", bg="darkblue")
             myButton.config(font=("Courier", 20))
@@ -1066,7 +1087,7 @@ def create_scroll(entities, function, extra=None):
 
 
         else:
-            myButton = Button(canvas, text=e.name, bg="lightgrey", fg="black", command=lambda manager=manager: function(manager))
+            myButton = Button(canvas, text=e.name, bg="#222", fg="white", command=lambda manager=manager: function(manager))
             myButton.config(font=("Courier", 20))
             myButton.pack()
             canvas.create_window(0, size*(i+1), window=myButton, anchor="nw",)
@@ -1103,8 +1124,8 @@ def plot_linear_graph_earnings_expenses(entity):
     # Add an ax to the figure
     ax = fig.add_subplot(111)
     # Create a line graph
-    ax.plot(entity.total_sum_money, label="Earnings")
-    ax.plot(entity.total_sub_money, label="Expenses")
+    ax.plot(entity.total_sum_money[:50], label="Earnings")
+    ax.plot(entity.total_sub_money[:50], label="Expenses")
     ax.legend()
 
     # Create the chart
@@ -1209,7 +1230,7 @@ def control_state(statem, panel = None):
 
     # Create an horizontal panel
     if not panel:
-        panel = PanedWindow(orient=VERTICAL)
+        panel = PanedWindow(orient=VERTICAL,background="#222")
         panel.pack(fill=BOTH, expand=True)
     
     # panel.add(panel_sliders)
@@ -1316,8 +1337,66 @@ def control_state(statem, panel = None):
     button.pack(fill=BOTH, expand=False)
     panel.add(change_price_panel2)
 
+    # Create a button to remove minimum price of a goog with a option menu for the good
+    remove_price_panel = PanedWindow(panel, orient=HORIZONTAL)
+    remove_price_panel.pack(fill=BOTH, expand=False)
+    variable4 = StringVar(remove_price_panel)
+    variable4.set('Product')
+    product_menu = OptionMenu(remove_price_panel, variable4, *goods)
+    product_menu.config(font=("Courier", 20))
+    product_menu.pack(fill=BOTH, expand=False)
+    button = Button(remove_price_panel, text="Remove minimum price", command=lambda: statem.remove_minimum_price(variable4.get()))
+    button.config(font=("Courier", 20))
+    button.pack(fill=BOTH, expand=False)
+    panel.add(remove_price_panel)
 
-    # Create a button to create an industry with a option menu for the industry and a option meny for the city
+    # Create a button to remove maximum price of a goog with a option menu for the good
+    remove_price_panel2 = PanedWindow(panel, orient=HORIZONTAL)
+    remove_price_panel2.pack(fill=BOTH, expand=False)
+    variable5 = StringVar(remove_price_panel2)
+    variable5.set('Product')
+    product_menu2 = OptionMenu(remove_price_panel2, variable5, *goods)
+    product_menu2.config(font=("Courier", 20))
+    product_menu2.pack(fill=BOTH, expand=False)
+    button = Button(remove_price_panel2, text="Remove maximum price", command=lambda: statem.remove_maximum_price(variable5.get()))
+    button.config(font=("Courier", 20))
+    button.pack(fill=BOTH, expand=False)
+    panel.add(remove_price_panel2)
+
+    # Create a button to set public price of a good with a option menu for the good and a label for the price
+    set_price_panel = PanedWindow(panel, orient=HORIZONTAL)
+    set_price_panel.pack(fill=BOTH, expand=False)
+    variable6 = StringVar(set_price_panel)
+    variable6.set('Product')
+    product_menu3 = OptionMenu(set_price_panel, variable6, *goods)
+    product_menu3.config(font=("Courier", 20))
+    product_menu3.pack(fill=BOTH, expand=False)
+    price_field3 = Entry(set_price_panel)
+    price_field3.config(font=("Courier", 20))
+    price_field3.pack(fill=BOTH, expand=False)
+    button = Button(set_price_panel, text="Set public price", command=lambda: statem.set_public_price(float(price_field3.get()),variable6.get()))
+    button.config(font=("Courier", 20))
+    button.pack(fill=BOTH, expand=False)
+    panel.add(set_price_panel)
+
+    # Create a button to remove public price of a good with a option menu for the good
+    remove_price_panel3 = PanedWindow(panel, orient=HORIZONTAL)
+    remove_price_panel3.pack(fill=BOTH, expand=False)
+    variable7 = StringVar(remove_price_panel3)
+    variable7.set('Product')
+    product_menu4 = OptionMenu(remove_price_panel3, variable7, *goods)
+    product_menu4.config(font=("Courier", 20))
+    product_menu4.pack(fill=BOTH, expand=False)
+    button = Button(remove_price_panel3, text="Remove public price", command=lambda: statem.remove_public_price(variable7.get()))
+    button.config(font=("Courier", 20))
+    button.pack(fill=BOTH, expand=False)
+    panel.add(remove_price_panel3)
+    
+    
+
+
+
+    # Create a button to create an industry with a option menu for the industry and a option menu for the city
     create_industry_panel = PanedWindow(panel, orient=HORIZONTAL)
     create_industry_panel.pack(fill=BOTH, expand=False)
     variable = StringVar(create_industry_panel)
@@ -1349,6 +1428,24 @@ def control_state(statem, panel = None):
     button.config(font=("Courier", 20))
     button.pack()
     panel.add(build_infrastructure_panel)
+
+
+    # Create a button to give money aid with a option menu for the status from 0 to 5 and a label for the amount
+    status = [0,1,2,3,4,5]
+    give_money_aid_panel = PanedWindow(panel, orient=HORIZONTAL)
+    give_money_aid_panel.pack(fill=BOTH, expand=False)
+    variable4 = StringVar(give_money_aid_panel)
+    variable4.set('Status')
+    status_menu = OptionMenu(give_money_aid_panel, variable4, *status)
+    status_menu.config(font=("Courier", 20))
+    status_menu.pack(fill=BOTH, expand=False)
+    amount_field = Entry(give_money_aid_panel)
+    amount_field.config(font=("Courier", 20))
+    amount_field.pack(fill=BOTH, expand=False)
+    button = Button(give_money_aid_panel, text="Give money aid", command=lambda: statem.give_money_aid(int(variable4.get()),float(amount_field.get())))
+    button.config(font=("Courier", 20))
+    button.pack(fill=BOTH, expand=False)
+    panel.add(give_money_aid_panel)
 
     # Create a button to nationalize all businesses
     nationalize_all_panel = PanedWindow(panel, orient=HORIZONTAL)

@@ -307,10 +307,12 @@ def generate_world():
     # Create a farm
     f = farm.Farm("Farm", people[0], random.randint(1000, 2000), 5)
     businesses.append(f)
+    people[0].businesses.append(f)
 
     # Create a mine
     mi = mine.Mine("Mine", people[1], random.randint(3000, 5000), 5)
     businesses.append(mi)
+    people[1].businesses.append(mi)
     # Create a city
     c = city.City("City", [], people, 0.1, 1000)
 
@@ -334,22 +336,38 @@ def generate_world():
     k.partner = g
 
     # Create a second farm 
-    f2 = farm.Farm("Granja 2", k, random.randint(1000, 2000), 5)
+    f2 = farm.Farm("Farm 2", k, random.randint(1000, 2000), 5)
     k.businesses.append(f2)
     businesses.append(f2)
 
     # Create a sawmill
     saw = sawmill.Sawmill("Sawmill", g, random.randint(1000, 2000), 5)
     businesses.append(saw)
+    g.businesses.append(saw)
+
+    saw2 = sawmill.Sawmill("Sawmill 2", people[3], random.randint(1000, 2000), 5)
+    businesses.append(saw2)
+    people[3].businesses.append(saw2)
 
     # Create a constructor
     cons = constructor.Constructor("Constructor", g, random.randint(1000, 2000), 5)
     businesses.append(cons)
+    g.businesses.append(cons)
+
+    # Create a constructor
+    cons2 = constructor.Constructor("Constructor 2", people[4], random.randint(1000, 2000), 5)
+    businesses.append(cons2)
+    people[4].businesses.append(cons2)
 
     # Create a chocolate factory
     choco = chocolate_factory.ChocolateFactory("Chocolate Factory", g, random.randint(1000, 2000))
     businesses.append(choco)
     g.businesses.append(choco)
+
+    # Create a chocolate factory
+    choco2 = chocolate_factory.ChocolateFactory("Chocolate Factory 2", people[5], random.randint(1000, 2000))
+    businesses.append(choco2)
+    people[5].businesses.append(choco2)
 
     # Create a housing business
     hous = housing.Housing("Housing", k, 2000)
@@ -357,20 +375,25 @@ def generate_world():
     k.businesses.append(hous)
 
     # Create a chocolate factory
-    fur = furniture_factory.FurnitureFactory("Furniture Factory", people[21], random.randint(1000, 2000))
+    fur = furniture_factory.FurnitureFactory("Furniture Factory", people[2], random.randint(1000, 2000))
     businesses.append(fur)
-    people[21].businesses.append(fur)
+    people[2].businesses.append(fur)
 
     # Create a science hub
-    sci = science_hub.ScienceHub("Science Hub", people[22], random.randint(1000, 2000))
+    sci = science_hub.ScienceHub("Science Hub", people[6], random.randint(1000, 2000))
     businesses.append(sci)
-    people[22].businesses.append(sci)
+    people[6].businesses.append(sci)
+
+    # Create a science hub
+    sci2 = science_hub.ScienceHub("Science Hub 2", people[7], random.randint(1000, 2000))
+    businesses.append(sci2)
+    people[7].businesses.append(sci2)
 
     # Contract more people to the sawmill
-    saw.contract(people[7], 0.8, time=10000)
+    saw.contract(people[7], 0.8, time=10)
     
     # Contract more people to the constructor
-    cons.contract(people[8], 0.8, time=10000)
+    cons.contract(people[8], 0.8, time=10)
 
     c.markets.append(m)
 
@@ -382,12 +405,12 @@ def generate_world():
 
     f2.contract(g, 1, time=400)
     f2.contract(k, 2, time=400)
-    f.contract(people[11], 2, time=40)
-    f.contract(people[12], 2, time=40)
-    f.contract(people[13], 2, time=40)
-    f.contract(people[14], 2, time=40)
+    f.contract(people[11], 2, time=10)
+    f.contract(people[12], 2, time=10)
+    f.contract(people[13], 2, time=10)
+    f.contract(people[14], 2, time=10)
 
-    
+    """
     # f.set_owner(people[9])
     f.set_owner(s)
     s.businesses.append(f)
@@ -397,6 +420,7 @@ def generate_world():
     s.businesses.append(saw)
     cons.set_owner(s)
     s.businesses.append(cons)
+    """
 
     # Create job market
     jm = job_market.job_market("Job Market", s, 1000, 0.1)
