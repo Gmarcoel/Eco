@@ -229,7 +229,7 @@ class Business(Entity):
         self.needed_goods_price = 0
         for item in self.needed_goods:
             if item != "work":
-                t = self.trade(item, self.get_expected_price(item), False, self.needed_goods[item] * len(self.work_contracts) * 5)
+                t = self.trade(item, self.get_expected_price(item), False, self.needed_goods[item] * len(self.work_contracts) + 1)
                 if t:
                     self.needed_goods_price = round(self.needed_goods_price + t.price,2)
                     market.add_trade(t)

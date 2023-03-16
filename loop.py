@@ -77,7 +77,7 @@ def demo():
     # mi.contract(people[7], 2, time=10000)
     # mi.contract(people[8], 2, time=10000)
 
-    g = person.Person("Guille", 20, 500)
+    g = person.Person("personaje", 20, 500)
     k = person.Person("Test", 20, 500)
     people.append(g)
     people.append(k)
@@ -327,8 +327,8 @@ def generate_world():
     # mi.contract(people[7], 2, time=10000)
     # mi.contract(people[8], 2, time=10000)
 
-    g = person.Person("guille", 20, 500)
-    k = person.Person("kelia", 20, 500)
+    g = person.Person("personaje", 20, 500)
+    k = person.Person("alcalde", 20, 500)
     people.append(g)
     people.append(k)
 
