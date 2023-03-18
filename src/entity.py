@@ -2,35 +2,28 @@ from  src.trade import Trade
 from  src.job import Job
 
 class Entity():
-    money = 0
-    items = {}
-    items_price = {}
-    contracts_price = {}
-    # Balance of the last 3 turns
-    balance = [0,0,0]
-    earnings = [0,0,0]
-    businesses = []
-
-    # Manager
-    manager = None
-
-    # Economic stuff
-    sum_money = 0
-    sub_money = 0
-    total_sum_money = []
-    total_sub_money = []
-    investment_pool = 0
-
-    last_ammount_traded = {}
-
-    subsidized = False
-    subsidizing = {}
-
-    active = True
-    
-
 
     def __init__(self, money=0):
+        self.money = 0
+        self.items = {}
+        self.items_price = {}
+        self.contracts_price = {}
+        # Balance of the last 3 turns
+        self.balance = [0,0,0]
+        self.earnings = [0,0,0]
+        self.businesses = []
+        # Manager
+        self.manager = None
+        # Economic stuff
+        self.sum_money = 0
+        self.sub_money = 0
+        self.total_sum_money = []
+        self.total_sub_money = []
+        self.investment_pool = 0
+        self.last_ammount_traded = {}
+        self.subsidized = False
+        self.subsidizing = {}
+        self.active = True
         self.money = money
         self.items = {}
         self.items_price = {}

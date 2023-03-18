@@ -161,9 +161,9 @@ class job_market(Entity):
                             contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] + contractee_job.entity.contracts_price[specialization]* 0.1,2)
 
                             # Prueba
-                            average = self.average_contracts_price
-                            expected = job.entity.contracts_price[specialization]
-                            job.entity.contracts_price[specialization] = round((average + expected + expected) / 3, 2)
+                            #average = self.average_contracts_price
+                            #expected = job.entity.contracts_price[specialization]
+                            #job.entity.contracts_price[specialization] = round((average + expected + expected) / 3, 2)
                             
                             found = True
                             break
@@ -191,9 +191,9 @@ class job_market(Entity):
                         contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] + contractee_job.entity.contracts_price[specialization]* 0.1,2)
                         
                         # Prueba
-                        average = self.average_contracts_price
-                        expected = job.entity.contracts_price[specialization]
-                        job.entity.contracts_price[specialization] = round((average + expected + expected) / 3, 2)
+                        #average = self.average_contracts_price
+                        #expected = job.entity.contracts_price[specialization]
+                        #job.entity.contracts_price[specialization] = round((average + expected + expected) / 3, 2)
 
 
                         found = True

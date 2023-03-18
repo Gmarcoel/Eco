@@ -63,16 +63,24 @@ class MarketDatabase():
         for good in self.all_existing_goods:
             self.offer[good] = []
             self.demand[good] = []
+        
+        # Buy and sell price of each product
+        self.buy_price = {}
+        self.sell_price = {}
 
     def add_transaction(self, good, price, quantity):
+        # Initialize the good if it is not in the database
         if good not in self.traded_goods:
             self.traded_goods.append(good)
             self.average_price[good] = 0
-            self.ammount[good] = 0
-            self.total_value[good] = 0
+            self.ammount[good]       = 0
+            self.total_value[good]   = 0
         
+        # Add the transaction to the database
         self.total_value[good] = round(self.total_value[good] + price * quantity,2)
-        self.ammount[good] = round(self.ammount[good] +quantity,2)
+        self.ammount[good]     = round(self.ammount[good] +quantity,2)
+
+        # Calculate the average price (legacy)
         if self.ammount[good] != 0:
             self.average_price[good] = round(self.total_value[good] / self.ammount[good],2)
     
@@ -109,22 +117,56 @@ class MarketDatabase():
         self.traded_goods = []
     
     def add_offer_demand(self, trades):
+        # Initialize
         for p in self.all_existing_goods:
             self.offer[p].append(0)
             self.demand[p].append(0)
+            self.buy_price[p] = 0
+            self.sell_price[p] = 0
+        
+        # Add the offer and demand
         for product in trades:
+            buys = 0
+            sells = 0
             for trade in trades[product]:
                 if trade.sell:
                     self.offer[trade.product][-1] += trade.quantity
+                    self.sell_price[trade.product] += trade.price * trade.quantity
+                    sells += trade.quantity
+
                 else:
                     self.demand[trade.product][-1] += trade.quantity
-            self.offer[product][-1] = round(self.offer[product][-1],2)
-            self.demand[product][-1] = round(self.demand[product][-1],2)
-            self.last_offer[product] = self.offer[product][-1]
+                    self.buy_price[trade.product] += trade.price * trade.quantity
+                    buys += trade.quantity
+            
+
+            # Round the offer and demand
+            self.offer[product][-1]   = round(self.offer[product][-1],2)
+            self.demand[product][-1]  = round(self.demand[product][-1],2)
+            self.last_offer[product]  = self.offer[product][-1]
             self.last_demand[product] = self.demand[product][-1]
+
+            # Round the buy and sell price
+            if sells != 0:
+                self.sell_price[product] = round(self.sell_price[product] / sells,2)
+            if buys != 0:
+                self.buy_price[product] = round(self.buy_price[product] / buys,2)
         # print("********************************************************")
         # print(self.last_offer)
         # print(self.last_demand)
+    
+    def get_buy_price(self, product):
+        if product in self.buy_price:
+            return self.buy_price[product]
+        else:
+            return 0
+    
+    def get_sell_price(self, product):
+        if product in self.sell_price:
+            return self.sell_price[product]
+        else:
+            return 0
+
 
 
         

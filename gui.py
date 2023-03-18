@@ -527,13 +527,13 @@ def business_page(businessm = None):
     # expected_earnings
     # expected_one_earning
     # expected_product_price
-    myLabel = Label(pages_panel, text="Total costs: " + str(businessm.total_costs) + " Expected earnings: " + str(businessm.expected_earnings), bg="#222", fg="white")
-    myLabel.config(font=("Courier", 44))
-    myLabel.pack()
+    #myLabel = Label(pages_panel, text="Total costs: " + str(businessm.total_costs) + " Expected earnings: " + str(businessm.expected_earnings), bg="#222", fg="white")
+    #myLabel.config(font=("Courier", 44))
+    #myLabel.pack()
 
-    myLabel = Label(pages_panel, text="Price to be profitable: " + str(businessm.expected_product_price) + "\n Expected earnings per worker: " + str(businessm.expected_one_earning), bg="#222", fg="white")
-    myLabel.config(font=("Courier", 44))
-    myLabel.pack()
+    #myLabel = Label(pages_panel, text="Price to be profitable: " + str(businessm.expected_product_price) + "\n Expected earnings per worker: " + str(businessm.expected_one_earning), bg="#222", fg="white")
+    #myLabel.config(font=("Courier", 44))
+    #myLabel.pack()
 
     # Show the products produced and sold
     myLabel = Label(pages_panel, text="Products produced: " + str(businessm.number_products) + " Products sold: " + str(businessm.number_sold_products), bg="#222", fg="white")

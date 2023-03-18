@@ -5,54 +5,42 @@ from  src.entity import Entity
 from  src.contract import Contract
 
 class Business(Entity):
-    name = ""
-    employees = []
-    jobs = [] # No se usa
-    tech_level = 0
-    owner = None
-    work_contracts = []
-    status = "open"
 
-    needed_goods = {}
-    needed_goods_price = 20 # Placeholder
-    product = None
-    production = 1
-    productivity = 1
-    electricity = 1
-    engine = 1
-
-    negative = 0
-    dividend = 0.2
-    last_dividend = 0
-
-
-    after_close = 0
-
-
-    specialization = "None"
-
-    maintenance = {}
-
-    condition = 10
-
-    # Law related attributes
-    minimum_wage = -1
-    maximum_price = -1
-    minimum_price = -1
-    public_price = -1
-
-    sector = "None"
-
-    expected_contracts = 1
-
-    bad_balance = 0
-
-    no_contracts = 0
 
 
 
     def __init__(self, name = "", employees = [], tech_level = 0, owner = None, product = None, money = 0):
         super().__init__(money=money + 100) # EL +100 ESTE LO PEOR QUE HE HECHO PERO ES QUE NO HAY BANCOS
+        self.name = ""
+        self.employees = []
+        self.jobs = [] # No se usa
+        self.tech_level = 0
+        self.owner = None
+        self.work_contracts = []
+        self.status = "open" 
+        self.needed_goods = {}
+        self.needed_goods_price = 20 # Placeholder
+        self.product = None
+        self.production = 1
+        self.productivity = 1
+        self.electricity = 1
+        self.engine = 1    
+        self.negative = 0
+        self.dividend = 0.2
+        self.last_dividend = 0  
+        self.after_close = 0   
+        self.specialization = "None"     
+        self.maintenance = {}        
+        self.condition = 10      
+        self.minimum_wage = -1
+        self.maximum_price = -1
+        self.minimum_price = -1
+        self.public_price = -1       
+        self.sector = "None"     
+        self.expected_contracts = 1      
+        self.bad_balance = 0     
+        self.no_contracts = 0
+        
         self.name = name
         self.employees = employees
         self.tech_level = tech_level
@@ -280,7 +268,7 @@ class Business(Entity):
                 j = self.create_job(self.minimum_wage, 10, self.specialization, True)
         else:
             if self.contracts_price[self.specialization] < self.money:
-                j = self.create_job(self.contracts_price[self.specialization], 20, self.specialization, True)
+                j = self.create_job(self.contracts_price[self.specialization], 5, self.specialization, True)
             # else:
             #     j = self.create_job(self.money, 20, self.specialization, True)
         if j:
