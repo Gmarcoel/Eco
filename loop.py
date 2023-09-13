@@ -16,6 +16,7 @@ from src import chocolate_factory
 from src import housing
 from src import furniture_factory
 from src import science_hub
+from src import consumer_goods_factory
 
 from controls.state_control import StateControl
 
@@ -69,16 +70,16 @@ def demo():
     # Create a market
     m = market.Market("Market", people[1], random.randint(0, 100), 0.1)
     # Create contracts for the farm
-    f.contract(people[2], 0.8, time=10000)
+    f.contract(people[2], 0.8, time=10)
     # f.contract(people[3], 0.8, time=10000)
     # f.contract(people[4], 1, time=10000)
     # f.contract(people[5], 1, time=10000)
-    mi.contract(people[6], 2, time=10000)
+    mi.contract(people[6], 2, time=10)
     # mi.contract(people[7], 2, time=10000)
     # mi.contract(people[8], 2, time=10000)
 
-    g = person.Person("personaje", 20, 500)
-    k = person.Person("Test", 20, 500)
+    g = person.Person("Guille", 20, 500)
+    k = person.Person("Kelia", 20, 500)
     people.append(g)
     people.append(k)
 
@@ -99,10 +100,10 @@ def demo():
     businesses.append(cons)
 
     # Contract more people to the sawmill
-    saw.contract(people[7], 0.8, time=10000)
+    saw.contract(people[7], 0.8, time=10)
     
     # Contract more people to the constructor
-    cons.contract(people[8], 0.8, time=10000)
+    cons.contract(people[8], 0.8, time=10)
 
 
 
@@ -303,14 +304,14 @@ def generate_world():
 
     for i in range(100):
         people.append(person.Person("Person " + str(i),
-                      random.randint(18, 80), random.randint(80, 800)))
+                      random.randint(18, 80), random.randint(20, 80)))
     # Create a farm
-    f = farm.Farm("Farm", people[0], random.randint(1000, 2000), 5)
+    f = farm.Farm("Farm", people[0], random.randint(50, 100), 5)
     businesses.append(f)
     people[0].businesses.append(f)
 
     # Create a mine
-    mi = mine.Mine("Mine", people[1], random.randint(3000, 5000), 5)
+    mi = mine.Mine("Mine", people[1], random.randint(50, 100), 5)
     businesses.append(mi)
     people[1].businesses.append(mi)
     # Create a city
@@ -336,58 +337,63 @@ def generate_world():
     k.partner = g
 
     # Create a second farm 
-    f2 = farm.Farm("Farm 2", k, random.randint(1000, 2000), 5)
+    f2 = farm.Farm("Farm 2", k, random.randint(50, 100), 5)
     k.businesses.append(f2)
     businesses.append(f2)
 
     # Create a sawmill
-    saw = sawmill.Sawmill("Sawmill", g, random.randint(1000, 2000), 5)
+    saw = sawmill.Sawmill("Sawmill", g, random.randint(50, 100), 5)
     businesses.append(saw)
     g.businesses.append(saw)
 
-    saw2 = sawmill.Sawmill("Sawmill 2", people[3], random.randint(1000, 2000), 5)
-    businesses.append(saw2)
-    people[3].businesses.append(saw2)
+    #saw2 = sawmill.Sawmill("Sawmill 2", people[3], random.randint(50, 100), 5)
+    #businesses.append(saw2)
+    #people[3].businesses.append(saw2)
 
     # Create a constructor
-    cons = constructor.Constructor("Constructor", g, random.randint(1000, 2000), 5)
+    cons = constructor.Constructor("Constructor", g, random.randint(50, 100), 5)
     businesses.append(cons)
     g.businesses.append(cons)
 
     # Create a constructor
-    cons2 = constructor.Constructor("Constructor 2", people[4], random.randint(1000, 2000), 5)
-    businesses.append(cons2)
-    people[4].businesses.append(cons2)
+    #cons2 = constructor.Constructor("Constructor 2", people[4], random.randint(50, 100), 5)
+    #businesses.append(cons2)
+    #people[4].businesses.append(cons2)
 
     # Create a chocolate factory
-    choco = chocolate_factory.ChocolateFactory("Chocolate Factory", g, random.randint(1000, 2000))
+    choco = chocolate_factory.ChocolateFactory("Chocolateastic", g, random.randint(50, 100))
     businesses.append(choco)
     g.businesses.append(choco)
 
     # Create a chocolate factory
-    choco2 = chocolate_factory.ChocolateFactory("Chocolate Factory 2", people[5], random.randint(1000, 2000))
-    businesses.append(choco2)
-    people[5].businesses.append(choco2)
+    #choco2 = chocolate_factory.ChocolateFactory("Chocolate Factory 2", people[5], random.randint(50, 100))
+    #businesses.append(choco2)
+    #people[5].businesses.append(choco2)
 
     # Create a housing business
-    hous = housing.Housing("Housing", k, 2000)
-    businesses.append(hous)
-    k.businesses.append(hous)
+    #hous = housing.Housing("Housing", k, 2000)
+    #businesses.append(hous)
+    #k.businesses.append(hous)
 
     # Create a chocolate factory
-    fur = furniture_factory.FurnitureFactory("Furniture Factory", people[2], random.randint(1000, 2000))
-    businesses.append(fur)
-    people[2].businesses.append(fur)
+    #fur = furniture_factory.FurnitureFactory("Ikoa", people[2], random.randint(50, 100))
+    #businesses.append(fur)
+    #people[2].businesses.append(fur)
 
     # Create a science hub
-    sci = science_hub.ScienceHub("Science Hub", people[6], random.randint(1000, 2000))
+    sci = science_hub.ScienceHub("Tech Labs", people[6], random.randint(50, 100))
     businesses.append(sci)
     people[6].businesses.append(sci)
 
     # Create a science hub
-    sci2 = science_hub.ScienceHub("Science Hub 2", people[7], random.randint(1000, 2000))
+    sci2 = science_hub.ScienceHub("Science & More", people[7], random.randint(50, 100))
     businesses.append(sci2)
     people[7].businesses.append(sci2)
+
+    # Create a consumer goods factory
+    goo = consumer_goods_factory.GoodsFactory("The Big Factory", people[10], random.randint(50, 100))
+    businesses.append(goo)
+    people[10].businesses.append(goo)
 
     # Contract more people to the sawmill
     saw.contract(people[7], 0.8, time=10)

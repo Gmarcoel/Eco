@@ -9,7 +9,7 @@ class ChocolateFactory(Business):
         self.add_needed_goods("work",1,1)
         self.add_needed_goods("food",1,1)
         self.add_item("chocolate",0)
-        self.production = 2
+        self.production = 20
         self.sector = "chocolating"
 
     

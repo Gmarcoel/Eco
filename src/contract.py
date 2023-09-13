@@ -78,6 +78,7 @@ class Contract():
             if not part1a and not part1b and not part2a and not part2b:
                 # print("Contrato no cumplido por ambas partes")
                 self.time = 0
+                return None
             elif not part1a and not part1b:
                 # print("Contrato no cumplido por la primera parte")
                 # Devolver lo quitado a la segunda parte y cancelar el contrato

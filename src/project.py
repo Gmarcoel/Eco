@@ -16,9 +16,11 @@ class Project():
     def __str__(self):
         return f"Proyecto {self.name} Falta: Dinero {self.money}, recursos {self.resources}"
 
-    def accomplish(self, entity):
-        if entity.money >= self.money:
-            entity.money = round(entity.money - self.money,2)
+    def accomplish(self, entity, money = -1):
+        if money == -1:
+            money = entity.money
+        if money >= self.money:
+            entity.money = round(money - self.money,2)
             self.money = 0
         completed = []
         for key in self.resources:

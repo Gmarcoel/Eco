@@ -65,8 +65,10 @@ class MarketDatabase():
             self.demand[good] = []
         
         # Buy and sell price of each product
-        self.buy_price = {}
-        self.sell_price = {}
+        self.buy_price   = {}
+        self.sell_price  = {}
+        self.buy_prices  = {}
+        self.sell_prices = {}
 
     def add_transaction(self, good, price, quantity):
         # Initialize the good if it is not in the database
@@ -83,6 +85,21 @@ class MarketDatabase():
         # Calculate the average price (legacy)
         if self.ammount[good] != 0:
             self.average_price[good] = round(self.total_value[good] / self.ammount[good],2)
+
+    
+    # Funcion para obtener un sueldo orientativo teniendo en cuenta el precio de compra de
+    # la comida, el chocolate, los bienes y la salud (si existen)
+    def get_expected_salary(self):
+        food_price = self.get_average_buy_price("food")
+        chocolate_price = self.get_average_buy_price("chocolate")
+        goods_price = self.get_average_buy_price("good")
+        health_price = self.get_average_buy_price("health")
+
+        expected = round((food_price + chocolate_price + goods_price + health_price) * 1.2,2)
+        if expected < food_price * 2:
+            expected = food_price * 2
+        
+        return expected
     
     def __srt__(self):
         return f"{self.traded_goods} value: {self.total_value} price: {self.average_price} ammount: {self.ammount}"
@@ -123,6 +140,9 @@ class MarketDatabase():
             self.demand[p].append(0)
             self.buy_price[p] = 0
             self.sell_price[p] = 0
+            if not p in self.buy_prices:
+                self.buy_prices[p]  = []
+                self.sell_prices[p] = []
         
         # Add the offer and demand
         for product in trades:
@@ -138,8 +158,9 @@ class MarketDatabase():
                     self.demand[trade.product][-1] += trade.quantity
                     self.buy_price[trade.product] += trade.price * trade.quantity
                     buys += trade.quantity
+                print("BBBBB", trade.product)
             
-
+            print("AAAAAAAAAAAAAAAAA", product, self.offer[product][-1], self.demand[product][-1])
             # Round the offer and demand
             self.offer[product][-1]   = round(self.offer[product][-1],2)
             self.demand[product][-1]  = round(self.demand[product][-1],2)
@@ -149,8 +170,10 @@ class MarketDatabase():
             # Round the buy and sell price
             if sells != 0:
                 self.sell_price[product] = round(self.sell_price[product] / sells,2)
+                self.sell_prices[product].append(self.sell_price[product])
             if buys != 0:
                 self.buy_price[product] = round(self.buy_price[product] / buys,2)
+                self.buy_prices[product].append(self.buy_price[product])
         # print("********************************************************")
         # print(self.last_offer)
         # print(self.last_demand)
@@ -167,7 +190,45 @@ class MarketDatabase():
         else:
             return 0
 
+    def get_average_buy_price(self, product):
+        if not product in self.buy_prices:
+            return 1
+        num = 5
+        if len(self.buy_prices[product]) < num:
+            num = len(self.buy_prices[product])
+        if num == 0:
+            return 5
+        return round(sum(self.buy_prices[product][-num:]) / num,2)
 
+    def get_average_sell_price(self, product):
+        if not product in self.sell_prices:
+            return 1
+        num = 5
+        if len(self.sell_prices[product]) < num:
+            num = len(self.sell_prices[product])
+        if num == 0:
+            return 5
+        return round(sum(self.sell_prices[product][-num:]) / num,2)
+    
+    def get_average_demand(self, product):
+        if not product in self.demand:
+            return 1
+        num = 5
+        if len(self.demand[product]) < num:
+            num = len(self.demand[product])
+        if num == 0:
+            return 5
+        return round(sum(self.demand[product][-num:]) / num,2)
+
+    def get_average_offer(self, product):
+        if not product in self.offer:
+            return 1
+        num = 5
+        if len(self.offer[product]) < num:
+            num = len(self.offer[product])
+        if num == 0:
+            return 5
+        return round(sum(self.offer[product][-num:]) / num,2)
 
         
         
@@ -228,12 +289,12 @@ class Market(Entity):
                     b += 1
             for trade in self.trades[product]:
                 if trade.quantity > 0:
-                    if trade.sell: # and b != 0 and round(trade.price - (trade.price * 0.05))!=0: # Solo baja si había más compradores
+                    if trade.sell and s != 1: # and b != 0 and round(trade.price - (trade.price * 0.05))!=0: # Solo baja si había más compradores
                         trade.entity.items_price[trade.product] = round(trade.price - (trade.price * 0.1),2) # 0.05
                     elif trade.sell and s == 1: # Si es el único vendedor sube
                         trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 0.1),2)
                     elif not trade.sell: # Solo sube si había más vendedores
-                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 2),2) # Antes a 0.12 luego 0.5
+                        trade.entity.items_price[trade.product] = round(trade.price + (trade.price * 1000),2) # Antes a 0.12 luego 0.5
 
                 trade.cancel()
             self.trades[product] = []
@@ -276,6 +337,7 @@ class Market(Entity):
                 free_comerce_data = free_comerce_data + str(t) + "\n"
             """
             
+            """
             # If more sells than buys buyer decide price
             if sell_amount > buy_amount:
                 # Shuffle order of trades
@@ -293,6 +355,13 @@ class Market(Entity):
                 # Shuffle order of trades
                 random.shuffle(buy_trades)
                 random.shuffle(sell_trades)
+            """
+            # Shuffle order of trades
+            random.shuffle(buy_trades)
+            # random.shuffle(sell_trades)
+            sell_trades.sort(key=self.sort_trade)
+
+
             # Loop trough all the buy trades
             for trade in buy_trades:
                 # Variable to check if the price has gone up
@@ -342,6 +411,7 @@ class Market(Entity):
                             ## sell_trade.entity.money = round(sell_trade.entity.money + (sell_trade.price * trade.quantity),2) 
                             sell_trade.entity.add_money(sell_trade.price * trade.quantity)
                             # Change the buy trade future price
+                            """
                             if not price_up:
                                 if round(trade.price - (trade.price * 0.05)) != 0:
                                     # print("Precio antes era ", trade.entity.items_price[trade.product])
@@ -349,11 +419,14 @@ class Market(Entity):
                                     # print("Pecio ahora es ", trade.entity.items_price[trade.product])
                                 price_up = True
                             # Remove the buy trade
+                            """
                             trade.quantity = 0
+                            """
                             # If the sell trade quantity left is 0 change the sell trade price
                             if sell_trade.quantity == 0:
                                 sell_trade.entity.items_price[sell_trade.product] = round(sell_trade.price + (sell_trade.price * 0.3),2) # Antes 0.1
                             # Go to next buy trade (break)
+                            """
                             
                             break
 

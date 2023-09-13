@@ -11,7 +11,7 @@ class GoodsFactory(Business):
         self.add_needed_goods("build",1,1)
         self.add_needed_goods("wood",1,1)
         self.add_item("good",0)
-        self.production = 8
+        self.production = 20
         self.sector = "consumer"
 
     

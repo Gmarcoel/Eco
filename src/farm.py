@@ -11,8 +11,9 @@ class Farm(Business):
         self.product = "food"
         self.add_needed_goods("work",1,1)
         self.add_item("food",0)
-        self.production = 50 # 8 # 20
+        self.production = 5 # 8 # 20
         self.sector = "farming"
+        self.maintenance = {"wood":1, "build":0, "iron":0}
 
     
     def __str__(self):

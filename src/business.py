@@ -19,11 +19,11 @@ class Business(Entity):
         self.work_contracts = []
         self.status = "open" 
         self.needed_goods = {}
-        self.needed_goods_price = 20 # Placeholder
+        self.needed_goods_price = 20.0 # Placeholder
         self.product = None
-        self.production = 1
-        self.productivity = 1
-        self.electricity = 1
+        self.production = 1.0
+        self.productivity = 1.0
+        self.electricity = 1.0
         self.engine = 1    
         self.negative = 0
         self.dividend = 0.2
@@ -31,15 +31,15 @@ class Business(Entity):
         self.after_close = 0   
         self.specialization = "None"     
         self.maintenance = {}        
-        self.condition = 10      
-        self.minimum_wage = -1
-        self.maximum_price = -1
-        self.minimum_price = -1
-        self.public_price = -1       
+        self.condition = 10.0
+        self.minimum_wage = -1.0
+        self.maximum_price = -1.0
+        self.minimum_price = -1.0
+        self.public_price = -1.0       
         self.sector = "None"     
-        self.expected_contracts = 1      
-        self.bad_balance = 0     
-        self.no_contracts = 0
+        self.expected_contracts = 1   
+        self.bad_balance = 0.0     
+        self.no_contracts = 0.0
         
         self.name = name
         self.employees = employees
@@ -103,8 +103,8 @@ class Business(Entity):
         # Destroy some of the existing stock
         if not self.product in self.items:
             self.items[self.product] = 1
-        if self.items[self.product] > 10:
-            self.items[self.product] = round(self.items[self.product]* 0.8,0)
+        #if self.items[self.product] > 10:
+        #    self.items[self.product] = round(self.items[self.product]* 0.8,0)
         
         # TEMPORAL TEMPORAL Destroy all stock TEMPORAL TEMPORAL
         # self.items[self.product] = 0
@@ -117,6 +117,7 @@ class Business(Entity):
             return 0
         # Check if there is enough money to pay the employees
         contracts_money = 0
+        """
         for contract in self.work_contracts:
             contracts_money += contract.money1
         if self.check_balance() < 0:
@@ -133,7 +134,13 @@ class Business(Entity):
             self.no_contracts += 1
         else:
             self.no_contracts = 0
-        if self.negative > 30 or self.no_contracts > 10 or self.money < 1: ## Cambiar lo del money esta MUY MAL
+        """
+        if self.money < contracts_money:
+            self.negative += 1
+        else:
+            self.negative = 0
+        #if self.negative > 30 or self.no_contracts > 10 or self.money < 1: ## Cambiar lo del money esta MUY MAL
+        if self.negative > 30: 
             if self.manager: # RE cutre
                 if not self.manager.isPublic():
                     # self.bankrupt()
@@ -152,8 +159,11 @@ class Business(Entity):
 
 
 
-
+        #print("###########################################")
+        #print(self.name, "->", "num trabajadores:", len(self.work_contracts), "trabajo:", self.items["work"])
         work_used = 0
+        total_produced = 0
+
         if self.product == None:
             return 0
         while self.items["work"] > 0: # Muy optimizable
@@ -165,10 +175,16 @@ class Business(Entity):
             if enough_goods:
                 for item in self.needed_goods:
                     self.items[item] -= self.needed_goods[item]
-                self.items[self.product] += round(1 * self.production * self.productivity * self.electricity * self.engine,0)
+                total_produced += round(1 * self.production * self.productivity * self.electricity * self.engine,0)
                 work_used += 1
-            self.items["work"] -= 1
+                #print("     Prod", self.production, "prody", self.productivity, "ele", self.electricity, "eng", self.engine)
+                #print("     w used",work_used, "work", self.items["work"])
+            else:
+                break
         
+        self.items[self.product] = total_produced
+        #print("Total produced:", total_produced)
+
         # Aqui tengo información de la productividad del negocio
         # Para utilizar a futuro en la ia de contrato-despido
         # (work_used y work_left)
@@ -227,24 +243,28 @@ class Business(Entity):
 
     
     def sell(self, market):
+        print("YYYYYYYYYYYYYYYYYYYY", self.name, self.product, self.items[self.product])
         if self.status == "closed":
             self.after_close += 1
         else:
             self.after_close = 0
         if self.after_close > 3:
+            print('y')
             return
         if not self.product in self.items:
             self.items[self.product]
         if self.items[self.product] == 0:
+            print('yy')
             return
         # If bussiness is close to bankrupt item at a lower cost
-        if self.money < self.needed_goods_price * 1.5:
-            self.items_price[self.product] = round(self.needed_goods_price * 0.8,2)
+        #if self.money < self.needed_goods_price * 1.5:
+        #    self.items_price[self.product] = round(self.needed_goods_price * 0.8,2)
 
         if self.product in self.maintenance:
             manteinance = self.maintenance[self.product]
         else:
             manteinance = 0
+        print("YYYYYYYYYYYYYYYYYYYY", self.name, self.product, self.items[self.product], manteinance)
         t = self.trade(self.product, self.get_expected_price(self.product), True, self.items[self.product] - manteinance)
         market.add_trade(t)
 
@@ -268,7 +288,7 @@ class Business(Entity):
                 j = self.create_job(self.minimum_wage, 10, self.specialization, True)
         else:
             if self.contracts_price[self.specialization] < self.money:
-                j = self.create_job(self.contracts_price[self.specialization], 5, self.specialization, True)
+                j = self.create_job(self.contracts_price[self.specialization], 10, self.specialization, True)
             # else:
             #     j = self.create_job(self.money, 20, self.specialization, True)
         if j:

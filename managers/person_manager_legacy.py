@@ -27,31 +27,20 @@ class PersonManager(Manager):
         self.job_market         = job_market
         self.market             = market
         self.city               = city
-        self.world              = world
-        self.inversion          = False
-
         self.project_resources  = {}
-        self.project            = None
+        self.world              = world
 
-        self.salary                 = 0.0
-
-        self.food_money             = 0.0        # Presupuesto para comida
-        self.luxury_money           = 0.0        # Presupuesto para lujos
-        self.savings_money          = 0.0        # Presupuesto para ahorros
-
-        self.investment_pool        = 0.0        # Dinero para empezar negocio
+        self.food_money             = 0        # Presupuesto para comida
+        self.luxury_money           = 0        # Presupuesto para lujos
+        self.savings_money          = 0        # Presupuesto para ahorros
 
         for item in self.market.database.previous_average_price:
-            self.person.items_price[item] = self.market.database.previous_average_price[item] * 100
+            self.person.items_price[item] = self.market.database.previous_average_price[item]
 
-        # self.person.contracts_price[self.person.specialization] = self.job_market.average_contracts_price
-        self.person.contracts_price[self.person.specialization] = self.job_market.average_contractor_price
-        
+        self.person.contracts_price[self.person.specialization] = self.job_market.average_contracts_price
         if "food" in self.market.database.previous_average_price:
             if self.person.contracts_price[self.person.specialization] <= self.market.database.previous_average_price["food"]* 3:
                 self.person.contracts_price[self.person.specialization] = self.market.database.previous_average_price["food"] * 3
-        
-        self.preload()
 
         # Set manager
         self.person.manager = self
@@ -60,21 +49,24 @@ class PersonManager(Manager):
 
         if self.person.dead:
             return
-        
-        self.balance()
 
-        self.eat()
-        self.work()       
+        # Basic needs
+        if self.person.age > 1:
+            if "food" in self.market.database.previous_average_price:
+                self.person.food_price = self.market.database.previous_average_price["food"]
+            self.person.work(self.job_market)
+        # If eating returns false is dead
+        if not self.person.eat("food"):
+            self.die(c=1)
+            return
+        
         self.person.create_trades(self.market)
 
         # Decissions:
         self.check_status()
         self.grow()
 
-        # Invest
-        if not self.person.has_home():
-            house_savings = round(self.savings_money / 2, 2)
-            self.savings_money = house_savings
+        # Jobs
         self.entrepreneur()
         self.invest()
         self.manage()
@@ -85,121 +77,61 @@ class PersonManager(Manager):
         self.family()
 
         # Happiness
-        self.person.get_sick()
-        if self.person.sick:
-            self.health()
-        else:
-            half_luxury_money = round( self.luxury_money / 2, 2)
-            self.luxury_money = half_luxury_money
-            self.happiness()
-            self.luxury_money = half_luxury_money
-            self.manage_goods()
-            if not self.person.has_home():
-                self.savings_money = house_savings
-                self.housing()
+        self.health()
+        self.happiness()
+        self.housing()
+        self.manage_goods()
 
         # Economy
         self.person.restart_economics()
         
         if not self.person.inmortal:
             self.die()
-
-
-    def preload(self):
-        self.person.items_price["chocolate"] = 1
-        self.person.items["house"] = 0
-        self.person.items["furniture"] = 0
-        self.person.items_price["house"] = 10
-        self.person.items_price["furniture"] = 1
-        self.person.items["health"] = 0
-        self.person.items_price["health"] = 10
-        self.person.items_price["good"] = 2
+    
 
     def balance(self):
         # Comprobar si tiene trabajo
         salary = 0
-        works = False
         if self.person.contract:
-            works = True
-        if works:
             if self.person.contract.time <= 0:
                 self.person.contract = None
-                works = False
             else:
                 salary = self.person.contract.money1
-        self.salary = salary
 
+        
         # Prices
-        # contract_price        = self.person.contracts_price[self.person.specialization]
-        # market_contract_price = self.job_market.average_contract_price
+        contract_price        = self.person.contracts_price[self.person.specialization]
+        market_contract_price = self.job_market.average_contract_price
 
         # Values
-        food_value            = self.market.database.get_sell_price("food")
+        food_value            = self.market.database.get_sell_price(self.person.product)
         hunger                = self.person.hungry
         salary                = salary
         money                 = self.person.money
 
         # Si tiene trabajo 50 para comida 30 para lujos 20 para ahorro aprox
         # Excepto si esta hambriento
-        if works:
-            # Si el food value es mayor que la 
-
-            self.food_money     = round(salary * 0.1, 2)
-            self.luxury_money   = round(salary * 0.7, 2)
-            self.savings_money  = round(salary * 0.1, 2) + round(money - salary, 2)
-        else:
-            self.food_money     = money
-            self.luxury_money   = 0.0
-            self.savings_money  = 0.0
-        if hunger > 3:
-            self.food_money     = money
-            self.luxury_money   = 0.0
-            self.savings_money  = 0.0
-
-    def eat(self):
-        # Basic needs
-        if self.person.age > 1:
-            if self.market.database.get_sell_price("food") < self.food_money:
-                self.person.items_price["food"] = round(self.market.database.get_sell_price("food") * 0.7 + self.person.items_price["food"] * 0.3, 2)
-        # If eating returns false is dead
-        if not self.person.eat("food"):
-            self.die(c=1)
-            return
-
-    def work(self):
-        self.person.work(self.job_market)
-
+    
     # Function to set economic status
     def check_status(self):
-        status = 0
-        exp_salary = self.market.database.get_expected_salary()
-        if self.person.contract:
-            status += 1
-            salary = self.person.contract.money1
-            if salary > exp_salary * 2:
-                status += 1
-        if self.person.items["house"] > 0:
-            status += 1
-        if self.person.items["furniture"] > 2:
-            status += 1
-        if self.person.hungry > 3:
-            status -= 5
-        if self.person.money > exp_salary * 2:
-            status += 1
-        if self.person.money > exp_salary * 4:
-            status += 1
-        if self.person.money > exp_salary * 6:
-            status += 1
-        
-        if status < 0:
-            status = 0
-        if status > 5:
-            status = 5
-        if self.person.age < 18:
-            status = 6
-        self.person.status = status
-
-
+        if not "food" in self.market.database.sell_price:
+            food_price = 1
+        else:
+            food_price = self.market.database.get_sell_price("food")
+        money = self.person.money
+        self.person.status = 0
+        if money < food_price:
+            self.person.status = 0
+        if money > food_price:
+            self.person.status = 1
+        if money > 50 * food_price: # 2
+            self.person.status = 2
+        if money > 500 * food_price: # 10
+            self.person.status = 3
+        if money > 1000 * food_price: # 100
+            self.person.status = 4
+        if money > 10000 * food_price: # 1000
+            self.person.status = 5
 
 
     # Function to grow
@@ -215,6 +147,9 @@ class PersonManager(Manager):
         if self.inversion:
             return
         
+        # if balance negative return
+        if self.person.check_balance() == False:
+            return
         # If is entrepeneur increase chance
         if "entrepeneur" in self.person.traits:
             entrepeneurship += 0.4
@@ -284,8 +219,13 @@ class PersonManager(Manager):
                 self.project = p
             self.inversion = True
 
+
     # Invest in current project
     def invest(self):
+        if self.person.status >= 3:
+            self.person.investment_pool = round(self.person.investment_pool + self.person.money* 0.1, 2)
+            self.person.subtract_money(self.person.money* 0.1)
+
         # If not food inversion invest so not everyone dies
         if not "food" in self.market.database.previous_ammount or self.market.database.previous_ammount["food"] == 0:
             # Buy business
@@ -296,19 +236,15 @@ class PersonManager(Manager):
         if not self.inversion:
             return
         
-        # Separate savings money in investment pool and project money
-        if self.savings_money > 0:
-            self.investment_pool += round(self.savings_money * 0.5)
-            project_money         = round(self.savings_money * 0.5)
-        else:
+        if self.person.status < 4:
             return
 
-
+        
         # If project is accomplished
-        if self.project.accomplish(self.person, project_money):
+        if self.project.accomplish(self.person):
             # Create new business
-            b = create_business(self.project.name,self.person, self.investment_pool)
-            self.investment_pool = 0
+            b = create_business(self.project.name,self.person, self.person.investment_pool)
+            self.person.investment_pool = 0
             # Remove project from list
             self.project = None
             # Set inversion to false
@@ -323,6 +259,11 @@ class PersonManager(Manager):
             
             return
 
+        """
+        # if balance negative return
+        if self.person.check_balance() < 0:
+            return
+        """
         # Invest in project
         self.project_resources = {}
         for key in self.project.resources:
@@ -355,6 +296,7 @@ class PersonManager(Manager):
                         break
                     else: ammount -= 1
         
+        
     # Manage current businesses
     def manage(self):
         pass
@@ -371,6 +313,8 @@ class PersonManager(Manager):
                 self.person.partner = p
                 p.partner = self.person
     
+
+
     def children(self):
         partner = self.person.partner
         if partner is None or partner.dead:
@@ -386,7 +330,7 @@ class PersonManager(Manager):
         if self.person.age < 50 or partner.age < 50:
             # random chance to have children 1 to 5
             # if random.random() < 0.95:
-            if random.random() < 0.90 or len(self.person.family) > 3: # 0.90: # 0.95:# 0.91:
+            if random.random() < 0.88:# 0.95:# 0.91:
                 return
             # Create a random name for the child
             name = "Person " + str(random.randint(100, 10000))
@@ -409,12 +353,12 @@ class PersonManager(Manager):
             if p.age > 18:
                 continue
             if self.person.money > self.person.items_price["food"]:
-                continue
                 self.person.subtract_money(self.person.items_price["food"])
                 p.add_money(self.person.items_price["food"])
         # delete all dead people from family
         for p in dead:
-            self.person.family.remove(p)   
+            self.person.family.remove(p)
+            
         
     def die(self, c = 0):
         # The chance increase the older the person is
@@ -491,40 +435,53 @@ class PersonManager(Manager):
             self.person.partner = None
             
             self.person.partner = None
-
-
-    # A partir de aqui rework
-    ########################################################
+        
 
     def happiness(self):
-        # Work happiness
+        if self.person.hungry > 0:
+            return
+        if self.person.status < 3:
+            return
+        if not "chocolate" in self.person.items_price:
+            self.person.items_price["chocolate"] = 1
+
         person = self.person
         person.happiness -= 1
         if person.happiness < 0:
             person.happiness = 0
         
-        if person.items_price["chocolate"] >  self.luxury_money:
-            person.items_price["chocolate"] = self.luxury_money
-
-
-        if person.happiness < 100: # 10
-            if self.market.database.get_sell_price("chocolate") < self.luxury_money:
-                self.person.items_price["chocolate"] = round(self.market.database.get_sell_price("chocolate") * 0.7 + self.luxury_money * 0.3,2)
-            if self.person.status >= 3:
-                person.items_price["chocolate"] = round(self.market.database.get_sell_price("chocolate") * 5,2) # Esto es horrible
-            if person.items_price["chocolate"] != 0:
-                t = self.person.trade("chocolate", person.items_price["chocolate"], False, 1)
-                self.market.add_trade(t)
-
+        # If person happiness is less than 10 buy chocolate
+        if person.happiness < 10:
+            # Create a trade for chocolate
+            t = self.person.trade("chocolate", person.items_price["chocolate"], False, 1)
+            self.market.add_trade(t)
+        # Quit if money is more than three times food price try to buy chocolate
+        elif person.money > person.items_price["food"] * 3:
+            # Revise chocolate price
+            if person.items_price["chocolate"] > person.money / 6:
+                person.items_price["chocolate"] = round(person.money / 6,2)
+            # Create a trade for chocolate
+            t = self.person.trade("chocolate", person.items_price["chocolate"], False, 1)
+            self.market.add_trade(t)
+        # Consume chocolate
         person.eat_chocolate()
     
+    
     def housing(self):
-
+        if self.person.hungry > 0:
+            return
+        if self.person.status < 2:
+            return
+        if "house" not in self.person.items:
+            self.person.items["house"] = 0
+        if "furniture" not in self.person.items:
+            self.person.items["furniture"] = 0
         if self.person.items["house"] < 1:
-            if self.market.database.get_sell_price("house") <= self.savings_money:
-                self.person.items_price["house"] = round(self.market.database.get_sell_price("house") * 0.7 + self.savings_money * 0.3,2)
-            else:
-                self.person.items_price["house"] = self.savings_money
+            if "house" not in self.person.items_price:
+                self.person.items_price["house"] = 10
+            # Revise house price
+            if self.person.items_price["house"] > self.person.money / 2:
+                self.person.items_price["house"] = round(self.person.money / 2,2)
             t = self.person.trade("house", self.person.items_price["house"], False, 1)
             if t:
                 self.market.add_trade(t)
@@ -535,30 +492,30 @@ class PersonManager(Manager):
                     self.person.items["house"] = 0
         
         if self.person.items["house"] > 0:
+            if "furniture" not in self.person.items_price:
+                self.person.items_price["furniture"] = 1
             if self.person.items["furniture"] < 4: 
-                if self.market.database.get_sell_price("furniture") <= self.savings_money:
-                    self.person.items_price["furniture"] = round(self.market.database.get_sell_price("furniture") * 0.7 + self.savings_money * 0.3,2)
-                else:
-                    self.person.items_price["furniture"] = self.savings_money
                 t = self.person.trade("furniture", self.person.items_price["furniture"], False, 1)     
                 if t:
                     self.market.add_trade(t)
         else:
-            return
-            # TODO if no house, sell furniture
             if self.person.items["furniture"] > 0: 
                 t = self.person.trade("furniture", self.person.items_price["furniture"], True, self.person.items["furniture"])     
                 if t:
                     self.market.add_trade(t)
 
     def health(self):
+        self.person.get_sick()
+        if self.person.status < 2:
+            return
+        # Buy health
         if not self.person.sick:
             return
+        if "health" not in self.person.items:
+            self.person.items["health"] = 0
         if self.person.items["health"] < 1:
-            if self.market.database.get_sell_price("health") <= self.luxury_money:
-                self.person.items_price["health"] = round(self.market.database.get_sell_price("health") * 0.7 + self.luxury_money * 0.3,2)
-            else:
-                self.person.items_price["health"] = self.luxury_money
+            if "health" not in self.person.items_price:
+                self.person.items_price["health"] = 10
             t = self.person.trade("health", self.person.items_price["health"], False, 1)
             if t:
                 self.market.add_trade(t)
@@ -566,23 +523,22 @@ class PersonManager(Manager):
         self.person.heal()
     
     def manage_goods(self):
-        if self.person.hungry > 3:
+        if self.person.hungry > 1:
             return
-        if self.person.status < 1:
+        if self.person.status < 2:
             return
         # Get a number between 1 and 10
         number = self.person.status
         # Buy as much goods as number
-        if self.market.database.get_sell_price("good") <= self.luxury_money:
-            self.person.items_price["good"] = round(self.market.database.get_sell_price("good") * 0.7 + self.luxury_money * 0.3,2)
-        else:
-            self.person.items_price["good"] = self.luxury_money
+        if "good" not in self.person.items_price:
+            self.person.items_price["good"] = 2
+        # Revise good price
+        if self.person.items_price["good"] > self.person.money / 5:
+            self.person.items_price["good"] = round(self.person.money / 5,2)
         t = self.person.trade("good", self.person.items_price["good"], False, number)
         if t:
-            #print("Sueldo de ", self.salary, "compra con", self.luxury_money, "a", self.person.items_price["good"])
             self.market.add_trade(t)
-        #else:
-        #    print("Sueldo de ", self.salary, "no compra con", self.luxury_money, "a", self.person.items_price["good"])
 
 
         self.person.consume_goods()
+

@@ -16,6 +16,17 @@ class job_market(Entity):
     total_contracts_price = 0
     total_contracts_ammount = 0
     average_contracts_price = 1
+    average_contracts_prices = []
+
+    average_contractor_prices = []
+    total_contractor_price      = 0
+    average_contractor_price    = 1
+    total_contractors           = 0
+
+    average_contractee_prices = []
+    total_contractee_price      = 0
+    average_contractee_price    = 1
+    total_contractees           = 0
 
     def __init__(self, name, owner, money, tax_rate):
         self.name = name
@@ -82,15 +93,30 @@ class job_market(Entity):
         for specialization in self.jobs:
             # Get all buy jobs on market
             contractor_jobs = []
+            self.total_contractors          = 0
+            self.average_contractor_price   = 1
+            self.total_contractor_price     = 0
             for job in self.jobs[specialization]:
                 if job.contractor:
+                    self.total_contractors += 1
+                    self.total_contractor_price += job.money
                     contractor_jobs.append(job)
+            if self.total_contractors > 0:
+                self.average_contractor_price = round(self.total_contractor_price / self.total_contractors,2)
+                self.average_contractor_prices.append(self.average_contractor_price)
+
             # Get all contractor jobs on market
             contractee_jobs = []
+            self.total_contractees          = 0
+            self.average_contractee_price   = 1
+            self.total_contractee_price     = 0
             for job in self.jobs[specialization]:
                 if not job.contractor:
                     contractee_jobs.append(job)
-            #"""
+            if self.total_contractees > 0:
+                self.average_contractee_price = round(self.total_contractee_price / self.total_contractees,2)
+                self.average_contractee_prices.append(self.average_contractee_price)
+            """
             print("ESPECIALIZACION ", specialization)
             print("============================================================================================================")
             print("OFERTA")
@@ -107,7 +133,7 @@ class job_market(Entity):
                 if str(t) != str(last_t):
                     print(t)
                 last_t = t
-            #"""
+            """
             
             # If more contractors than contractees contractees decide the price
             if len(contractor_jobs) > len(contractee_jobs):
@@ -130,13 +156,16 @@ class job_market(Entity):
                     contractor_jobs.remove(job)
                     contractor_jobs.insert(0, job)
             # Loop trough all the buy jobs
+            print("###")
             for job in contractor_jobs:
                 # Loop through all the contractor jobs
                 for contractee_job in contractee_jobs:
                     found = False
 
                     # If hungry look for a job of farming sector
+                    """
                     if contractee_job.entity.hungry > 3:
+                        print("DDDDDDDDDDDDDDDDDDDDDDDDD", job.money, job.entity.name)
                         if job.entity.sector == "farming":
                             # Fill database data
                             self.total_contracts_price += job.money
@@ -167,9 +196,14 @@ class job_market(Entity):
                             
                             found = True
                             break
+                    """
+
                     
                     # If the buy money is higher or equal than the contractor money
-                    if job.money >= contractee_job.money and job.time >= contractee_job.time and contractee_job.money != 0:
+                    if (job.money >= contractee_job.money or job.money < contractee_job.money) and job.time >= contractee_job.time and contractee_job.money != 0:
+                    # if True: 
+
+
                         # Fill database data
                         self.total_contracts_price += job.money
                         self.total_contracts_ammount += 1
@@ -191,10 +225,9 @@ class job_market(Entity):
                         contractee_job.entity.contracts_price[specialization] = round(contractee_job.entity.contracts_price[specialization] + contractee_job.entity.contracts_price[specialization]* 0.1,2)
                         
                         # Prueba
-                        #average = self.average_contracts_price
-                        #expected = job.entity.contracts_price[specialization]
-                        #job.entity.contracts_price[specialization] = round((average + expected + expected) / 3, 2)
-
+                        # average = self.average_contracts_price
+                        # expected = job.entity.contracts_price[specialization]
+                        # job.entity.contracts_price[specialization] = round((average + expected + expected) / 3, 2)
 
                         found = True
                         break
@@ -203,5 +236,6 @@ class job_market(Entity):
         
         if self.total_contracts_ammount != 0:
             self.average_contracts_price = round(self.total_contracts_price / self.total_contracts_ammount,2)
+            self.average_contracts_prices.append(self.average_contracts_price)
         self.clean_market()
 

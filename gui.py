@@ -194,7 +194,6 @@ def city_page(citym = None):
     graphics_panel.add(charts_panel2)
 
 
-
     chart = plot_pie_chart_public_private_bussiness(city.businesses, charts_panel)
     charts_panel.add(chart)
     chart = plot_pie_chart_deaths_natural_starvation(citym, charts_panel)
@@ -210,8 +209,18 @@ def city_page(citym = None):
     if chart:
         charts_panel2.add(chart)
 
-    chart = plot_borns_deaths(citym, graphics_panel)
-    graphics_panel.add(chart)
+
+    charts_panel3 = PanedWindow(graphics_panel, orient=VERTICAL)
+    charts_panel3.pack(fill=BOTH, expand=True)
+    graphics_panel.add(charts_panel3)
+
+    chart = plot_borns_deaths(citym, charts_panel3)
+    charts_panel3.add(chart)
+
+    if city.people != []:
+        job_market = city.people[0].manager.job_market
+        chart = plot_average_contract_price(job_market, charts_panel3)
+        charts_panel3.add(chart)
 
 
     
@@ -403,7 +412,9 @@ def businesses_page(entitym = None):
     myLabel.pack()
 
     # Create a button for each business if ret_businesses() is not empty
-    businesses = entitym.entity.businesses
+    # select only businesses with manager from businesses = entitym.entity.businesses
+    businesses = [business for business in entitym.entity.businesses if business.manager]
+    businesses.sort(key=lambda x: x.manager.average_profit, reverse=True)
     aux = []
     for business in businesses:
         if not business.status == "closed":
@@ -463,7 +474,7 @@ def closed_businesses_page(entitym = None):
     if businesses:
         if len(businesses) > 0:
             # Create a scrollbar
-            create_scroll(businesses, business_page)    
+            create_scroll(businesses, business_page, "business")    
     # Create a back button
     myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
     # Make the button big
@@ -534,6 +545,23 @@ def business_page(businessm = None):
     #myLabel = Label(pages_panel, text="Price to be profitable: " + str(businessm.expected_product_price) + "\n Expected earnings per worker: " + str(businessm.expected_one_earning), bg="#222", fg="white")
     #myLabel.config(font=("Courier", 44))
     #myLabel.pack()
+    myLabel = Label(pages_panel, text="Profit: " + str(businessm.profit), bg="#222", fg="white")
+    myLabel.config(font=("Courier", 44))
+    myLabel.pack()
+
+    myLabel = Label(pages_panel, text="Profit usage:\n " +
+        "Salaries: "  + str(businessm.salary_money) + "\n "
+        "Prices: "    + str(businessm.price_money)            + "\n "
+        "Contracts: " + str(businessm.contract_money)         + "\n "
+        "Science: "   + str(businessm.science_money)          + "\n "
+        "Invest: "    + str(businessm.invest_money)           + "\n "
+    , bg="#222", fg="white")
+    myLabel.config(font=("Courier", 44))
+    myLabel.pack()
+
+    myLabel = Label(pages_panel, text="Min liquidity: " + str(businessm.minimum_liquidity), bg="#222", fg="white")
+    myLabel.config(font=("Courier", 44))
+    myLabel.pack()
 
     # Show the products produced and sold
     myLabel = Label(pages_panel, text="Products produced: " + str(businessm.number_products) + " Products sold: " + str(businessm.number_sold_products), bg="#222", fg="white")
@@ -981,15 +1009,16 @@ def plot_pie_chart_pib(city_manager, panel = None):
 def plot_pie_chart_people_status(city_manager, panel = None):
     if not city_manager.city.people:
         return None
-    st = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0}
+    st = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0}
     for p in city_manager.city.people:
         st[p.status] += 1
+    #st[6] = 0
     # Create a figure
     fig = plt.figure()
     # Add an ax to the figure
     ax = fig.add_subplot(111)
     # Create a pie chart
-    ax.pie(np.array([st[0], st[1], st[2], st[3], st[4], st[5]]), labels=["Starving", "Poor", "Lower Class", "Middle Class", "Wealthy", "Rich"], autopct='%1.1f%%', startangle=90)
+    ax.pie(np.array([st[0], st[1], st[2], st[3], st[4], st[5], st[6]]), labels=["Starving", "Poor", "Lower Class", "Middle Class", "Wealthy", "Rich", "Children"], autopct='%1.1f%%', startangle=90)
 
     # Create the chart
     chart = FigureCanvasTkAgg(fig, panel)
@@ -1004,12 +1033,12 @@ def plot_pie_chart_people_status(city_manager, panel = None):
 def create_scroll(entities, function, extra=None):
     canvas = Canvas(pages_panel, background="#222")
     sb = Scrollbar(pages_panel, orient="vertical", command=canvas.yview)
-
-    pages_panel.grid_rowconfigure(0, weight=1)
-    pages_panel.grid_columnconfigure(0, weight=1)
+    sb.pack()
+    #pages_panel.grid_rowconfigure(0, weight=1)
+    #pages_panel.grid_columnconfigure(0, weight=1)
     canvas.configure(yscrollcommand=sb.set)
     # canvas.grid(row=0, column=0, sticky="nsew")
-    # sb.grid(row=0, column=1, sticky="ns")
+    #sb.grid(row=0, column=1, sticky="ns")
 
     size = 43
     i = 0
@@ -1061,27 +1090,28 @@ def create_scroll(entities, function, extra=None):
             # pages_panel.add(business_panel)
             business_panel.pack(fill=BOTH, expand=1)
             # Width of windows should be as wide as the screen
-            canvas.create_window(size,(150)*(i+1), window=business_panel, anchor="center",width=pages_panel.winfo_width())
-            canvas.create_window(size,(150)*(i+2), window=business_panel, anchor="center",width=pages_panel.winfo_width())
+            # canvas.create_window(size,(150)*(i+1), window=business_panel, anchor="center",width=pages_panel.winfo_width())
+            # canvas.create_window(0, size*(i+2), window=business_panel, anchor="nw",)
+            # canvas.create_window(size,(150)*(i+2), window=business_panel, anchor="center",width=pages_panel.winfo_width())
+
+            canvas.create_window(size,(150)*(i+2), window=business_panel, anchor="center")
             canvas.update_idletasks()
             canvas.configure(scrollregion=canvas.bbox("all"))
             # pages_panel.add(canvas)
             
-            
-
-            
-            
         elif extra == "person":
             if e.contract:
                 if e.contract.money1 > 10000:
-                    myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)),  command=lambda manager=manager: function(manager), fg="white", bg="orange")
+                    myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)) + ", Age: " + str(e.age),  command=lambda manager=manager: function(manager), fg="white", bg="orange")
                 else:
-                    myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)), command=lambda manager=manager: function(manager), fg="white", bg="green")
+                    myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)) + ", Age: " + str(e.age), command=lambda manager=manager: function(manager), fg="white", bg="green")
+            elif e.age < 16:
+                myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)) + ", Age: " + str(e.age), command=lambda manager=manager: function(manager), fg="white", bg="darkgrey")
             else:
-                myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)), command=lambda manager=manager: function(manager), fg="white", bg="darkblue")
+                myButton = Button(canvas, text=e.name + ", Money= " + str(e.money) + ", Status: " + str(e.status) + ", Business: " + str(len(e.businesses)) + ", Age: " + str(e.age), command=lambda manager=manager: function(manager), fg="white", bg="darkblue")
             myButton.config(font=("Courier", 20))
-            myButton.pack()
-            canvas.create_window(0, size*(i+1), window=myButton, anchor="nw",)
+            myButton.pack(fill="y")
+            canvas.create_window(0, size*(i+1), window=myButton, anchor="nw")
             canvas.update_idletasks()
             canvas.configure(scrollregion=canvas.bbox("all"))
 
@@ -1090,7 +1120,7 @@ def create_scroll(entities, function, extra=None):
             myButton = Button(canvas, text=e.name, bg="#222", fg="white", command=lambda manager=manager: function(manager))
             myButton.config(font=("Courier", 20))
             myButton.pack()
-            canvas.create_window(0, size*(i+1), window=myButton, anchor="nw",)
+            canvas.create_window(0, size*(i+1), window=myButton, anchor="nw")
             canvas.update_idletasks()
             canvas.configure(scrollregion=canvas.bbox("all"))
         
@@ -1124,9 +1154,14 @@ def plot_linear_graph_earnings_expenses(entity):
     # Add an ax to the figure
     ax = fig.add_subplot(111)
     # Create a line graph
-    ax.plot(entity.total_sum_money[:50], label="Earnings")
-    ax.plot(entity.total_sub_money[:50], label="Expenses")
+    ax.plot(entity.total_sum_money[-20:], label="Earnings")
+    ax.plot(entity.total_sub_money[-20:], label="Expenses")
     ax.legend()
+    # Make plot fancy
+    ax.set_title("Earnings and Expenses")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Money")
+    ax.grid(True)
 
     # Create the chart
     chart = FigureCanvasTkAgg(fig, pages_panel)
@@ -1144,8 +1179,19 @@ def plot_last_average_price_market(market):
     ax = fig.add_subplot(111)
     # Create a line graph
     for good in market.database.last_average_price:
-        ax.plot(market.database.last_average_price[good], label=good)
+        num = 10
+        if len(market.database.last_average_price[good]) < num:
+            num = len(market.database.last_average_price[good])
+        if num > 0:
+            ax.plot(market.database.last_average_price[good][-num:], label=good)
     ax.legend()
+
+    # Make plot fancy
+    ax.set_title("Last Average Price")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Price")
+    ax.grid(True)
+
 
     # Create the chart
     chart = FigureCanvasTkAgg(fig, pages_panel)
@@ -1165,6 +1211,39 @@ def plot_borns_deaths(city_manager, panel = None):
     ax.plot(city_manager.last_borns, label="Born", color="green")
     ax.plot(city_manager.last_deaths, label="Deaths", color="red")
     ax.legend()
+
+    # Create the chart
+    chart = FigureCanvasTkAgg(fig, panel)
+    chart.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
+
+    # Close the chart
+    plt.close(fig)
+    return chart.get_tk_widget()
+
+def plot_average_contract_price(job_market, panel = None):
+    # Create a figure
+    fig = plt.figure()
+    # Add an ax to the figure
+    ax = fig.add_subplot(111)
+    # Create a line graph
+    if len(job_market.average_contracts_prices) > 50:
+        ax.plot(job_market.average_contractor_prices[-50:], label="Average Contract Price", color="red")
+        ax.plot(job_market.average_contractee_prices[-50:], label="Average Contractee Price", color="blue")
+        ax.plot(job_market.average_contracts_prices[-50:], label="Average Contract Price", color="green")
+
+    else:
+        ax.plot(job_market.average_contractor_prices, label="Average Contractor Price", color="red")
+        ax.plot(job_market.average_contractee_prices, label="Average Contractee Price", color="blue")
+        ax.plot(job_market.average_contracts_prices, label="Average Contract Price", color="green")
+
+        
+    ax.legend()
+    # Make chart fancy
+    ax.set_title("Average Wage")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Average Wage")
+    ax.grid(True)
+
 
     # Create the chart
     chart = FigureCanvasTkAgg(fig, panel)
@@ -1462,6 +1541,19 @@ def control_state(statem, panel = None):
     button.config(font=("Courier", 20))
     button.pack(fill=BOTH, expand=False)
     panel.add(privatize_all_panel)
+
+    # Create a button to close all businesses of a sector with a option menu for the sector
+    close_all_panel = PanedWindow(panel, orient=HORIZONTAL)
+    close_all_panel.pack(fill=BOTH, expand=False)
+    variable5 = StringVar(close_all_panel)
+    variable5.set('Sector')
+    sector_menu = OptionMenu(close_all_panel, variable5, *sectors)
+    sector_menu.config(font=("Courier", 20))
+    sector_menu.pack(fill=BOTH, expand=False)
+    button = Button(close_all_panel, text="Close all businesses", command=lambda: statem.close_all(variable5.get()),fg="white", bg="red")
+    button.config(font=("Courier", 20))
+    button.pack(fill=BOTH, expand=False)
+    panel.add(close_all_panel)
 
 
     # If on business page

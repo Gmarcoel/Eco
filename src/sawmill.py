@@ -11,8 +11,9 @@ class Sawmill(Business):
         self.product = "wood"
         self.add_needed_goods("work",1,1)
         self.add_item("wood",0)
-        self.production = 10 # 5
+        self.production = 3 # 10 # 5
         self.sector = "lumber"
+        self.items_price[self.product] = 5
 
     
     def __str__(self):

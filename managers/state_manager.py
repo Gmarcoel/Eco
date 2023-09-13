@@ -454,3 +454,13 @@ class StateManager(Manager):
     
     def give_money_aid(self, status, money):
         self.state.set_money_aids(status, money)
+
+    
+    # Close all  businesses of a sector
+    def close_all(self, sector):
+        print("AAAAAAAAAAAa sectore", sector)
+        for c in self.state.cities:
+            for b in c.businesses:
+                if b.sector == sector:
+                    if b.manager:
+                        b.manager.close_business()

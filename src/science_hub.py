@@ -10,7 +10,7 @@ class ScienceHub(Business):
         self.product = "science"
         self.add_needed_goods("work",1,1)
         self.add_item("science",0)
-        self.production = 1
+        self.production = 5
         self.sector = "science"
 
     

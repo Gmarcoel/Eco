@@ -22,6 +22,7 @@ class Entity():
         self.investment_pool = 0
         self.last_ammount_traded = {}
         self.subsidized = False
+        self.subsidy = 0
         self.subsidizing = {}
         self.active = True
         self.money = money
@@ -125,10 +126,12 @@ class Entity():
     
     def subsidize(self, entity, money):
         entity.subsidized = True
+        entity.subsidy = money
         self.subsidizing[entity] = money
     
     def unsubsidize(self, entity):
         entity.subsidized = False
+        entity.subsidy = 0
         del self.subsidizing[entity]
 
 
@@ -137,6 +140,7 @@ class Entity():
         for entity in self.subsidizing:
             if not entity.active:
                 entity.subsidized = False
+                entity.subsidy = 0
                 continue
             if self.money >= self.subsidizing[entity]:
                 self.subtract_money(self.subsidizing[entity])

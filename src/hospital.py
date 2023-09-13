@@ -10,8 +10,8 @@ class Hospital(Business):
         self.add_needed_goods("work",1,1)
         self.add_needed_goods("medicament",1,1)
         self.add_item("health",0)
-        self.production = 3
-        self.sector = "health"
+        self.production = 10 # 3
+        self.sector = "healthcare"
 
     
     def __str__(self):
