@@ -166,11 +166,15 @@ class Business(Entity):
 
         if self.product == None:
             return 0
+        
+        print(self.items["work"])
         while self.items["work"] > 0: # Muy optimizable
             enough_goods = True
             for item in self.needed_goods:
                 if self.items[item] < self.needed_goods[item]:
                     enough_goods = False
+                    print("not enough", item, self.items[item], self.needed_goods[item])
+                    print(self.items, self.needed_goods)
                     break
             if enough_goods:
                 for item in self.needed_goods:
@@ -233,6 +237,7 @@ class Business(Entity):
         self.needed_goods_price = 0
         for item in self.needed_goods:
             if item != "work":
+                print(item, self.get_expected_price(item))
                 t = self.trade(item, self.get_expected_price(item), False, self.needed_goods[item] * len(self.work_contracts) + 1)
                 if t:
                     self.needed_goods_price = round(self.needed_goods_price + t.price,2)

@@ -296,6 +296,11 @@ class BusinessManager(Manager):
         else:
             avg = precio_actual
         
+        # TODO quita esto
+        precio_actual = precio_actual * 0.3
+        if self.number_sold_products == 0:
+            precio_actual = precio_actual * 0.1
+
         precio_actual = round(precio_actual,2)
         
         print("precio post average", precio_actual)
@@ -501,7 +506,6 @@ class BusinessManager(Manager):
             # Margen de persona es la productividad de una persona por el valor de mercado menos el coste de una persona
             person_margin = self.person_productivity * self.market_value - self.person_cost
 
-            """
             # Si el numero de contratos menor que el numero de contrato esperados + 2 o es 0
             # se sube el sueldo un 0.2 del margen
             if n_contracts < self.business.expected_contracts + 2 or n_contracts == 0:
@@ -514,7 +518,6 @@ class BusinessManager(Manager):
             # uff
             if self.business.contracts_price[self.business.specialization] < 1:
                 self.business.contracts_price[self.business.specialization] = 3 # Ay madre
-            """
 
             if self.average_profit < 0:
                 self.business.expected_contracts = 1

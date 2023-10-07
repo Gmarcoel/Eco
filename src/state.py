@@ -118,10 +118,11 @@ class State(Entity):
                     price = self.get_expected_price(key)
             else:
                 price = self.get_expected_price(key)
-            if price <= self.money:
-                # self.subtract_money(self.get_expected_price(key))
-                t = self.trade(key, price * 1.25, False, self.needed_resources[key])
-                market.add_trade(t)
+            if price > self.money:
+                price = self.money
+            # self.subtract_money(self.get_expected_price(key))
+            t = self.trade(key, price * 1.25, False, self.needed_resources[key])
+            market.add_trade(t)
             """
             if self.get_expected_price(key) <= self.money:
                 # self.subtract_money(self.get_expected_price(key))

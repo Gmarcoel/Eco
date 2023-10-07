@@ -158,7 +158,6 @@ class MarketDatabase():
                     self.demand[trade.product][-1] += trade.quantity
                     self.buy_price[trade.product] += trade.price * trade.quantity
                     buys += trade.quantity
-                print("BBBBB", trade.product)
             
             print("AAAAAAAAAAAAAAAAA", product, self.offer[product][-1], self.demand[product][-1])
             # Round the offer and demand

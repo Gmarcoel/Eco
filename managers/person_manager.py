@@ -386,7 +386,7 @@ class PersonManager(Manager):
         if self.person.age < 50 or partner.age < 50:
             # random chance to have children 1 to 5
             # if random.random() < 0.95:
-            if random.random() < 0.90 or len(self.person.family) > 3: # 0.90: # 0.95:# 0.91:
+            if random.random() < 0.95 or len(self.person.family) > 3: # 0.90: # 0.95:# 0.91:
                 return
             # Create a random name for the child
             name = "Person " + str(random.randint(100, 10000))
@@ -573,7 +573,7 @@ class PersonManager(Manager):
         # Get a number between 1 and 10
         number = self.person.status
         # Buy as much goods as number
-        if self.market.database.get_sell_price("good") <= self.luxury_money:
+        if self.market.database.get_sell_price("good") <= self.luxury_money * 2:  # TODO quitar el * 2 YA
             self.person.items_price["good"] = round(self.market.database.get_sell_price("good") * 0.7 + self.luxury_money * 0.3,2)
         else:
             self.person.items_price["good"] = self.luxury_money

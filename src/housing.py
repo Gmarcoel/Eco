@@ -7,7 +7,7 @@ class Housing(Business):
         super().__init__(name=name, owner=owner, money=money)
         self.product = "house"
         self.add_needed_goods("work",1,1)
-        self.add_needed_goods("wood",1,1)
+        # self.add_needed_goods("wood",1,1)
         self.add_needed_goods("iron",1,1)
         self.add_needed_goods("build",1,1)
         self.add_item("house",0)

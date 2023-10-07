@@ -905,7 +905,7 @@ def plot_pie_chart_public_private_bussiness(businesses, panel = None):
     # Add an ax to the figure
     ax = fig.add_subplot(111)
     # Create a pie chart
-    ax.pie(np.array([ratio, 1-ratio]), labels=["Public", "Private"], autopct='%1.1f%%', startangle=90)
+    ax.pie(np.array([ratio, 1-ratio]), labels=["Public", "Private"], autopct='%1.1f%%', startangle=90, colors=["red", "yellow"])
 
     # Create the chart
     chart = FigureCanvasTkAgg(fig, panel)

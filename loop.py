@@ -310,6 +310,8 @@ def generate_world():
     businesses.append(f)
     people[0].businesses.append(f)
 
+
+
     # Create a mine
     mi = mine.Mine("Mine", people[1], random.randint(50, 100), 5)
     businesses.append(mi)
@@ -466,6 +468,11 @@ def generate_world():
     k.inmortal = True
     g.inmortal = True
 
+    f.manager.fixed_sell_price      = 3
+    f.manager.fixed_ammount_workers = -1
+    f.manager.fixed_contract_price  = 10
+    f.manager.fixed_science_buy     = 5
+    f.manager.fixed_science_price   = 10
 
     return w
 
