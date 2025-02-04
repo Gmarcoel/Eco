@@ -20,7 +20,7 @@ class Entity():
         self.total_sum_money = []
         self.total_sub_money = []
         self.investment_pool = 0
-        self.last_ammount_traded = {}
+        self.last_amount_traded = {}
         self.subsidized = False
         self.subsidy = 0
         self.subsidizing = {}
@@ -35,15 +35,15 @@ class Entity():
 
         self.total_sum_money = []
         self.total_sub_money = []
-        self.last_ammount_traded = {}
+        self.last_amount_traded = {}
     
     def __str__(self):
         return f"{self.money} {self.items}"
     
     def trade(self, product, price, sell, quantity):
-        # self.last_ammount_traded[product] = 0
-        if not product in self.last_ammount_traded:
-            self.last_ammount_traded[product] = 0
+        # self.last_amount_traded[product] = 0
+        if not product in self.last_amount_traded:
+            self.last_amount_traded[product] = 0
 
         if not product in self.items:
             self.items[product] = 0
@@ -57,10 +57,10 @@ class Entity():
             self.subtract_money(price * quantity)
             return Trade(self, price, sell, quantity, product)
         elif not sell and self.money >= price:
-            buyable_ammount = 1
-            while self.money >= price * (buyable_ammount + 1):
-                self.subtract_money(price * buyable_ammount)
-            return Trade(self, price, sell, buyable_ammount, product)
+            buyable_amount = 1
+            while self.money >= price * (buyable_amount + 1):
+                self.subtract_money(price * buyable_amount)
+            return Trade(self, price, sell, buyable_amount, product)
 
         else:
             # print("Trade went wrong")

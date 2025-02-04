@@ -3,6 +3,7 @@ from  numpy import product
 from  src.entity import Entity
 # from  src.job_market import job_market
 from  src.contract import Contract
+from src.state import State
 
 class Business(Entity):
 
@@ -57,7 +58,7 @@ class Business(Entity):
 
         self.maintenance = {}
 
-        self.last_ammount_traded[product] = 0
+        self.last_amount_traded[product] = 0
 
 
 
@@ -362,7 +363,7 @@ class Business(Entity):
             self.total_sub_money.pop(0)
 
         
-        self.last_ammount_traded[self.product] = 0
+        self.last_amount_traded[self.product] = 0
 
         
         self.sum_money = 0
@@ -371,3 +372,6 @@ class Business(Entity):
         for price in self.items_price:
             if self.items_price[price] < 0.1:
                 self.items_price[price] = 0.2
+
+    def is_public(self):
+        return self.owner == None or isinstance(self.owner, State)

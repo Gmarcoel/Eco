@@ -1,9 +1,9 @@
 class Debt:
     owner = None
-    ammount = 0
-    def __init__(self, owner, ammount):
+    amount = 0
+    def __init__(self, owner, amount):
         self.owner = owner
-        self.ammount = ammount
+        self.amount = amount
     
     def pay(self, entity):
         if self.owner is not None and entity.active:

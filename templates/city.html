@@ -1,0 +1,19 @@
+<!-- templates/city.html -->
+{% extends "base.html" %}
+
+{% block title %}City: {{ city.name }}{% endblock %}
+
+{% block content %}
+    <h1>{{ city.name }}</h1>
+    <p>Population: {{ city.people|length }}</p>
+    <p>Infrastructure: {{ city.infrastructure }}</p>
+    
+    <h2>Charts</h2>
+    {% for chart_name, chart_data in charts.items() %}
+        <img src="data:image/png;base64,{{ chart_data }}" alt="{{ chart_name }}">
+    {% endfor %}
+    
+    <button onclick="nextTurn(1)">Next Turn</button>
+    <button onclick="nextTurn(10)">10 Turns</button>
+    <button onclick="nextTurn(100)">100 Turns</button>
+{% endblock %}

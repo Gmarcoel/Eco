@@ -11,7 +11,7 @@ class MarketDatabase():
 
     traded_goods = []
 
-    # For each good, the ammount of money spent on buying and selling
+    # For each good, the amount of money spent on buying and selling
     total_value = {}
     previous_value = {}
 
@@ -21,9 +21,9 @@ class MarketDatabase():
     average_price = {}
     previous_average_price = {}
 
-    # For each good, the ammount of goods bought and sold
-    ammount = {}
-    previous_ammount = {}
+    # For each good, the amount of goods bought and sold
+    amount = {}
+    previous_amount = {}
 
     # Data for the last 100 average price
     last_average_price = {}
@@ -40,7 +40,7 @@ class MarketDatabase():
 
         self.traded_goods = []
 
-        # For each good, the ammount of money spent on buying and selling
+        # For each good, the amount of money spent on buying and selling
         self.total_value = {}
         self.previous_value = {}
 
@@ -50,9 +50,9 @@ class MarketDatabase():
         self.average_price = {}
         self.previous_average_price = {}
 
-        # For each good, the ammount of goods bought and sold
-        self.ammount = {}
-        self.previous_ammount = {}
+        # For each good, the amount of goods bought and sold
+        self.amount = {}
+        self.previous_amount = {}
 
         # Data for the last 100 average price
         self.last_average_price = {}
@@ -75,16 +75,16 @@ class MarketDatabase():
         if good not in self.traded_goods:
             self.traded_goods.append(good)
             self.average_price[good] = 0
-            self.ammount[good]       = 0
+            self.amount[good]       = 0
             self.total_value[good]   = 0
         
         # Add the transaction to the database
         self.total_value[good] = round(self.total_value[good] + price * quantity,2)
-        self.ammount[good]     = round(self.ammount[good] +quantity,2)
+        self.amount[good]     = round(self.amount[good] +quantity,2)
 
         # Calculate the average price (legacy)
-        if self.ammount[good] != 0:
-            self.average_price[good] = round(self.total_value[good] / self.ammount[good],2)
+        if self.amount[good] != 0:
+            self.average_price[good] = round(self.total_value[good] / self.amount[good],2)
 
     
     # Funcion para obtener un sueldo orientativo teniendo en cuenta el precio de compra de
@@ -102,17 +102,17 @@ class MarketDatabase():
         return expected
     
     def __srt__(self):
-        return f"{self.traded_goods} value: {self.total_value} price: {self.average_price} ammount: {self.ammount}"
+        return f"{self.traded_goods} value: {self.total_value} price: {self.average_price} amount: {self.amount}"
     
     def print_database(self):
-        print(f"{self.traded_goods} value: {self.total_value} price: {self.average_price} ammount: {self.ammount}")
+        print(f"{self.traded_goods} value: {self.total_value} price: {self.average_price} amount: {self.amount}")
     
     def add_last_average_price(self):
         # If no sell or buy, the price the same as last
-        for good in self.previous_ammount:
-            if not good in self.ammount:
+        for good in self.previous_amount:
+            if not good in self.amount:
                 self.total_value[good] = 0
-                self.ammount[good] = 0
+                self.amount[good] = 0
                 # self.average_price[good] = self.previous_average_price[good]
                 
 
@@ -126,11 +126,11 @@ class MarketDatabase():
                 self.last_average_price[good].pop(0)
         
         self.previous_value = self.total_value.copy()
-        self.previous_ammount = self.ammount.copy()
+        self.previous_amount = self.amount.copy()
         self.previous_average_price = self.average_price.copy()
 
         self.total_value = {}
-        self.ammount = {}
+        self.amount = {}
         self.traded_goods = []
     
     def add_offer_demand(self, trades):
@@ -378,7 +378,7 @@ class Market(Entity):
                             # Add transaction to the database
                             self.database.add_transaction(product, sell_trade.price, sell_trade.quantity)
                             # Add the transaction to the entity data
-                            sell_trade.entity.last_ammount_traded[product] += sell_trade.quantity
+                            sell_trade.entity.last_amount_traded[product] += sell_trade.quantity
                             # Return the excess money to the buyer
                             ## trade.entity.money = round(trade.entity.money + (trade.price * sell_trade.quantity) - (sell_trade.price * sell_trade.quantity),2)
                             trade.entity.add_money((trade.price * sell_trade.quantity) - (sell_trade.price * sell_trade.quantity))
@@ -400,7 +400,7 @@ class Market(Entity):
                             # Add transaction to the database
                             self.database.add_transaction(product, sell_trade.price, trade.quantity)
                             # Add the transaction to the entity data
-                            sell_trade.entity.last_ammount_traded[product] += trade.quantity
+                            sell_trade.entity.last_amount_traded[product] += trade.quantity
                             # Return the excess money to the buyer
                             ## trade.entity.money = round(trade.entity.money + (trade.price * trade.quantity) - (sell_trade.price * trade.quantity),2)
                             trade.entity.add_money((trade.price * trade.quantity) - (sell_trade.price * trade.quantity))

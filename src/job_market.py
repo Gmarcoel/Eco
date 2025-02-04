@@ -14,7 +14,7 @@ class job_market(Entity):
     specializations = {} # Esto aún hay que implementarlo
     # database = MarketDatabase()
     total_contracts_price = 0
-    total_contracts_ammount = 0
+    total_contracts_amount = 0
     average_contracts_price = 1
     average_contracts_prices = []
 
@@ -87,7 +87,7 @@ class job_market(Entity):
     # Function to make all jobs on a free market
     def free_commerce(self):
         self.total_contracts_price = 0
-        self.total_contracts_ammount = 0
+        self.total_contracts_amount = 0
 
         # For each specialization on market
         for specialization in self.jobs:
@@ -169,7 +169,7 @@ class job_market(Entity):
                         if job.entity.sector == "farming":
                             # Fill database data
                             self.total_contracts_price += job.money
-                            self.total_contracts_ammount += 1
+                            self.total_contracts_amount += 1
                             job.entity.manager.contracted += 1
                             job.entity.manager.contracted_price += job.money
                             # Create a contract
@@ -206,7 +206,7 @@ class job_market(Entity):
 
                         # Fill database data
                         self.total_contracts_price += job.money
-                        self.total_contracts_ammount += 1
+                        self.total_contracts_amount += 1
                         job.entity.manager.contracted += 1
                         job.entity.manager.contracted_price += job.money
                         # Create a contract
@@ -234,8 +234,8 @@ class job_market(Entity):
 
                         
         
-        if self.total_contracts_ammount != 0:
-            self.average_contracts_price = round(self.total_contracts_price / self.total_contracts_ammount,2)
+        if self.total_contracts_amount != 0:
+            self.average_contracts_price = round(self.total_contracts_price / self.total_contracts_amount,2)
             self.average_contracts_prices.append(self.average_contracts_price)
         self.clean_market()
 

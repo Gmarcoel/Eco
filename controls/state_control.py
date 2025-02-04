@@ -14,8 +14,8 @@ class StateControl(Control):
     def basics_manual(self):
         self.statem.basics_manual = not self.statem.basics_manual
 
-    def print_money(self, ammount):
-        self.statem.print_money(ammount)
+    def print_money(self, amount):
+        self.statem.print_money(amount)
     
     def privatize(self, business):
         self.statem.privatize(business)

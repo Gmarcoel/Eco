@@ -469,16 +469,17 @@ def generate_world():
     g.inmortal = True
 
     f.manager.fixed_sell_price      = 3
-    f.manager.fixed_ammount_workers = -1
+    f.manager.fixed_amount_workers = -1
     f.manager.fixed_contract_price  = 10
     f.manager.fixed_science_buy     = 5
     f.manager.fixed_science_price   = 10
 
     return w
 
+worlds = []
+worlds.append(generate_world())
+
 def ret_worlds():
-    worlds = []
-    worlds.append(generate_world())
     return worlds
 
 

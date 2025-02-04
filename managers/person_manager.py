@@ -287,7 +287,7 @@ class PersonManager(Manager):
     # Invest in current project
     def invest(self):
         # If not food inversion invest so not everyone dies
-        if not "food" in self.market.database.previous_ammount or self.market.database.previous_ammount["food"] == 0:
+        if not "food" in self.market.database.previous_amount or self.market.database.previous_amount["food"] == 0:
             # Buy business
             sale = Sale(self.person, 10, False, None, get_building("farm"))
             self.city.business_market.add_sale(sale)
@@ -335,25 +335,25 @@ class PersonManager(Manager):
             if not key in self.person.items_price:
                 self.person.items_price[key] = 1
             price = self.person.items_price[key]
-            ammount = self.project_resources[key]
+            amount = self.project_resources[key]
             money = self.person.money
             # If not enough money return
             if money < self.person.items_price[key] * 30:
                 return
-            if money > ammount * price:
-                # self.person.money = round(self.person.money - ammount * price,2)
-                t = self.person.trade(key, price, False, ammount)
+            if money > amount * price:
+                # self.person.money = round(self.person.money - amount * price,2)
+                t = self.person.trade(key, price, False, amount)
                 self.market.add_trade(t)
             elif money == 0:
                 return
             else:
-                while ammount != 0:
-                    if money > price * ammount:
-                        # self.person.money = round(self.person.money - ammount * price,2)
-                        t = self.person.trade(key, price, False, ammount)
+                while amount != 0:
+                    if money > price * amount:
+                        # self.person.money = round(self.person.money - amount * price,2)
+                        t = self.person.trade(key, price, False, amount)
                         self.market.add_trade(t)
                         break
-                    else: ammount -= 1
+                    else: amount -= 1
         
     # Manage current businesses
     def manage(self):
@@ -444,8 +444,8 @@ class PersonManager(Manager):
             
                 
             if self.person.family != []:
-                ammount = len(self.person.family)
-                partition_money = round(self.person.money / ammount,2)
+                amount = len(self.person.family)
+                partition_money = round(self.person.money / amount,2)
                 for p in self.person.family:
                     p.add_money(partition_money)
                 # Give bussiness to family
@@ -455,7 +455,7 @@ class PersonManager(Manager):
                     self.person.family[i].businesses.append(b)
                     
                     i += 1
-                    if i >= ammount:
+                    if i >= amount:
                         i = 0
                 self.person.businesses = []
                 if self.person.partner:

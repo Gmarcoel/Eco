@@ -1,0 +1,83 @@
+/* city-style.css */
+
+/* CSS Variables */
+:root {
+    --primary-color: #333;
+    --secondary-color: #fff;
+    --accent-color: #007bff;
+    --background-color: #f4f4f4;
+    --font-family: 'Arial', sans-serif;
+}
+
+/* General styles */
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--primary-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Header styles */
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-top: 1em;
+}
+
+/* Paragraph styles */
+p {
+    color: var(--primary-color);
+    text-align: center;
+    margin: 0.5em 0;
+}
+
+/* Image styles */
+img {
+    display: block;
+    margin: 1em auto;
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: box-shadow 0.3s;
+}
+
+img:hover {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Button styles */
+button {
+    background-color: var(--accent-color);
+    color: var(--secondary-color);
+    border: none;
+    padding: 0.5em 1em;
+    margin: 0.5em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover {
+    background-color: darken(var(--accent-color), 10%);
+    transform: scale(1.05);
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    h1, p {
+        text-align: left;
+        margin-left: 1em;
+    }
+
+    img {
+        margin: 0.5em auto;
+    }
+
+    button {
+        width: 100%;
+        margin: 0.5em 0;
+    }
+}

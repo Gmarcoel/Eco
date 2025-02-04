@@ -259,45 +259,6 @@ def people_page(entitym = None):
     if len(entity.people) > 10:
         # Create a scrollbar
         create_scroll(entity.people, person_page, "person")
-        
-
-
-        """
-        # Create a scrollbar
-        text = Text(pages_panel, height=len(entity.people), width=20)
-        text.pack(side="left")
-
-        sb = Scrollbar(pages_panel, command=text.yview)
-        # Set the scrollbar to scroll through the windows
-        sb.pack(side="right", fill="y")
-        text.configure(yscrollcommand=sb.set)
-        
-        ...
-        for person in entity.people:
-            personm = person.manager
-            # Create a button for each person with lable person.name and the person as an argument and a width of 1/5 of the screen
-            # button = Button(text, text=person.name, bg="#222", fg="white", command=lambda personm=personm: person_page(personm, callback))
-            button = Button(pages_panel, text=person.name, bg="#222", fg="white", command=lambda personm=personm: person_page(personm))
-            # Make the button big
-            button.config(font=("Courier", 44))
-            # Put the button inside a canvas
-            
-            text.window_create("end", window=button)
-            text.insert("end", "\n")
-            
-        # Make buttons inside text scrollable
-        # text.bind("<Configure>", lambda event: text.configure(scrollregion=text.bbox("all")))
-        
-
-
-
-
-
-
-        text.configure(state="disabled")
-        # Make the text fill the rest of the space
-        text.pack(side="top", fill="y", expand=True)
-        """
 
     # Create a go back button that executes go_back
     myButton = Button(pages_panel, text="Back", bg="#222", fg="white", command=go_back)
@@ -705,16 +666,16 @@ def market_page(marketm = None):
     for product in market.database.average_price:
         offer = market.database.last_offer[product]
         demand = market.database.last_demand[product]
-        ammount = market.database.previous_ammount[product]
+        amount = market.database.previous_amount[product]
         if offer >= demand:
-            if ammount >= demand:
-                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="green")
+            if amount >= demand:
+                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_amount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="green")
             else:
-                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="lightblue")
+                myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_amount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="lightblue")
         elif offer > 0:
-            myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="orange")
+            myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_amount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="orange")
         else:
-            myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_ammount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="red")
+            myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]) + " Amount: " + str(market.database.previous_amount[product])+ " Offer: " + str(offer) + " Demand: " + str(demand), bg="#222", fg="red")
 
 
         # myLabel = Label(pages_panel, text=product + " Price: " + str(market.database.average_price[product]))
@@ -941,10 +902,10 @@ def plot_pie_chart_weight_product_economy(market_manager, panel = None):
     m = market_manager.market
     names = []
     values = []
-    for product in m.database.previous_ammount:
-        if product in m.database.previous_ammount and product in m.database.previous_average_price:
+    for product in m.database.previous_amount:
+        if product in m.database.previous_amount and product in m.database.previous_average_price:
             names.append(product)
-            v = round(m.database.previous_average_price[product] * m.database.previous_ammount[product],2)
+            v = round(m.database.previous_average_price[product] * m.database.previous_amount[product],2)
             if v is not np.NaN:
                 values.append(v)
 
@@ -1317,7 +1278,7 @@ def control_state(statem, panel = None):
     goods = ["food", "build", "wood", "iron", "chocolate", "house", "furniture", "science", "medicament", "health", "good", "copper", "electricity", "oil", "gas", "engine"]
     sectors = ["farming", "mining", "lumber", "construction", "chocolating", "housing", "furniture", "science", "pharmaceutical", "healthcare", "consumer", "copper", "electricity", "oil", "gas", "engine"]
 
-    # Create a button to add money with a field for the ammount of money
+    # Create a button to add money with a field for the amount of money
     print_money_panel = PanedWindow(panel, orient=HORIZONTAL)
     print_money_panel.pack()
     money_field = Entry(print_money_panel)
@@ -1588,13 +1549,13 @@ def control_state(statem, panel = None):
             panel.add(close_business_panel)
 
             if not business.subsidized:
-                # Create a button to subsidize with a field for ammount
+                # Create a button to subsidize with a field for amount
                 subsidize_panel = PanedWindow(panel, orient=HORIZONTAL)
                 subsidize_panel.pack(fill=BOTH, expand=False)
-                ammount_field = Entry(subsidize_panel)
-                ammount_field.config(font=("Courier", 20))
-                ammount_field.pack(fill=BOTH, expand=False)
-                button = Button(subsidize_panel, text="Subsidize", command=lambda: statem.subsidize_business(business, float(ammount_field.get())),fg="white", bg="green")
+                amount_field = Entry(subsidize_panel)
+                amount_field.config(font=("Courier", 20))
+                amount_field.pack(fill=BOTH, expand=False)
+                button = Button(subsidize_panel, text="Subsidize", command=lambda: statem.subsidize_business(business, float(amount_field.get())),fg="white", bg="green")
                 button.config(font=("Courier", 20))
                 button.pack(fill=BOTH, expand=False)
                 panel.add(subsidize_panel)
@@ -1674,21 +1635,21 @@ def control_business(businessm, panel = None):
     button.pack()
     panel.add(unset_sell_price_panel)
 
-    # Create a button to set ammount of workers
+    # Create a button to set amount of workers
     set_workers_panel = PanedWindow(panel, orient=HORIZONTAL)
     set_workers_panel.pack()
     workers_field = Entry(set_workers_panel)
     workers_field.config(font=("Courier", 20))
     workers_field.pack()
-    button = Button(set_workers_panel, text="Set workers", command=lambda: businessm.set_ammount_workers(int(workers_field.get())))
+    button = Button(set_workers_panel, text="Set workers", command=lambda: businessm.set_amount_workers(int(workers_field.get())))
     button.config(font=("Courier", 20))
     button.pack()
     panel.add(set_workers_panel)
 
-    # Create a button to unset ammount of workers
+    # Create a button to unset amount of workers
     unset_workers_panel = PanedWindow(panel, orient=HORIZONTAL)
     unset_workers_panel.pack()
-    button = Button(unset_workers_panel, text="Unset workers", command=lambda: businessm.unset_ammount_workers())
+    button = Button(unset_workers_panel, text="Unset workers", command=lambda: businessm.unset_amount_workers())
     button.config(font=("Courier", 20))
     button.pack()
     panel.add(unset_workers_panel)

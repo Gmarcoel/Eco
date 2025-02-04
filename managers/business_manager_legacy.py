@@ -40,7 +40,7 @@ class BusinessManager(Manager):
 
     # Fixed parameters
     fixed_sell_price = -1
-    fixed_ammount_workers = -1
+    fixed_amount_workers = -1
     fixed_contract_price = -1
     fixed_science_buy = -1
     fixed_science_price = -1
@@ -128,10 +128,10 @@ class BusinessManager(Manager):
 
         # Número de productos vendidos la última vez 
         no_sales = False
-        if not self.business.product in self.business.last_ammount_traded:        
+        if not self.business.product in self.business.last_amount_traded:        
             number_sold_products = 1
         else:
-            number_sold_products = self.business.last_ammount_traded[self.business.product]
+            number_sold_products = self.business.last_amount_traded[self.business.product]
             if number_sold_products == 0:
                 no_sales = True
                 number_sold_products = 1
@@ -309,13 +309,13 @@ class BusinessManager(Manager):
         # Buy all maintenance needs in the market
         for need in self.business.maintenance:
             money = self.business.money
-            ammount = self.business.maintenance[need]
+            amount = self.business.maintenance[need]
             if not need in self.business.items_price:
                 self.business.items_price[need] = 1
             price = self.business.items_price[need]
             # If enough money to buy
-            if money > ammount * price:
-                t = self.business.trade(need, price, False, ammount)
+            if money > amount * price:
+                t = self.business.trade(need, price, False, amount)
                 self.market.add_trade(t)
     
     def ask_for_money(self):   
@@ -361,7 +361,7 @@ class BusinessManager(Manager):
     def contract_workers(self):
         self.contracted = 0
         self.contracted_price = 0
-        if self.fixed_ammount_workers == -1:
+        if self.fixed_amount_workers == -1:
             # Se comprueba oferta y demanda del producto
             if self.business.product in self.market.database.last_offer:
                 offer = self.market.database.last_offer[self.business.product]
@@ -501,9 +501,9 @@ class BusinessManager(Manager):
 
     def investigate(self):
         if self.fixed_science_buy == -1:
-            ammount = 1
+            amount = 1
         else:
-            ammount = self.fixed_science_buy
+            amount = self.fixed_science_buy
         if not isinstance(self.business.owner, state.State):
             if not "science" in self.business.items:
                 self.business.items["science"] = 0
@@ -512,7 +512,7 @@ class BusinessManager(Manager):
             # If business is profitable
             if self.business.check_balance() > 0:
                 if self.business.money >= self.total_costs * 2: # * 1
-                    t = self.business.trade("science", self.business.items_price["science"], False, ammount)
+                    t = self.business.trade("science", self.business.items_price["science"], False, amount)
                     self.market.add_trade(t)
                 while self.business.items["science"] > 0:
                     self.business.productivity = round(self.business.productivity + 0.2, 1)
@@ -536,8 +536,8 @@ class BusinessManager(Manager):
     def fixed_parameters(self):
         if self.fixed_sell_price != -1:
             self.business.items_price[self.business.product] = self.fixed_sell_price
-        if self.fixed_ammount_workers != -1:
-            self.business.expected_contracts = self.fixed_ammount_workers
+        if self.fixed_amount_workers != -1:
+            self.business.expected_contracts = self.fixed_amount_workers
         if self.fixed_contract_price != -1:
             self.business.contracts_price[self.business.specialization] = self.fixed_contract_price
         # Cantidad de ciencia comprada se determina en la funcion investigate
@@ -551,11 +551,11 @@ class BusinessManager(Manager):
     def unset_sell_price(self):
         self.fixed_sell_price = -1
 
-    def set_ammount_workers(self, ammount):
-        self.fixed_ammount_workers = ammount
+    def set_amount_workers(self, amount):
+        self.fixed_amount_workers = amount
 
-    def unset_ammount_workers(self):
-        self.fixed_ammount_workers = -1
+    def unset_amount_workers(self):
+        self.fixed_amount_workers = -1
 
     def set_contract_price(self, price):
         self.fixed_contract_price = price

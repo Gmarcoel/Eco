@@ -14,7 +14,7 @@ class BusinessMarket(Entity):
     sectors = {} # Esto aún hay que implementarlo
     # database = MarketDatabase()
     total_sales_price = 0
-    total_sales_ammount = 0
+    total_sales_amount = 0
     average_sales_price = 1
 
     def __init__(self, name, owner, money, tax_rate):
@@ -69,7 +69,7 @@ class BusinessMarket(Entity):
     # Function to make all sales on a free market
     def free_commerce(self):
         self.total_sales_price = 0
-        self.total_sales_ammount = 0
+        self.total_sales_amount = 0
 
         # For each sector on market
         for sector in self.sales:
@@ -127,7 +127,7 @@ class BusinessMarket(Entity):
 
                         # Fill database data
                         self.total_sales_price += sale.price
-                        self.total_sales_ammount += 1
+                        self.total_sales_amount += 1
 
                         # Change ownership
                         old_owner = sale.business.owner
@@ -163,7 +163,7 @@ class BusinessMarket(Entity):
 
                         
         
-        if self.total_sales_ammount != 0:
-            self.average_sales_price = round(self.total_sales_price / self.total_sales_ammount,2)
+        if self.total_sales_amount != 0:
+            self.average_sales_price = round(self.total_sales_price / self.total_sales_amount,2)
         self.clean_market()
 

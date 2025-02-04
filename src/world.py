@@ -90,5 +90,10 @@ class World():
         for u in self.business_market_managers:
             u.do()
         
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        return state
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
